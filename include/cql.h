@@ -24,15 +24,6 @@
 extern "C" {
 #endif
 
-#if !defined WINCE
-#include <errno.h>
-#endif
-#include <stddef.h>
-#include <stdio.h>
-#if defined _WIN32
-#include <winsock2.h>
-#endif
-
 #if defined _WIN32
 #   if defined DLL_EXPORT
 #       define CQL_EXPORT __declspec(dllexport)
@@ -49,9 +40,6 @@ extern "C" {
 #   endif
 #endif
 
-#define CQL_VERSION_MAJOR 0
-#define CQL_VERSION_MINOR 0
-#define CQL_VERSION_PATCH 1
 
 #ifdef __cplusplus
 }
