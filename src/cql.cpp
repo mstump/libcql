@@ -19,16 +19,23 @@
 
 #include "../include/cql.h"
 
+#include <stdint.h>
+
 #include <iomanip>
 #include <iostream>
 #include <istream>
 #include <ostream>
-#include <stdint.h>
+
+#include <list>
 #include <string>
+#include <vector>
+
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
+#include <boost/foreach.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/algorithm/string/join.hpp>
 
 using boost::asio::ip::tcp;
 
@@ -70,21 +77,45 @@ inline HexCharStruct hex(unsigned char _c)
   return HexCharStruct(_c);
 }
 
-#pragma pack(push)
-#pragma pack(1)
-struct cql_header_t {
-	uint8_t  version;
-	uint8_t  flags;
-	int8_t   stream;
-	uint8_t  opcode;
-	uint32_t length;
+class cql_base_t
+{
+
+public:
+
+	virtual std::string
+	pretty() const = 0;
+
+	virtual std::ostream&
+	write(std::ostream& output) const = 0;
+
+	virtual std::istream&
+	read(std::istream& input) = 0;
+
+    virtual uint32_t
+	wire_size() const = 0;
+
+	friend std::ostream
+	&operator<<(std::ostream& output,
+				const cql_base_t& h)
+	{
+		output << h.pretty();
+        return output;
+    }
+};
+
+
+class cql_header_t :
+	public cql_base_t
+{
+
+public:
 
 	cql_header_t() :
-		version(0),
-		flags(0),
-		stream(0),
-		opcode(0),
-		length(0)
+		_version(0),
+		_flags(0),
+		_stream(0),
+		_opcode(0),
+		_length(0)
 	{}
 
 	cql_header_t(uint8_t version,
@@ -92,55 +123,225 @@ struct cql_header_t {
 				 int8_t stream,
 				 uint8_t opcode,
 				 uint32_t length) :
-		version(version),
-		flags(flags),
-		stream(stream),
-		opcode(opcode),
-		length(length)
+		_version(version),
+		_flags(flags),
+		_stream(stream),
+		_opcode(opcode),
+		_length(length)
 	{}
 
 	std::string
-	str()
+	pretty() const
 	{
 		std::stringstream output;
 		output << std::setfill('0');
-		output << "{version: 0x" << std::setw(2) << hex(version);
-		output << ", flags: 0x" << std::setw(2) << hex(flags);
-		output << ", stream: 0x" << std::setw(2) << hex(stream);
-		output << ", opcode: 0x" << std::setw(2) << hex(opcode);
-		output << ", length: " << boost::lexical_cast<std::string>(length) << "}";
+		output << "{version: 0x" << std::setw(2) << hex(_version);
+		output << ", flags: 0x" << std::setw(2) << hex(_flags);
+		output << ", stream: 0x" << std::setw(2) << hex(_stream);
+		output << ", opcode: 0x" << std::setw(2) << hex(_opcode);
+		output << ", length: " << boost::lexical_cast<std::string>(_length) << "}";
 		return output.str();
 	}
 
-	friend std::ostream
-	&operator<<(std::ostream& output,
-				const cql_header_t& h)
+	std::ostream&
+	write(std::ostream& output) const
 	{
-		output.put(h.version);
-		output.put(h.flags);
-		output.put(h.stream);
-		output.put(h.opcode);
+		output.put(_version);
+		output.put(_flags);
+		output.put(_stream);
+		output.put(_opcode);
 
-		uint32_t l = htonl(h.length);
+		uint32_t l = htonl(_length);
 		output.write(reinterpret_cast<char*>(&l), sizeof(l));
 		return output;
 	}
 
-	friend std::istream
-	&operator>>(std::istream& input,
-				cql_header_t& h)
+	std::istream&
+	read(std::istream& input)
 	{
-		h.version = input.get();
-		h.flags = input.get();
-		h.stream = input.get();
-		h.opcode = input.get();
-		input.read(reinterpret_cast<char*>(&h.length), sizeof(h.length));
-		h.length = ntohl(h.length);
+		_version = input.get();
+		_flags = input.get();
+		_stream = input.get();
+		_opcode = input.get();
+		input.read(reinterpret_cast<char*>(&_length), sizeof(_length));
+		_length = ntohl(_length);
 		return input;
 	}
 
+    uint32_t
+	wire_size() const
+	{
+		return sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length);
+    }
+
+	uint8_t
+	version() const
+	{
+		return _version;
+	}
+
+	uint8_t
+	flags() const
+	{
+		return _flags;
+	}
+
+	int8_t
+	stream() const
+	{
+		return _stream;
+	}
+
+	uint8_t
+	opcode() const
+	{
+		return _opcode;
+	}
+
+	uint32_t
+	length() const
+	{
+		return _length;
+	}
+
+	void
+	version(uint8_t v)
+	{
+		_version = v;
+	}
+
+	void
+	flags(uint8_t v)
+	{
+		_flags = v;
+	}
+
+	void
+	stream(int8_t v)
+	{
+		_stream = v;
+	}
+
+	void
+	opcode(uint8_t v)
+	{
+	    _opcode = v;
+	}
+
+	void
+	length(uint32_t v)
+	{
+		_length = v;
+	}
+
+private:
+	uint8_t  _version;
+	uint8_t  _flags;
+	int8_t   _stream;
+	uint8_t  _opcode;
+	uint32_t _length;
 };
-#pragma pack(pop)
+
+class cql_string_t :
+	public cql_base_t
+{
+
+public:
+
+	cql_string_t() :
+		_value()
+	{}
+
+	cql_string_t(std::string& s) :
+		_value(s)
+	{}
+
+	std::string
+	pretty() const
+	{
+		std::stringstream output;
+        output << "[" << _value.size() << "]" << _value;
+		return output.str();
+	}
+
+	std::ostream&
+	write(std::ostream& output) const
+	{
+		uint16_t len = htons(_value.size());
+		output.write(reinterpret_cast<char*>(&len), sizeof(len));
+		output.write(reinterpret_cast<const char*>(_value.c_str()), _value.size());
+		return output;
+	}
+
+	std::istream&
+	read(std::istream& input)
+	{
+		uint16_t len;
+		input.read(reinterpret_cast<char*>(&len), sizeof(len));
+		len = ntohs(len);
+
+		std::vector<char> buffer(len);
+		input.read(&buffer[0], len);
+		_value.assign(buffer.begin(), buffer.end());
+		return input;
+	}
+
+	uint32_t
+	wire_size() const
+	{
+		return sizeof(uint16_t) + _value.size();
+	}
+
+private:
+	std::string _value;
+};
+
+class cql_string_list_t :
+	public cql_base_t
+{
+
+public:
+
+	std::string
+	pretty() const
+	{
+		std::stringstream output;
+		std::list<std::string> my_pretties;
+		std::transform(_values.begin(), _values.end(), back_inserter(my_pretties), boost::bind(&cql_string_t::pretty, _1));
+        output << "[" << _values.size() << "][" << boost::algorithm::join(my_pretties, ", ") << "]";
+		return output.str();
+	}
+
+	std::ostream&
+	write(std::ostream& output) const
+	{
+		uint16_t len = htons(_values.size());
+		output.write(reinterpret_cast<char*>(&len), sizeof(len));
+		BOOST_FOREACH(const cql_string_t& s, _values)
+			s.write(output);
+		return output;
+	}
+
+	std::istream&
+	read(std::istream& input)
+	{
+		uint16_t len;
+		input.read(reinterpret_cast<char*>(&len), sizeof(len));
+		len = ntohs(len);
+
+		for (int i = 0; i < len; i++) {
+			cql_string_t s;
+			s.read(input);
+			_values.push_back(s);
+		}
+
+		return input;
+	}
+
+private:
+	std::list<cql_string_t> _values;
+};
+
 
 class cql_protocol_t {
 
@@ -162,22 +363,32 @@ public:
 
 	int8_t
 	write(uint8_t opcode,
-		  void* data,
-		  std::size_t size,
 		  boost::function<void (const boost::system::error_code&, std::size_t)>  handler)
 	{
-		cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, get_new_stream(), opcode, size);
-		std::vector<boost::asio::const_buffer> buffers;
-		buffers.push_back(boost::asio::buffer(&header, sizeof(header)));
-		buffers.push_back(boost::asio::buffer(data, size));
-		boost::asio::async_write(_socket, buffers, handler);
-		return header.stream;
+		std::ostream request_stream(&_request_buffer);
+		cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, get_new_stream(), opcode, 0);
+		header.write(request_stream);
+		boost::asio::async_write(_socket, _request_buffer, handler);
+		return header.stream();
+	}
+
+	int8_t
+	write(uint8_t opcode,
+		  cql_base_t& data,
+		  boost::function<void (const boost::system::error_code&, std::size_t)>  handler)
+	{
+		std::ostream request_stream(&_request_buffer);
+		cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, get_new_stream(), opcode, data.wire_size());
+		header.write(request_stream);
+		data.write(request_stream);
+		boost::asio::async_write(_socket, _request_buffer, handler);
+		return header.stream();
 	}
 
 	void
 	read() {
 		boost::asio::async_read(_socket,
-								_buffer,
+								_receive_buffer,
 								boost::asio::transfer_exactly(sizeof(cql_header_t)),
 								boost::bind(&cql_protocol_t::handle_read_header, this, boost::asio::placeholders::error));
 	}
@@ -224,7 +435,7 @@ private:
 	{
 		if (!err)
 		{
-			write(CQL_OPCODE_OPTIONS, NULL, 0,
+			write(CQL_OPCODE_OPTIONS,
 				  boost::bind(&cql_protocol_t::handle_options,
 							  this,
 							  boost::asio::placeholders::error,
@@ -268,9 +479,9 @@ private:
 		if (!err)
 		{
 			cql_header_t header;
-			std::istream response_stream(&_buffer);
-			response_stream >> header;
-			std::cout << header.str() << std::endl;
+			std::istream response_stream(&_receive_buffer);
+			header.read(response_stream);
+			std::cout << header << std::endl;
 		}
 		else
 		{
@@ -281,7 +492,8 @@ private:
 	int8_t                          _stream_counter;
 	boost::asio::ip::tcp::resolver  _resolver;
 	boost::asio::ip::tcp::socket    _socket;
-	boost::asio::streambuf          _buffer;
+	boost::asio::streambuf          _receive_buffer;
+	boost::asio::streambuf          _request_buffer;
 };
 
 int main(int argc, char* argv[]) {
