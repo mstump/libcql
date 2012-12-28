@@ -17,3 +17,6 @@ CMakeFiles
 CMakeCache.txt
 Makefile
 cmake_install.cmake
+
+# misc
+src/cql
