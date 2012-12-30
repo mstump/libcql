@@ -84,6 +84,43 @@ decode_string_list(std::istream& input,
 	return input;
 }
 
+std::ostream&
+encode_string_map(std::ostream& output,
+				  const std::map<std::string, std::string>& map)
+{
+	uint16_t len = htons(map.size());
+	output.write(reinterpret_cast<char*>(&len), sizeof(len));
+
+	std::map<std::string, std::string>::const_iterator it = map.begin();
+	for (; it != map.end(); it++)
+	{
+		encode_string(output, (*it).first);
+		encode_string(output, (*it).second);
+	}
+
+	return output;
+}
+
+std::istream&
+decode_string_map(std::istream& input,
+				  std::map<std::string, std::string>& map)
+{
+	uint16_t len;
+	input.read(reinterpret_cast<char*>(&len), sizeof(len));
+	len = ntohs(len);
+
+	map.clear();
+	for (int i = 0; i < len; i++)
+	{
+		std::string key;
+		std::string value;
+		decode_string(input, key);
+		decode_string(input, value);
+		map.insert(std::pair<std::string, std::string>(key, value));
+	}
+
+	return input;
+}
 
 std::ostream&
 encode_string_multimap(std::ostream& output,

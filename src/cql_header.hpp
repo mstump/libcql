@@ -22,28 +22,6 @@
 
 #include "util.hpp"
 
-#define CQL_FRAME_MAX_SIZE 1024 * 1024 * 256
-#define CQL_VERSION_1_REQUEST 0x01
-#define CQL_VERSION_1_RESPONSE 0x81
-
-#define CQL_FLAG_NOFLAG 0x00
-#define CQL_FLAG_COMPRESSION 0x01
-#define CQL_FLAG_TRACE 0x02
-
-#define CQL_OPCODE_ERROR 0x00
-#define CQL_OPCODE_STARTUP 0x01
-#define CQL_OPCODE_READY 0x02
-#define CQL_OPCODE_AUTHENTICATE 0x03
-#define CQL_OPCODE_CREDENTIALS 0x04
-#define CQL_OPCODE_OPTIONS 0x05
-#define CQL_OPCODE_SUPPORTED 0x06
-#define CQL_OPCODE_QUERY 0x07
-#define CQL_OPCODE_RESULT 0x08
-#define CQL_OPCODE_PREPARE 0x09
-#define CQL_OPCODE_EXECUTE 0x0A
-#define CQL_OPCODE_REGISTER 0x0B
-#define CQL_OPCODE_EVENT 0x0C
-
 namespace cql {
 namespace internal {
 
@@ -111,7 +89,7 @@ public:
 	}
 
     uint32_t
-	wire_size() const
+	size() const
 	{
 		return sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length);
     }
