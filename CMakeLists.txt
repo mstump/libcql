@@ -2,6 +2,13 @@ cmake_minimum_required(VERSION 2.8.10)
 set(PROJECT_NAME_STR cql)
 project(${PROJECT_NAME_STR} C CXX)
 
+# set output dir
+set(CMAKE_DISABLE_IN_SOURCE_BUILD OFF)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin/")
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
+
 if(CMAKE_COMPILER_IS_GNUCXX)
   add_definitions(-Wall -ansi -Wno-deprecated -pthread)
 endif()
