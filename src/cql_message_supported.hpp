@@ -75,8 +75,7 @@ public:
 	{
 		std::stringstream ss(std::stringstream::out);
 		write(ss);
-		ss.seekg(0, std::ios::end);
-		return ss.tellg();
+		return ss.str().size();
 	}
 
 	std::string

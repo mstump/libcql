@@ -35,9 +35,7 @@ class cql_message_register_t :
 
 public:
 
-	cql_message_register_t() :
-		_version(),
-		_compression()
+	cql_message_register_t()
 	{}
 
 	uint8_t

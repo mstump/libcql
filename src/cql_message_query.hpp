@@ -17,44 +17,61 @@
   along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_MESSAGE_ERROR_H_
-#define CQL_MESSAGE_ERROR_H_
+#ifndef CQL_MESSAGE_QUERY_H_
+#define CQL_MESSAGE_QUERY_H_
 
 #include <sstream>
 
 #include "../include/cql.h"
 #include "cql_message.hpp"
-#include "serialization.hpp"
 
 namespace cql {
 
-class cql_message_error_t :
+class cql_message_query_t :
 		public cql_message_t
 {
 
 public:
 
-	cql_message_error_t() :
-		_code(0),
-		_message()
+	cql_message_query_t() :
+		_consistency(0),
+		_query()
+	{}
+
+	cql_message_query_t(const std::string& query,
+						int32_t consistency) :
+		_consistency(consistency),
+		_query(query)
 	{}
 
 	const std::string&
-	message() const
+	query() const
 	{
-		return _message;
+		return _query;
 	}
 
 	int32_t
-	code() const
+	consistency() const
 	{
-        return _code;
+        return _consistency;
+	}
+
+	void
+	query(const std::string& q)
+	{
+		_query = q;
+	}
+
+	void
+	consistency(int32_t consistency)
+	{
+        _consistency = consistency;
 	}
 
 	uint8_t
 	opcode() const
 	{
-		return CQL_OPCODE_ERROR;
+		return CQL_OPCODE_QUERY;
 	}
 
 	uint32_t
@@ -68,32 +85,36 @@ public:
 	std::string
 	str() const
 	{
-		return _message;
+		std::stringstream output;
+		output << _query;
+        output << " " << std::setfill('0') << std::string("0x") << std::setw(2);
+		output << cql::internal::hex(_consistency);
+		return output.str();
 	}
 
 	std::istream&
 	read(std::istream& input)
 	{
-		input.read(reinterpret_cast<char*>(&_code), sizeof(_code));
-		_code = ntohl(_code);
-        cql::internal::decode_string(input, _message);
+        cql::internal::decode_long_string(input, _query);
+		input.read(reinterpret_cast<char*>(&_consistency), sizeof(_consistency));
+		_consistency = ntohl(_consistency);
 		return input;
 	}
 
 	std::ostream&
 	write(std::ostream& output) const
 	{
-		int32_t code = htonl(_code);
-		output.write(reinterpret_cast<char*>(&code), sizeof(code));
-        cql::internal::encode_string(output, _message);
+        cql::internal::encode_long_string(output, _query);
+		int32_t consistency = htonl(_consistency);
+		output.write(reinterpret_cast<char*>(&consistency), sizeof(consistency));
 		return output;
 	}
 
 private:
-	int32_t		 _code;
-	std::string	 _message;
+	int16_t		 _consistency;
+	std::string	 _query;
 };
 
 } // namespace cql
 
-#endif // CQL_MESSAGE_ERROR_H_
+#endif // CQL_MESSAGE_QUERY_H_

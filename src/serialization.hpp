@@ -55,6 +55,30 @@ decode_string(std::istream& input,
 }
 
 std::ostream&
+encode_long_string(std::ostream& output,
+				   const std::string& value)
+{
+	uint32_t len = htonl(value.size());
+	output.write(reinterpret_cast<char*>(&len), sizeof(len));
+	output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
+	return output;
+}
+
+std::istream&
+decode_long_string(std::istream& input,
+				   std::string& value)
+{
+	uint32_t len;
+	input.read(reinterpret_cast<char*>(&len), sizeof(len));
+	len = ntohl(len);
+
+	std::vector<char> buffer(len);
+	input.read(&buffer[0], len);
+	value.assign(buffer.begin(), buffer.end());
+	return input;
+}
+
+std::ostream&
 encode_string_list(std::ostream& output,
 				   const std::list<std::string>& list)
 {
