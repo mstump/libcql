@@ -34,7 +34,6 @@
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
 #include <boost/function.hpp>
-#include <boost/lexical_cast.hpp>
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_map.hpp>
 

@@ -20,11 +20,8 @@
 #ifndef CQL_MESSAGE_ERROR_H_
 #define CQL_MESSAGE_ERROR_H_
 
-#include <sstream>
-
 #include "../include/cql.h"
 #include "cql_message.hpp"
-#include "serialization.hpp"
 
 namespace cql {
 
@@ -34,60 +31,34 @@ class cql_message_error_t :
 
 public:
 
-	cql_message_error_t() :
-		_code(0),
-		_message()
-	{}
+cql_message_error_t();
 
 	const std::string&
-	message() const
-	{
-		return _message;
-	}
+	message() const;
+
+	void
+	message(const std::string& m);
 
 	int32_t
-	code() const
-	{
-        return _code;
-	}
+	code() const;
+
+	void
+	code(int32_t c);
 
 	uint8_t
-	opcode() const
-	{
-		return CQL_OPCODE_ERROR;
-	}
+	opcode() const;
 
 	uint32_t
-	size() const
-	{
-		std::stringstream ss(std::stringstream::out);
-		write(ss);
-		return ss.str().size();
-	}
+	size() const;
 
 	std::string
-	str() const
-	{
-		return _message;
-	}
+	str() const;
 
 	std::istream&
-	read(std::istream& input)
-	{
-		input.read(reinterpret_cast<char*>(&_code), sizeof(_code));
-		_code = ntohl(_code);
-        cql::internal::decode_string(input, _message);
-		return input;
-	}
+	read(std::istream& input);
 
 	std::ostream&
-	write(std::ostream& output) const
-	{
-		int32_t code = htonl(_code);
-		output.write(reinterpret_cast<char*>(&code), sizeof(code));
-        cql::internal::encode_string(output, _message);
-		return output;
-	}
+	write(std::ostream& output) const;
 
 private:
 	int32_t		 _code;

@@ -20,6 +20,10 @@
 #ifndef CQL_MESSAGE_H_
 #define CQL_MESSAGE_H_
 
+#include <istream>
+#include <ostream>
+#include <string>
+
 namespace cql {
 
 class cql_message_t

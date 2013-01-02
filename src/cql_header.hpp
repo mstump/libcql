@@ -20,6 +20,13 @@
 #ifndef CQL_HEADER_H_
 #define CQL_HEADER_H_
 
+#include <iomanip>
+#include <istream>
+#include <ostream>
+#include <string>
+
+#include <boost/lexical_cast.hpp>
+
 #include "util.hpp"
 
 namespace cql {

@@ -20,12 +20,8 @@
 #ifndef CQL_MESSAGE_REGISTER_H_
 #define CQL_MESSAGE_REGISTER_H_
 
-#include <sstream>
-
 #include "../include/cql.h"
 #include "cql_message.hpp"
-
-#include <boost/algorithm/string/join.hpp>
 
 namespace cql {
 
@@ -35,54 +31,28 @@ class cql_message_register_t :
 
 public:
 
-	cql_message_register_t()
-	{}
+	cql_message_register_t();
 
 	uint8_t
-	opcode() const
-	{
-		return CQL_OPCODE_REGISTER;
-	}
+	opcode() const;
 
 	uint32_t
-	size() const
-	{
-		std::stringstream ss(std::stringstream::out);
-		write(ss);
-		return ss.str().size();
-	}
+	size() const;
 
 	void
-	events(const std::list<std::string>& c)
-	{
-		_events = c;
-	}
+	events(const std::list<std::string>& c);
 
 	const std::list<std::string>&
-	events() const
-	{
-		return _events;
-	}
+	events() const;
 
 	std::string
-	str() const
-	{
-		return std::string("[") + boost::algorithm::join(_events, ", ") + "]";
-	}
+	str() const;
 
 	std::istream&
-	read(std::istream& input)
-	{
-		cql::internal::decode_string_list(input, _events);
-		return input;
-	}
+	read(std::istream& input);
 
 	std::ostream&
-	write(std::ostream& output) const
-	{
-		cql::internal::encode_string_list(output, _events);
-		return output;
-	}
+	write(std::ostream& output) const;
 
 private:
 	std::list<std::string> _events;
