@@ -45,7 +45,7 @@ cql_message_error_t();
 	void
 	code(cql_int_t c);
 
-	uint8_t
+	cql_byte_t
 	opcode() const;
 
 	cql_int_t

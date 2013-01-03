@@ -33,7 +33,7 @@ cql::cql_message_error_t::code(cql_int_t c)
 	_code = c;
 }
 
-uint8_t
+cql_byte_t
 cql::cql_message_error_t::opcode() const
 {
 	return CQL_OPCODE_ERROR;

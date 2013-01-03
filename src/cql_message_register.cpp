@@ -25,7 +25,7 @@
 cql::cql_message_register_t::cql_message_register_t()
 {}
 
-uint8_t
+cql_byte_t
 cql::cql_message_register_t::opcode() const
 {
 	return CQL_OPCODE_REGISTER;

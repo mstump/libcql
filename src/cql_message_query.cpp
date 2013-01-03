@@ -60,7 +60,7 @@ cql::cql_message_query_t::consistency(cql_short_t consistency)
 	_consistency = consistency;
 }
 
-uint8_t
+cql_byte_t
 cql::cql_message_query_t::opcode() const
 {
 	return CQL_OPCODE_QUERY;

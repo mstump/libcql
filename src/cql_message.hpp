@@ -31,7 +31,7 @@ class cql_message_t
 
 public:
 
-	virtual uint8_t
+	virtual cql_byte_t
 	opcode() const = 0;
 
 	virtual cql_int_t

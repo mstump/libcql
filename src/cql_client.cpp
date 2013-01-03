@@ -66,7 +66,7 @@ cql::cql_client_t::connect(const std::string& server,
 }
 
 
-int8_t
+cql_byte_t
 cql::cql_client_t::query(const std::string& query,
 						 cql_int_t consistency,
 						 cql_callback_result_t callback,
@@ -75,7 +75,7 @@ cql::cql_client_t::query(const std::string& query,
 	cql::cql_message_query_t m(query, consistency);
 	std::cout << "send query: " << m.str() << std::endl;
 
-	int8_t stream = write_message(m,
+	cql_byte_t stream = write_message(m,
 								  boost::bind(&cql_client_t::write_handle,
 											  this,
 											  boost::asio::placeholders::error,
@@ -85,7 +85,7 @@ cql::cql_client_t::query(const std::string& query,
 	return stream;
 }
 
-int8_t
+cql_byte_t
 cql::cql_client_t::get_new_stream()
 {
 	if (_stream_counter < INT8_MAX)
@@ -141,7 +141,7 @@ cql::cql_client_t::connect_handle(const boost::system::error_code& err)
 	}
 }
 
-int8_t
+cql_byte_t
 cql::cql_client_t::write_message(cql::cql_message_t& data,
 								 const write_callback_t& callback)
 {

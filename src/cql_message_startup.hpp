@@ -64,7 +64,7 @@ public:
 		return _version;
 	}
 
-	uint8_t
+	cql_byte_t
 	opcode() const
 	{
 		return CQL_OPCODE_STARTUP;

@@ -48,7 +48,7 @@ public:
 	void
 	consistency(cql_short_t consistency);
 
-	uint8_t
+	cql_byte_t
 	opcode() const;
 
 	cql_int_t

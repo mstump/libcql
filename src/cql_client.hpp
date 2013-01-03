@@ -56,8 +56,8 @@ class cql_client_t :
 
 public:
 
-	typedef boost::function<void(cql_client_t&, int8_t, const cql_error_t&)> cql_errorback_t;
-	typedef boost::function<void(cql_client_t&, int8_t, const cql::cql_message_result_t&)> cql_callback_result_t;
+	typedef boost::function<void(cql_client_t&, cql_byte_t, const cql_error_t&)> cql_errorback_t;
+	typedef boost::function<void(cql_client_t&, cql_byte_t, const cql::cql_message_result_t&)> cql_callback_result_t;
 	typedef boost::function<void(cql_client_t&)> cql_callback_connection_t;
 
 	cql_client_t(boost::asio::io_service& io_service);
@@ -68,7 +68,7 @@ public:
 			cql_callback_connection_t callback);
 
 
-	int8_t
+	cql_byte_t
 	query(const std::string& query,
 		  cql_int_t consistency,
 		  cql_callback_result_t callback,
@@ -76,10 +76,10 @@ public:
 
 private:
 	typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
-	typedef boost::unordered_map<int8_t, callback_tuple_t> callback_map_t;
+	typedef boost::unordered_map<cql_byte_t, callback_tuple_t> callback_map_t;
 	typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
 
-	int8_t
+	cql_byte_t
 	get_new_stream();
 
 	void
@@ -89,7 +89,7 @@ private:
 	void
 	connect_handle(const boost::system::error_code& err);
 
-	int8_t
+	cql_byte_t
 	write_message(cql::cql_message_t& data,
 				  const write_callback_t& callback);
 
@@ -125,7 +125,7 @@ private:
 	void
 	result_receive(const cql::internal::cql_header_t& header);
 
-	int8_t											 _stream_counter;
+	cql_byte_t											 _stream_counter;
 	boost::asio::ip::tcp::resolver					 _resolver;
 	boost::asio::ip::tcp::socket					 _socket;
 	boost::asio::streambuf							 _receive_buffer;

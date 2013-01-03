@@ -33,7 +33,7 @@ public:
 	cql_message_ready_t()
 	{}
 
-	uint8_t
+	cql_byte_t
 	opcode() const
 	{
 		return CQL_OPCODE_READY;

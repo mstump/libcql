@@ -46,10 +46,10 @@ public:
 		_length(0)
 	{}
 
-	cql_header_t(uint8_t version,
-				 uint8_t flags,
-				 int8_t stream,
-				 uint8_t opcode,
+	cql_header_t(cql_byte_t version,
+				 cql_byte_t flags,
+				 cql_byte_t stream,
+				 cql_byte_t opcode,
 				 cql_int_t length) :
 		_version(version),
 		_flags(flags),
@@ -102,25 +102,25 @@ public:
 		return sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length);
     }
 
-	uint8_t
+	cql_byte_t
 	version() const
 	{
 		return _version;
 	}
 
-	uint8_t
+	cql_byte_t
 	flags() const
 	{
 		return _flags;
 	}
 
-	int8_t
+	cql_byte_t
 	stream() const
 	{
 		return _stream;
 	}
 
-	uint8_t
+	cql_byte_t
 	opcode() const
 	{
 		return _opcode;
@@ -133,25 +133,25 @@ public:
 	}
 
 	void
-	version(uint8_t v)
+	version(cql_byte_t v)
 	{
 		_version = v;
 	}
 
 	void
-	flags(uint8_t v)
+	flags(cql_byte_t v)
 	{
 		_flags = v;
 	}
 
 	void
-	stream(int8_t v)
+	stream(cql_byte_t v)
 	{
 		_stream = v;
 	}
 
 	void
-	opcode(uint8_t v)
+	opcode(cql_byte_t v)
 	{
 	    _opcode = v;
 	}
@@ -171,10 +171,10 @@ public:
     }
 
 private:
-	uint8_t  _version;
-	uint8_t  _flags;
-	int8_t   _stream;
-	uint8_t  _opcode;
+	cql_byte_t  _version;
+	cql_byte_t  _flags;
+	cql_byte_t   _stream;
+	cql_byte_t  _opcode;
 	cql_int_t  _length;
 };
 #pragma pack(pop)

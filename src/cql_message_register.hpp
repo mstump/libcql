@@ -33,7 +33,7 @@ public:
 
 	cql_message_register_t();
 
-	uint8_t
+	cql_byte_t
 	opcode() const;
 
 	cql_int_t
