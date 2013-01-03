@@ -17,37 +17,37 @@
   along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_MESSAGE_OPTIONS_H_
-#define CQL_MESSAGE_OPTIONS_H_
+#include "cql_message_options.hpp"
 
-#include "cql.h"
-#include "cql_message.hpp"
+cql::cql_message_options_t::cql_message_options_t()
+{}
 
-namespace cql {
-
-class cql_message_options_t :
-		public cql_message_t
+cql_byte_t
+cql::cql_message_options_t::opcode() const
 {
+	return CQL_OPCODE_OPTIONS;
+}
 
-public:
-	cql_message_options_t();
+cql_int_t
+cql::cql_message_options_t::size() const
+{
+	return 0;
+}
 
-	cql_byte_t
-	opcode() const;
+std::string
+cql::cql_message_options_t::str() const
+{
+	return "OPTIONS";
+}
 
-	cql_int_t
-	size() const;
+std::istream&
+cql::cql_message_options_t::read(std::istream& input)
+{
+	return input;
+}
 
-	std::string
-	str() const;
-
-	std::istream&
-	read(std::istream& input);
-
-	std::ostream&
-	write(std::ostream& output) const;
-};
-
-} // namespace cql
-
-#endif // CQL_MESSAGE_OPTIONS_H_
+std::ostream&
+cql::cql_message_options_t::write(std::ostream& output) const
+{
+	return output;
+}
