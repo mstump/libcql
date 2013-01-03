@@ -1,4 +1,5 @@
 #include "cql.h"
+#include "../src/cql_message_result.hpp"
 #include "../src/cql_client.hpp"
 
 void
@@ -10,14 +11,23 @@ errback(cql::cql_client_t& client,
 }
 
 void
+select_callback(cql::cql_client_t& client,
+				int8_t stream,
+				const cql::cql_message_result_t& result)
+{
+	std::cout << result.str();
+}
+
+void
 use_callback(cql::cql_client_t& client,
 			 int8_t stream,
 			 const cql::cql_message_result_t& result)
 {
 	client.query("SELECT * from schema_keyspaces;",
 				 CQL_CONSISTENCY_ALL,
-				 &use_callback,
+				 &select_callback,
 				 &errback);
+	std::cout << result.str();
 }
 
 void

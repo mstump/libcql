@@ -20,12 +20,8 @@
 #ifndef CQL_MESSAGE_STARTUP_H_
 #define CQL_MESSAGE_STARTUP_H_
 
-#include <sstream>
-
-#include "../include/cql.h"
+#include "cql.h"
 #include "cql_message.hpp"
-
-#include <boost/algorithm/string/join.hpp>
 
 namespace cql {
 
@@ -35,86 +31,34 @@ class cql_message_startup_t :
 
 public:
 
-	cql_message_startup_t() :
-		_version(),
-		_compression()
-	{}
+	cql_message_startup_t();
 
 	void
-	compression(const std::string& c)
-	{
-		_compression = c;
-	}
+	compression(const std::string& c);
 
 	const std::string&
-	compression() const
-	{
-		return _compression;
-	}
+	compression() const;
 
 	void
-	version(const std::string& v)
-	{
-		_version = v;
-	}
+	version(const std::string& v);
 
 	const std::string&
-	version() const
-	{
-		return _version;
-	}
+	version() const;
 
 	cql_byte_t
-	opcode() const
-	{
-		return CQL_OPCODE_STARTUP;
-	}
+	opcode() const;
 
 	cql_int_t
-	size() const
-	{
-		std::stringstream ss(std::stringstream::out);
-		write(ss);
-		return ss.str().size();
-	}
+	size() const;
 
 	std::string
-	str() const
-	{
-		std::stringstream output;
-		output << "{version: " << _version << ", compression: " << _compression << "}";
-        return output.str();
-	}
+	str() const;
 
 	std::istream&
-	read(std::istream& input)
-	{
-		std::map<std::string, std::string> startup;
-		cql::internal::decode_string_map(input, startup);
-
-		if (startup.find(CQL_VERSION) != startup.end())
-			_version = startup[CQL_VERSION];
-
-		if (startup.find(CQL_COMPRESSION) != startup.end())
-			_compression = startup[CQL_COMPRESSION];
-
-		return input;
-	}
+	read(std::istream& input);
 
 	std::ostream&
-	write(std::ostream& output) const
-	{
-		std::map<std::string, std::string> startup;
-
-		if (!_version.empty())
-			startup.insert(std::pair<std::string, std::string>(CQL_VERSION, _version));
-
-		if (!_compression.empty())
-			startup.insert(std::pair<std::string, std::string>(CQL_COMPRESSION, _compression));
-
-		cql::internal::encode_string_map(output, startup);
-		return output;
-	}
+	write(std::ostream& output) const;
 
 private:
 

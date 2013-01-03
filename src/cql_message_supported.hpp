@@ -35,87 +35,34 @@ class cql_message_supported_t :
 
 public:
 
-	cql_message_supported_t() :
-		_versions(),
-		_compressions()
-	{}
+    cql_message_supported_t();
 
 	void
-	compressions(const std::list<std::string>& c)
-	{
-		_compressions = c;
-	}
+	compressions(const std::list<std::string>& c);
 
 	const std::list<std::string>&
-	compressions() const
-	{
-		return _compressions;
-	}
+	compressions() const;
 
 	void
-	versions(const std::list<std::string>& v)
-	{
-		_versions = v;
-	}
+	versions(const std::list<std::string>& v);
 
 	const std::list<std::string>&
-	version() const
-	{
-		return _versions;
-	}
+	version() const;
 
 	cql_byte_t
-	opcode() const
-	{
-		return CQL_OPCODE_SUPPORTED;
-	}
+	opcode() const;
 
 	cql_int_t
-	size() const
-	{
-		std::stringstream ss(std::stringstream::out);
-		write(ss);
-		return ss.str().size();
-	}
+	size() const;
 
 	std::string
-	str() const
-	{
-		std::stringstream output;
-		output << "{versions: [" << boost::algorithm::join(_versions, ", ");
-		output << "], compressions: [" << boost::algorithm::join(_compressions, ", ") << "]}";
-        return output.str();
-	}
+	str() const;
 
 	std::istream&
-	read(std::istream& input)
-	{
-		std::map<std::string, std::list<std::string> > supported;
-		cql::internal::decode_string_multimap(input, supported);
-
-		if (supported.find(CQL_VERSION) != supported.end())
-			_versions = supported[CQL_VERSION];
-
-		if (supported.find(CQL_COMPRESSION) != supported.end())
-			_compressions = supported[CQL_COMPRESSION];
-
-		return input;
-	}
+	read(std::istream& input);
 
 	std::ostream&
-	write(std::ostream& output) const
-	{
-		std::map<std::string, std::list<std::string> > supported;
-
-		if (!_versions.empty())
-			supported.insert(std::pair<std::string, std::list<std::string> >(CQL_VERSION, _versions));
-
-		if (!_compressions.empty())
-			supported.insert(std::pair<std::string, std::list<std::string> >(CQL_COMPRESSION, _compressions));
-
-		cql::internal::encode_string_multimap(output, supported);
-		return output;
-	}
+	write(std::ostream& output) const;
 
 private:
 

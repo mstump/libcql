@@ -20,12 +20,8 @@
 #ifndef CQL_MESSAGE_RESULT_H_
 #define CQL_MESSAGE_RESULT_H_
 
-#include <sstream>
-
-#include "../include/cql.h"
+#include "cql.h"
 #include "cql_message.hpp"
-#include "serialization.hpp"
-#include "util.hpp"
 
 namespace cql {
 
@@ -34,102 +30,37 @@ class cql_message_result_t :
 {
 
 public:
-
-	cql_message_result_t() :
-		_result_type(0)
-	{}
+	cql_message_result_t();
 
 	cql_int_t
-	result_type() const
-	{
-        return _result_type;
-	}
+	result_type() const;
 
 	cql_byte_t
-	opcode() const
-	{
-		return CQL_OPCODE_RESULT;
-	}
+	opcode() const;
 
 	cql_int_t
-	size() const
-	{
-		std::stringstream ss(std::stringstream::out);
-		write(ss);
-		return ss.str().size();
-	}
+	size() const;
 
 	std::string
-	str() const
-	{
-		std::stringstream output;
-		output << std::setfill('0');
-        output << std::string("RESULT 0x") << std::setw(2) << cql::internal::hex(_result_type);
-		output << " " << _keyspace_name;
-		output << " " << _table_name;
-		return output.str();
-	}
+	str() const;
 
 	std::istream&
-	read(std::istream& input)
-	{
-		_keyspace_name.clear();
-		_row_count = 0;
-
-		input.read(reinterpret_cast<char*>(&_result_type), sizeof(_result_type));
-		_result_type = ntohl(_result_type);
-		switch(_result_type) {
-
-		case CQL_RESULT_ROWS:
-			read_metadata(input);
-			break;
-
-		case CQL_RESULT_SET_KEYSPACE:
-			cql::internal::decode_string(input, _keyspace_name);
-			break;
-
-		case CQL_RESULT_VOID:
-			break;
-
-		}
-
-		return input;
-	}
+	read(std::istream& input);
 
 	std::ostream&
-	write(std::ostream& output) const
-	{
-		int32_t result_type = htonl(_result_type);
-		output.write(reinterpret_cast<char*>(&result_type), sizeof(result_type));
-		return output;
-	}
+	write(std::ostream& output) const;
 
 private:
 
 	inline std::istream&
-	read_metadata(std::istream& input)
-	{
-		input.read(reinterpret_cast<char*>(&_row_flags), sizeof(_row_flags));
-		_row_flags = ntohl(_row_flags);
+	read_metadata(std::istream& input);
 
-		input.read(reinterpret_cast<char*>(&_column_count), sizeof(_column_count));
-		_column_count = ntohl(_column_count);
-
-		if (_row_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
-		{
-			cql::internal::decode_string(input, _keyspace_name);
-			cql::internal::decode_string(input, _table_name);
-		}
-		return input;
-	}
-
-
-	int32_t		 _result_type;
-	int32_t		 _row_count;
-	int32_t		 _row_flags;
-	int32_t		 _column_count;
-    std::string  _keyspace_name;
-    std::string  _table_name;
+	cql_int_t	_result_type;
+	cql_int_t	_row_count;
+	cql_int_t	_row_flags;
+	cql_int_t	_column_count;
+    std::string _keyspace_name;
+    std::string _table_name;
 };
 
 } // namespace cql

@@ -31,6 +31,7 @@
 #include <boost/asio.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
+#include <boost/lexical_cast.hpp>
 #include <boost/unordered_map.hpp>
 
 #include "cql_header.hpp"
@@ -43,6 +44,7 @@
 #include "cql_message_result.hpp"
 #include "cql_message_startup.hpp"
 #include "cql_message_supported.hpp"
+#include "serialization.hpp"
 
 #include "cql_client.hpp"
 
@@ -66,7 +68,7 @@ cql::cql_client_t::connect(const std::string& server,
 }
 
 
-cql_byte_t
+cql_stream_id_t
 cql::cql_client_t::query(const std::string& query,
 						 cql_int_t consistency,
 						 cql_callback_result_t callback,
@@ -75,17 +77,17 @@ cql::cql_client_t::query(const std::string& query,
 	cql::cql_message_query_t m(query, consistency);
 	std::cout << "send query: " << m.str() << std::endl;
 
-	cql_byte_t stream = write_message(m,
-								  boost::bind(&cql_client_t::write_handle,
-											  this,
-											  boost::asio::placeholders::error,
-											  boost::asio::placeholders::bytes_transferred));
+	cql_stream_id_t stream = write_message(m,
+										   boost::bind(&cql_client_t::write_handle,
+													   this,
+													   boost::asio::placeholders::error,
+													   boost::asio::placeholders::bytes_transferred));
 
 	_callback_map.insert(callback_map_t::value_type(stream, callback_tuple_t(callback, errback)));
 	return stream;
 }
 
-cql_byte_t
+cql_stream_id_t
 cql::cql_client_t::get_new_stream()
 {
 	if (_stream_counter < INT8_MAX)

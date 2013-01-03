@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CQL_CLIENT_H_
@@ -56,8 +56,8 @@ class cql_client_t :
 
 public:
 
-	typedef boost::function<void(cql_client_t&, cql_byte_t, const cql_error_t&)> cql_errorback_t;
-	typedef boost::function<void(cql_client_t&, cql_byte_t, const cql::cql_message_result_t&)> cql_callback_result_t;
+	typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql_error_t&)> cql_errorback_t;
+	typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql::cql_message_result_t&)> cql_callback_result_t;
 	typedef boost::function<void(cql_client_t&)> cql_callback_connection_t;
 
 	cql_client_t(boost::asio::io_service& io_service);
@@ -68,7 +68,7 @@ public:
 			cql_callback_connection_t callback);
 
 
-	cql_byte_t
+	cql_stream_id_t
 	query(const std::string& query,
 		  cql_int_t consistency,
 		  cql_callback_result_t callback,
@@ -76,10 +76,10 @@ public:
 
 private:
 	typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
-	typedef boost::unordered_map<cql_byte_t, callback_tuple_t> callback_map_t;
+	typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;
 	typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
 
-	cql_byte_t
+	cql_stream_id_t
 	get_new_stream();
 
 	void
@@ -125,13 +125,13 @@ private:
 	void
 	result_receive(const cql::internal::cql_header_t& header);
 
-	cql_byte_t											 _stream_counter;
+	cql_stream_id_t									 _stream_counter;
 	boost::asio::ip::tcp::resolver					 _resolver;
 	boost::asio::ip::tcp::socket					 _socket;
 	boost::asio::streambuf							 _receive_buffer;
 	boost::asio::streambuf							 _request_buffer;
-	callback_map_t                                   _callback_map;
-	cql_callback_connection_t                        _connect_callback;
+	callback_map_t									 _callback_map;
+	cql_callback_connection_t						 _connect_callback;
 };
 
 } // namespace cql
