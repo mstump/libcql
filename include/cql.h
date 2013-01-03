@@ -42,6 +42,8 @@ extern "C" {
 #   endif
 #endif
 
+#define CQL_FRAME_MAX_SIZE 1024 * 1024 * 256
+
 #define CQL_VERSION_1_REQUEST 0x01
 #define CQL_VERSION_1_RESPONSE 0x81
 

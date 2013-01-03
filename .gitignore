@@ -23,3 +23,6 @@ CTestTestfile.cmake
 build/
 ext/src/
 ext/tmp/
+Testing/
+demo/cql_demo
+test/cql_test
