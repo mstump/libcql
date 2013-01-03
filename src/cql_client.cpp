@@ -68,7 +68,7 @@ cql::cql_client_t::connect(const std::string& server,
 
 int8_t
 cql::cql_client_t::query(const std::string& query,
-						 int32_t consistency,
+						 cql_int_t consistency,
 						 cql_callback_result_t callback,
 						 cql_errorback_t errback)
 {

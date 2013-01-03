@@ -27,6 +27,7 @@
 
 #include <boost/lexical_cast.hpp>
 
+#include "cql.h"
 #include "util.hpp"
 
 namespace cql {
@@ -49,7 +50,7 @@ public:
 				 uint8_t flags,
 				 int8_t stream,
 				 uint8_t opcode,
-				 uint32_t length) :
+				 cql_int_t length) :
 		_version(version),
 		_flags(flags),
 		_stream(stream),
@@ -78,7 +79,7 @@ public:
 		output.put(_stream);
 		output.put(_opcode);
 
-		uint32_t l = htonl(_length);
+		cql_int_t l = htonl(_length);
 		output.write(reinterpret_cast<char*>(&l), sizeof(l));
 		return output;
 	}
@@ -95,7 +96,7 @@ public:
 		return input;
 	}
 
-    uint32_t
+    cql_int_t
 	size() const
 	{
 		return sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length);
@@ -125,7 +126,7 @@ public:
 		return _opcode;
 	}
 
-	uint32_t
+	cql_int_t
 	length() const
 	{
 		return _length;
@@ -156,7 +157,7 @@ public:
 	}
 
 	void
-	length(uint32_t v)
+	length(cql_int_t v)
 	{
 		_length = v;
 	}
@@ -174,7 +175,7 @@ private:
 	uint8_t  _flags;
 	int8_t   _stream;
 	uint8_t  _opcode;
-	int32_t  _length;
+	cql_int_t  _length;
 };
 #pragma pack(pop)
 

@@ -39,16 +39,16 @@ cql_message_error_t();
 	void
 	message(const std::string& m);
 
-	int32_t
+	cql_int_t
 	code() const;
 
 	void
-	code(int32_t c);
+	code(cql_int_t c);
 
 	uint8_t
 	opcode() const;
 
-	uint32_t
+	cql_int_t
 	size() const;
 
 	std::string
@@ -61,7 +61,7 @@ cql_message_error_t();
 	write(std::ostream& output) const;
 
 private:
-	int32_t		 _code;
+	cql_int_t		 _code;
 	std::string	 _message;
 };
 

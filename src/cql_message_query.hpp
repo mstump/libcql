@@ -34,24 +34,24 @@ public:
 	cql_message_query_t();
 
 	cql_message_query_t(const std::string& query,
-						int16_t consistency);
+						cql_short_t consistency);
 
 	const std::string&
 	query() const;
 
-	int16_t
+	cql_short_t
 	consistency() const;
 
 	void
 	query(const std::string& q);
 
 	void
-	consistency(int16_t consistency);
+	consistency(cql_short_t consistency);
 
 	uint8_t
 	opcode() const;
 
-	uint32_t
+	cql_int_t
 	size() const;
 
 	std::string
@@ -64,7 +64,7 @@ public:
 	write(std::ostream& output) const;
 
 private:
-	int16_t		 _consistency;
+	cql_short_t		 _consistency;
 	std::string	 _query;
 };
 

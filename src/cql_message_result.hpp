@@ -39,7 +39,7 @@ public:
 		_result_type(0)
 	{}
 
-	int32_t
+	cql_int_t
 	result_type() const
 	{
         return _result_type;
@@ -51,7 +51,7 @@ public:
 		return CQL_OPCODE_RESULT;
 	}
 
-	uint32_t
+	cql_int_t
 	size() const
 	{
 		std::stringstream ss(std::stringstream::out);
@@ -99,7 +99,7 @@ public:
 	std::ostream&
 	write(std::ostream& output) const
 	{
-		int32_t result_type = htonl(_result_type);
+		cql_int_t result_type = htonl(_result_type);
 		output.write(reinterpret_cast<char*>(&result_type), sizeof(result_type));
 		return output;
 	}
@@ -124,10 +124,10 @@ private:
 	}
 
 
-	int32_t		 _result_type;
-	int32_t		 _row_count;
-	int32_t		 _row_flags;
-	int32_t		 _column_count;
+	cql_int_t		 _result_type;
+	cql_int_t		 _row_count;
+	cql_int_t		 _row_flags;
+	cql_int_t		 _column_count;
     std::string  _keyspace_name;
     std::string  _table_name;
 };

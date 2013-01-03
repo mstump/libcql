@@ -36,7 +36,7 @@ public:
 	uint8_t
 	opcode() const;
 
-	uint32_t
+	cql_int_t
 	size() const;
 
 	void

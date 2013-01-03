@@ -34,7 +34,7 @@ public:
 	virtual uint8_t
 	opcode() const = 0;
 
-	virtual uint32_t
+	virtual cql_int_t
 	size() const = 0;
 
 	virtual std::istream&

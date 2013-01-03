@@ -31,7 +31,7 @@ cql::cql_message_query_t::cql_message_query_t() :
 {}
 
 cql::cql_message_query_t::cql_message_query_t(const std::string& query,
-											  int16_t consistency) :
+											  cql_short_t consistency) :
 	_consistency(consistency),
 	_query(query)
 {}
@@ -42,7 +42,7 @@ cql::cql_message_query_t::query() const
 	return _query;
 }
 
-int16_t
+cql_short_t
 cql::cql_message_query_t::consistency() const
 {
 	return _consistency;
@@ -55,7 +55,7 @@ cql::cql_message_query_t::query(const std::string& q)
 }
 
 void
-cql::cql_message_query_t::consistency(int16_t consistency)
+cql::cql_message_query_t::consistency(cql_short_t consistency)
 {
 	_consistency = consistency;
 }
@@ -66,7 +66,7 @@ cql::cql_message_query_t::opcode() const
 	return CQL_OPCODE_QUERY;
 }
 
-uint32_t
+cql_int_t
 cql::cql_message_query_t::size() const
 {
 	std::stringstream ss(std::stringstream::out);
@@ -97,7 +97,7 @@ std::ostream&
 cql::cql_message_query_t::write(std::ostream& output) const
 {
 	cql::internal::encode_long_string(output, _query);
-	int16_t consistency = htons(_consistency);
+	cql_short_t consistency = htons(_consistency);
 	output.write(reinterpret_cast<char*>(&consistency), sizeof(consistency));
 	return output;
 }

@@ -31,7 +31,7 @@ cql::cql_message_register_t::opcode() const
 	return CQL_OPCODE_REGISTER;
 }
 
-uint32_t
+cql_int_t
 cql::cql_message_register_t::size() const
 {
 	std::stringstream ss(std::stringstream::out);

@@ -42,6 +42,9 @@ extern "C" {
 #   endif
 #endif
 
+typedef uint16_t cql_short_t;
+typedef int32_t cql_int_t;
+
 #define CQL_FRAME_MAX_SIZE 1024 * 1024 * 256
 
 #define CQL_VERSION_1_REQUEST 0x01

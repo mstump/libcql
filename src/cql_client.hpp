@@ -35,8 +35,8 @@
 typedef struct
 {
 	bool		 application;
-	uint32_t	 application_error;
-	uint32_t	 transport_error;
+	cql_int_t	 application_error;
+	cql_int_t	 transport_error;
 	char*		 message;
 } cql_error_t;
 
@@ -70,7 +70,7 @@ public:
 
 	int8_t
 	query(const std::string& query,
-		  int32_t consistency,
+		  cql_int_t consistency,
 		  cql_callback_result_t callback,
 		  cql_errorback_t errback);
 

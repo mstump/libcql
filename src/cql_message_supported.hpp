@@ -70,7 +70,7 @@ public:
 		return CQL_OPCODE_SUPPORTED;
 	}
 
-	uint32_t
+	cql_int_t
 	size() const
 	{
 		std::stringstream ss(std::stringstream::out);

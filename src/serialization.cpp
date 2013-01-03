@@ -19,13 +19,14 @@
 
 #include <vector>
 #include <boost/foreach.hpp>
+#include "cql.h"
 #include "serialization.hpp"
 
 std::ostream&
 cql::internal::encode_string(std::ostream& output,
 							 const std::string& value)
 {
-	uint16_t len = htons(value.size());
+	cql_short_t len = htons(value.size());
 	output.write(reinterpret_cast<char*>(&len), sizeof(len));
 	output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
 	return output;
@@ -35,7 +36,7 @@ std::istream&
 cql::internal::decode_string(std::istream& input,
 							 std::string& value)
 {
-	uint16_t len;
+	cql_short_t len;
 	input.read(reinterpret_cast<char*>(&len), sizeof(len));
 	len = ntohs(len);
 
@@ -49,7 +50,7 @@ std::ostream&
 cql::internal::encode_long_string(std::ostream& output,
 								  const std::string& value)
 {
-	uint32_t len = htonl(value.size());
+	cql_int_t len = htonl(value.size());
 	output.write(reinterpret_cast<char*>(&len), sizeof(len));
 	output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
 	return output;
@@ -59,7 +60,7 @@ std::istream&
 cql::internal::decode_long_string(std::istream& input,
 								  std::string& value)
 {
-	uint32_t len;
+	cql_int_t len;
 	input.read(reinterpret_cast<char*>(&len), sizeof(len));
 	len = ntohl(len);
 
@@ -73,7 +74,7 @@ std::ostream&
 cql::internal::encode_string_list(std::ostream& output,
 								  const std::list<std::string>& list)
 {
-	uint16_t len = htons(list.size());
+	cql_short_t len = htons(list.size());
 	output.write(reinterpret_cast<char*>(&len), sizeof(len));
 	BOOST_FOREACH(const std::string& s, list)
 		cql::internal::encode_string(output, s);
@@ -84,7 +85,7 @@ std::istream&
 cql::internal::decode_string_list(std::istream& input,
 								  std::list<std::string>& list)
 {
-	uint16_t len;
+	cql_short_t len;
 	input.read(reinterpret_cast<char*>(&len), sizeof(len));
 	len = ntohs(len);
 
@@ -103,7 +104,7 @@ std::ostream&
 cql::internal::encode_string_map(std::ostream& output,
 				  const std::map<std::string, std::string>& map)
 {
-	uint16_t len = htons(map.size());
+	cql_short_t len = htons(map.size());
 	output.write(reinterpret_cast<char*>(&len), sizeof(len));
 
 	std::map<std::string, std::string>::const_iterator it = map.begin();
@@ -120,7 +121,7 @@ std::istream&
 cql::internal::decode_string_map(std::istream& input,
 								 std::map<std::string, std::string>& map)
 {
-	uint16_t len;
+	cql_short_t len;
 	input.read(reinterpret_cast<char*>(&len), sizeof(len));
 	len = ntohs(len);
 
@@ -141,7 +142,7 @@ std::ostream&
 cql::internal::encode_string_multimap(std::ostream& output,
 									  const std::map<std::string, std::list<std::string> >& map)
 {
-	uint16_t len = htons(map.size());
+	cql_short_t len = htons(map.size());
 	output.write(reinterpret_cast<char*>(&len), sizeof(len));
 
 	std::map<std::string, std::list<std::string> >::const_iterator it = map.begin();
@@ -158,7 +159,7 @@ std::istream&
 cql::internal::decode_string_multimap(std::istream& input,
 									  std::map<std::string, std::list<std::string> >& map)
 {
-	uint16_t len;
+	cql_short_t len;
 	input.read(reinterpret_cast<char*>(&len), sizeof(len));
 	len = ntohs(len);
 

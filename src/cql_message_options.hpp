@@ -39,7 +39,7 @@ public:
 		return CQL_OPCODE_OPTIONS;
 	}
 
-	uint32_t
+	cql_int_t
 	size() const
 	{
 		return 0;
