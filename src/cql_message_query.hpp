@@ -34,19 +34,19 @@ public:
 	cql_message_query_t();
 
 	cql_message_query_t(const std::string& query,
-						int32_t consistency);
+						int16_t consistency);
 
 	const std::string&
 	query() const;
 
-	int32_t
+	int16_t
 	consistency() const;
 
 	void
 	query(const std::string& q);
 
 	void
-	consistency(int32_t consistency);
+	consistency(int16_t consistency);
 
 	uint8_t
 	opcode() const;
