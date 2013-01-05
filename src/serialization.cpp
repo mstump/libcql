@@ -10,17 +10,52 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+  along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <vector>
 #include <boost/foreach.hpp>
-#include "cql.h"
 #include "serialization.hpp"
+
+std::ostream&
+cql::internal::encode_short(std::ostream& output,
+							cql_short_t value)
+{
+	cql_int_t s = htons(value);
+	output.write(reinterpret_cast<char*>(&s), sizeof(s));
+	return output;
+}
+
+std::istream&
+cql::internal::decode_short(std::istream& input,
+							cql_short_t& value)
+{
+	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    value = ntohs(value);
+	return input;
+}
+
+std::ostream&
+cql::internal::encode_int(std::ostream& output,
+						  cql_int_t value)
+{
+	cql_int_t l = htonl(value);
+	output.write(reinterpret_cast<char*>(&l), sizeof(l));
+	return output;
+}
+
+std::istream&
+cql::internal::decode_int(std::istream& input,
+						  cql_int_t& value)
+{
+	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    value = ntohl(value);
+	return input;
+}
 
 std::ostream&
 cql::internal::encode_string(std::ostream& output,
@@ -174,5 +209,28 @@ cql::internal::decode_string_multimap(std::istream& input,
 		map.insert(std::pair<std::string, std::list<std::string> >(key, values));
 	}
 
+	return input;
+}
+
+
+std::ostream&
+cql::internal::encode_option(std::ostream& output,
+                             cql_short_t id,
+                             const std::string& value)
+{
+    cql::internal::encode_short(output, id);
+	if (id == CQL_COLUMN_TYPE_CUSTOM)
+		cql::internal::encode_string(output, value);
+	return output;
+}
+
+std::istream&
+cql::internal::decode_option(std::istream& input,
+                             cql_short_t& id,
+                             std::string& value)
+{
+    cql::internal::decode_short(input, id);
+	if (id == CQL_COLUMN_TYPE_CUSTOM)
+		cql::internal::decode_string(input, value);
 	return input;
 }

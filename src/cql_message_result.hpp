@@ -22,46 +22,42 @@
 
 #include "cql.h"
 #include "cql_message.hpp"
+#include "cql_result_metadata.hpp"
 
 namespace cql {
 
-class cql_message_result_t :
+    class cql_message_result_t :
 		public cql_message_t
-{
+    {
 
-public:
-	cql_message_result_t();
+    public:
+        cql_message_result_t();
 
-	cql_int_t
-	result_type() const;
+        cql_int_t
+        result_type() const;
 
-	cql_byte_t
-	opcode() const;
+        cql_byte_t
+        opcode() const;
 
-	cql_int_t
-	size() const;
+        cql_int_t
+        size() const;
 
-	std::string
-	str() const;
+        std::string
+        str() const;
 
-	std::istream&
-	read(std::istream& input);
+        std::istream&
+        read(std::istream& input);
 
-	std::ostream&
-	write(std::ostream& output) const;
+        std::ostream&
+        write(std::ostream& output) const;
 
-private:
-
-	inline std::istream&
-	read_metadata(std::istream& input);
-
-	cql_int_t	_result_type;
-	cql_int_t	_row_count;
-	cql_int_t	_row_flags;
-	cql_int_t	_column_count;
-    std::string _keyspace_name;
-    std::string _table_name;
-};
+    private:
+        cql_int_t                            _result_type;
+        cql_int_t                            _row_count;
+        std::string                          _keyspace_name;
+        std::string                          _table_name;
+        cql::internal::cql_result_metadata_t _metadata;
+    };
 
 } // namespace cql
 

@@ -26,52 +26,79 @@
 #include <ostream>
 #include <string>
 
+#include "cql.h"
 
 namespace cql {
-namespace internal {
-
-std::ostream&
-encode_string(std::ostream& output,
-			  const std::string& value);
-
-std::istream&
-decode_string(std::istream& input,
-			  std::string& value);
-
-std::ostream&
-encode_long_string(std::ostream& output,
-				   const std::string& value);
-
-std::istream&
-decode_long_string(std::istream& input,
-				   std::string& value);
-
-std::ostream&
-encode_string_list(std::ostream& output,
-				   const std::list<std::string>& list);
-
-std::istream&
-decode_string_list(std::istream& input,
-				   std::list<std::string>& list);
-
-std::ostream&
-encode_string_map(std::ostream& output,
-				  const std::map<std::string, std::string>& map);
-
-std::istream&
-decode_string_map(std::istream& input,
-				  std::map<std::string, std::string>& map);
-
-std::ostream&
-encode_string_multimap(std::ostream& output,
-					   const std::map<std::string, std::list<std::string> >& map);
-
-std::istream&
-decode_string_multimap(std::istream& input,
-					   std::map<std::string, std::list<std::string> >& map);
+    namespace internal {
 
 
-} // namespace internal
+        std::ostream&
+        encode_short(std::ostream& output,
+                     cql_short_t value);
+
+        std::istream&
+        decode_short(std::istream& input,
+                     cql_short_t& value);
+
+        std::ostream&
+        encode_int(std::ostream& output,
+                   cql_int_t value);
+
+        std::istream&
+        decode_int(std::istream& input,
+                   cql_int_t& value);
+
+        std::ostream&
+        encode_string(std::ostream& output,
+                      const std::string& value);
+
+        std::istream&
+        decode_string(std::istream& input,
+                      std::string& value);
+
+        std::ostream&
+        encode_long_string(std::ostream& output,
+                           const std::string& value);
+
+        std::istream&
+        decode_long_string(std::istream& input,
+                           std::string& value);
+
+        std::ostream&
+        encode_string_list(std::ostream& output,
+                           const std::list<std::string>& list);
+
+        std::istream&
+        decode_string_list(std::istream& input,
+                           std::list<std::string>& list);
+
+        std::ostream&
+        encode_string_map(std::ostream& output,
+                          const std::map<std::string, std::string>& map);
+
+        std::istream&
+        decode_string_map(std::istream& input,
+                          std::map<std::string, std::string>& map);
+
+        std::ostream&
+        encode_string_multimap(std::ostream& output,
+                               const std::map<std::string, std::list<std::string> >& map);
+
+        std::istream&
+        decode_string_multimap(std::istream& input,
+                               std::map<std::string, std::list<std::string> >& map);
+
+        std::ostream&
+        encode_option(std::ostream& output,
+                      cql_short_t id,
+                      const std::string& value);
+
+        std::istream&
+        decode_option(std::istream& input,
+                      cql_short_t& id,
+                      std::string& value);
+
+    } // namespace internal
 } // namespace cql
 
 #endif // CQL_SERIALIZATION_H_
