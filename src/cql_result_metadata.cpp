@@ -19,25 +19,34 @@
 
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/algorithm/copy.hpp>
 
 #include "serialization.hpp"
 #include "cql_result_metadata.hpp"
 
-std::string
-column_name_to_str(cql::internal::cql_result_metadata_t::column_name_t n)
+struct column_name_to_str
 {
-    return std::string("[") + n.get<0>() + ", " + n.get<1>() + ", " + n.get<2>() + "]";
-}
+    typedef std::string result_type;
+
+    std::string
+    operator()(const cql::cql_result_metadata_t::column_name_t& n) const {
+        return std::string("[") + n.get<0>() + ", " + n.get<1>() + ", " + n.get<2>() + "]";
+    }
+};
 
 
-cql::internal::cql_result_metadata_t::cql_result_metadata_t()
+cql::cql_result_metadata_t::cql_result_metadata_t()
 {}
 
 std::string
-cql::internal::cql_result_metadata_t::str() const
+cql::cql_result_metadata_t::str() const
 {
     std::list<std::string> columns;
-    std::transform(_column_order.begin(), _column_order.end(), std::back_inserter(columns), column_name_to_str);
+    boost::copy(
+        _column_name_idx | boost::adaptors::map_keys | boost::adaptors::transformed(column_name_to_str()),
+        std::back_inserter(columns));
 
     std::stringstream output;
     output << "cql_result_metadata_t [";
@@ -46,7 +55,7 @@ cql::internal::cql_result_metadata_t::str() const
 }
 
 std::istream&
-cql::internal::cql_result_metadata_t::read(std::istream& input)
+cql::cql_result_metadata_t::read(std::istream& input)
 {
 	cql::internal::decode_int(input, _flags);
 	cql::internal::decode_int(input, _column_count);
@@ -70,94 +79,90 @@ cql::internal::cql_result_metadata_t::read(std::istream& input)
 		std::string column_name;
 		cql::internal::decode_string(input, column_name);
 
-        option_t option;
-		cql::internal::decode_option(input, option.id, option.value);
+        std::auto_ptr<option_t> option(new option_t);
+		cql::internal::decode_option(input, option->id, option->value);
 
         column_name_t name(keyspace_name, table_name, column_name);
-        _column_map.insert(column_map_t::value_type(name, option));
-        _column_order.push_back(name);
+        _column_name_idx.insert(column_name_idx_t::value_type(name, i));
+        _columns.push_back(option);
 	}
     return input;
 }
 
 cql_int_t
-cql::internal::cql_result_metadata_t::flags() const
+cql::cql_result_metadata_t::flags() const
 {
 	return _flags;
 }
 
 void
-cql::internal::cql_result_metadata_t::flags(cql_int_t v)
+cql::cql_result_metadata_t::flags(cql_int_t v)
 {
 	_flags = v;
 }
 
 cql_int_t
-cql::internal::cql_result_metadata_t::column_count() const
+cql::cql_result_metadata_t::column_count() const
 {
     return _column_count;
 }
 
 void
-cql::internal::cql_result_metadata_t::column_count(cql_int_t v)
+cql::cql_result_metadata_t::column_count(cql_int_t v)
 {
     _column_count = v;
 }
 
 bool
-cql::internal::cql_result_metadata_t::has_global_keyspace() const
+cql::cql_result_metadata_t::has_global_keyspace() const
 {
     return !_global_keyspace_name.empty();
 }
 
 bool
-cql::internal::cql_result_metadata_t::has_global_table() const
+cql::cql_result_metadata_t::has_global_table() const
 {
     return !_global_table_name.empty();
 }
 
 const std::string&
-cql::internal::cql_result_metadata_t::global_keyspace() const
+cql::cql_result_metadata_t::global_keyspace() const
 {
     return _global_keyspace_name;
 }
 
 void
-cql::internal::cql_result_metadata_t::global_keyspace(const std::string& keyspace)
+cql::cql_result_metadata_t::global_keyspace(const std::string& keyspace)
 {
     _global_keyspace_name = keyspace;
 }
 
 const std::string&
-cql::internal::cql_result_metadata_t::global_table() const
+cql::cql_result_metadata_t::global_table() const
 {
     return _global_table_name;
 }
 
 void
-cql::internal::cql_result_metadata_t::global_table(const std::string& table)
+cql::cql_result_metadata_t::global_table(const std::string& table)
 {
     _global_table_name = table;
 }
 
 bool
-cql::internal::cql_result_metadata_t::column_class(int i,
-                                                   std::string& output) const
+cql::cql_result_metadata_t::column_class(int i,
+                                         std::string& output) const
 {
     if (i > _column_count || i < 0)
         return false;
 
-    column_name_t name = _column_order[i];
-    if (_column_map.find(name) != _column_map.end()) {
-        output = _column_map.at(name).value;
-        return true;
-    }
-    return false;
+    output = _columns[i].value;
+    return true;
 }
 
 bool
-cql::internal::cql_result_metadata_t::column_class(const std::string& column,
-                                                   std::string& output) const
+cql::cql_result_metadata_t::column_class(const std::string& column,
+                                         std::string& output) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty())
         return false;
@@ -166,37 +171,34 @@ cql::internal::cql_result_metadata_t::column_class(const std::string& column,
 }
 
 bool
-cql::internal::cql_result_metadata_t::column_class(const std::string& keyspace,
-                                                   const std::string& table,
-                                                   const std::string& column,
-                                                   std::string& output) const
+cql::cql_result_metadata_t::column_class(const std::string& keyspace,
+                                         const std::string& table,
+                                         const std::string& column,
+                                         std::string& output) const
 {
-    column_name_t name(keyspace, table, column);
-    if (_column_map.find(name) != _column_map.end()) {
-        output = _column_map.at(name).value;
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end())
+    {
+        output = _columns[it->second].value;
         return true;
     }
     return false;
 }
 
 bool
-cql::internal::cql_result_metadata_t::column_type(int i,
-                                                  cql_short_t& output) const
+cql::cql_result_metadata_t::column_type(int i,
+                                        cql_short_t& output) const
 {
     if (i > _column_count || i < 0)
         return false;
 
-    column_name_t name = _column_order[i];
-    if (_column_map.find(name) != _column_map.end()) {
-        output = _column_map.at(name).id;
-        return true;
-    }
-    return false;
+    output = _columns[i].id;
+    return true;
 }
 
 bool
-cql::internal::cql_result_metadata_t::column_type(const std::string& column,
-                                                  cql_short_t& output) const
+cql::cql_result_metadata_t::column_type(const std::string& column,
+                                        cql_short_t& output) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty())
         return false;
@@ -205,42 +207,62 @@ cql::internal::cql_result_metadata_t::column_type(const std::string& column,
 }
 
 bool
-cql::internal::cql_result_metadata_t::column_type(const std::string& keyspace,
-                                                  const std::string& table,
-                                                  const std::string& column,
-                                                  cql_short_t& output) const
+cql::cql_result_metadata_t::column_type(const std::string& keyspace,
+                                        const std::string& table,
+                                        const std::string& column,
+                                        cql_short_t& output) const
 {
-    column_name_t name(keyspace, table, column);
-    if (_column_map.find(name) != _column_map.end()) {
-        output = _column_map.at(name).id;
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end())
+    {
+        output = _columns[it->second].id;
         return true;
     }
     return false;
 }
 
 bool
-cql::internal::cql_result_metadata_t::exists(const std::string& column) const
+cql::cql_result_metadata_t::exists(const std::string& column) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty())
         return false;
 
-    return _column_map.find(
+    return _column_name_idx.find(
         column_name_t(_global_keyspace_name, _global_table_name, column))
-        != _column_map.end();
+        != _column_name_idx.end();
 }
 
 bool
-cql::internal::cql_result_metadata_t::exists(const std::string& keyspace,
-                                             const std::string& table,
-                                             const std::string& column) const
+cql::cql_result_metadata_t::exists(const std::string& keyspace,
+                                   const std::string& table,
+                                   const std::string& column) const
 {
-    return _column_map.find(
+    return _column_name_idx.find(
         column_name_t(keyspace, table, column))
-        != _column_map.end();
+        != _column_name_idx.end();
 }
 
-const std::vector<cql::internal::cql_result_metadata_t::column_name_t>&
-cql::internal::cql_result_metadata_t::column_names() const
+bool
+cql::cql_result_metadata_t::get_index(const std::string& column,
+                                      int& output) const
 {
-    return _column_order;
+    if (_global_keyspace_name.empty() || _global_table_name.empty())
+        return false;
+
+    return get_index(_global_keyspace_name, _global_table_name, column, output);
+}
+
+bool
+cql::cql_result_metadata_t::get_index(const std::string& keyspace,
+                                      const std::string& table,
+                                      const std::string& column,
+                                      int& output) const
+{
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end())
+    {
+        output = it->second;
+        return true;
+    }
+    return false;
 }

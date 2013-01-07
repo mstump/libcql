@@ -72,6 +72,11 @@ cql::cql_message_result_t::read(std::istream& input)
 	case CQL_RESULT_ROWS:
         _metadata.read(input);
         cql::internal::decode_int(input, _row_count);
+        for (int i = 0; i < _row_count; ++i)
+        {
+            _rows.push_back(new cql_row_t(_metadata, input));
+        }
+
 		break;
 
 	case CQL_RESULT_SET_KEYSPACE:

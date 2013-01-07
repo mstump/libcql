@@ -75,10 +75,34 @@ cql::internal::decode_string(std::istream& input,
 	input.read(reinterpret_cast<char*>(&len), sizeof(len));
 	len = ntohs(len);
 
-	std::vector<char> buffer(len);
+	std::vector<char> buffer(len, 0);
 	input.read(&buffer[0], len);
 	value.assign(buffer.begin(), buffer.end());
 	return input;
+}
+
+
+std::ostream&
+cql::internal::encode_bytes(std::ostream& output,
+                            const std::vector<cql_byte_t>& value)
+{
+	cql_int_t len = htonl(value.size());
+	output.write(reinterpret_cast<char*>(&len), sizeof(len));
+	output.write(reinterpret_cast<const char*>(&value[0]), value.size());
+    return output;
+}
+
+std::istream&
+cql::internal::decode_bytes(std::istream& input,
+                            std::vector<cql_byte_t>& value)
+{
+	cql_int_t len;
+	input.read(reinterpret_cast<char*>(&len), sizeof(len));
+	len = ntohl(len);
+
+    value.resize(len, 0);
+	input.read(reinterpret_cast<char*>(&value[0]), len);
+    return input;
 }
 
 std::ostream&

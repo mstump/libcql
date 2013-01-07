@@ -21,148 +21,152 @@
 #define CQL_RESULT_METADATA_H_
 
 #include <string>
-#include <vector>
 #include <boost/noncopyable.hpp>
+#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/unordered_map.hpp>
 
 #include "cql.h"
 
 namespace cql {
-    namespace internal {
 
-        class cql_result_metadata_t :
-            boost::noncopyable
-        {
+    class cql_result_metadata_t :
+        boost::noncopyable
+    {
 
-        public:
-            typedef boost::tuple<std::string, std::string, std::string> column_name_t;
+    public:
+        typedef boost::tuple<std::string, std::string, std::string> column_name_t;
 
-            cql_result_metadata_t();
+        cql_result_metadata_t();
 
-            std::string
-            str() const;
+        std::string
+        str() const;
 
-            std::istream&
-            read(std::istream& input);
+        std::istream&
+        read(std::istream& input);
 
-            cql_int_t
-            flags() const;
+        cql_int_t
+        flags() const;
 
-            void
-            flags(cql_int_t v);
+        void
+        flags(cql_int_t v);
 
-            cql_int_t
-            column_count() const;
+        cql_int_t
+        column_count() const;
 
-            void
-            column_count(cql_int_t v);
+        void
+        column_count(cql_int_t v);
 
-            bool
-            has_global_keyspace() const;
+        bool
+        has_global_keyspace() const;
 
-            bool
-            has_global_table() const;
+        bool
+        has_global_table() const;
 
-            const std::string&
-            global_keyspace() const;
+        const std::string&
+        global_keyspace() const;
 
-            void
-            global_keyspace(const std::string& keyspace);
+        void
+        global_keyspace(const std::string& keyspace);
 
-            const std::string&
-            global_table() const;
+        const std::string&
+        global_table() const;
 
-            void
-            global_table(const std::string& table);
+        void
+        global_table(const std::string& table);
 
-            bool
-            exists(const std::string& column) const;
+        bool
+        exists(const std::string& column) const;
 
-            bool
-            exists(const std::string& keyspace,
-                   const std::string& table,
-                   const std::string& column) const;
+        bool
+        exists(const std::string& keyspace,
+               const std::string& table,
+               const std::string& column) const;
 
-            bool
-            column_class(int i,
-                         std::string& output) const;
+        bool
+        column_class(int i,
+                     std::string& output) const;
 
-            bool
-            column_class(const std::string& column,
-                         std::string& output) const;
+        bool
+        column_class(const std::string& column,
+                     std::string& output) const;
 
-            bool
-            column_class(const std::string& keyspace,
-                         const std::string& table,
-                         const std::string& column,
-                         std::string& output) const;
+        bool
+        column_class(const std::string& keyspace,
+                     const std::string& table,
+                     const std::string& column,
+                     std::string& output) const;
 
-            bool
-            column_type(int i,
-                        cql_short_t& output) const;
+        bool
+        column_type(int i,
+                    cql_short_t& output) const;
 
-            bool
-            column_type(const std::string& column,
-                        cql_short_t& output) const;
+        bool
+        column_type(const std::string& column,
+                    cql_short_t& output) const;
 
-            bool
-            column_type(const std::string& keyspace,
-                        const std::string& table,
-                        const std::string& column,
-                        cql_short_t& output) const;
+        bool
+        column_type(const std::string& keyspace,
+                    const std::string& table,
+                    const std::string& column,
+                    cql_short_t& output) const;
 
-            const std::vector<column_name_t>&
-            column_names() const;
+        bool
+        get_index(const std::string& column,
+                  int& output) const;
+
+        bool
+        get_index(const std::string& keyspace,
+                  const std::string& table,
+                  const std::string& column,
+                  int& output) const;
 
 
-        private:
+    private:
 
-            struct option_t {
-                cql_short_t id;
-                std::string value;
-            };
-
-            struct column_name_hash
-                : std::unary_function<column_name_t, std::size_t>
-            {
-                std::size_t
-                operator()(const column_name_t& n) const {
-                    std::size_t seed = 0;
-                    boost::hash_combine(seed, n.get<0>());
-                    boost::hash_combine(seed, n.get<1>());
-                    boost::hash_combine(seed, n.get<2>());
-                    return seed;
-                }
-            };
-
-            struct column_name_equality
-                : std::binary_function<column_name_t, column_name_t, bool>
-            {
-                std::size_t
-                operator()(const column_name_t& a,
-                           const column_name_t& b) const {
-
-                    return a.get<0>() == b.get<0>()
-                        && a.get<1>() == b.get<1>()
-                        && a.get<2>() == b.get<2>();
-                }
-            };
-
-            typedef boost::unordered_map<column_name_t,
-                                         option_t,
-                                         column_name_hash,
-                                         column_name_equality> column_map_t;
-
-            cql_int_t                  _flags;
-            cql_int_t                  _column_count;
-            std::string                _global_keyspace_name;
-            std::string                _global_table_name;
-            column_map_t               _column_map;
-            std::vector<column_name_t> _column_order;
+        struct option_t {
+            cql_short_t id;
+            std::string value;
         };
 
+        struct column_name_hash
+            : std::unary_function<column_name_t, std::size_t>
+        {
+            std::size_t
+            operator()(const column_name_t& n) const {
+                std::size_t seed = 0;
+                boost::hash_combine(seed, n.get<0>());
+                boost::hash_combine(seed, n.get<1>());
+                boost::hash_combine(seed, n.get<2>());
+                return seed;
+            }
+        };
 
-    } // namespace internal
+        struct column_name_equality
+            : std::binary_function<column_name_t, column_name_t, bool>
+        {
+            std::size_t
+            operator()(const column_name_t& a,
+                       const column_name_t& b) const {
+
+                return a.get<0>() == b.get<0>()
+                    && a.get<1>() == b.get<1>()
+                    && a.get<2>() == b.get<2>();
+            }
+        };
+
+        typedef boost::unordered_map<column_name_t,
+                                     int,
+                                     column_name_hash,
+                                     column_name_equality> column_name_idx_t;
+
+        cql_int_t                   _flags;
+        cql_int_t                   _column_count;
+        std::string                 _global_keyspace_name;
+        std::string                 _global_table_name;
+        column_name_idx_t           _column_name_idx;
+        boost::ptr_vector<option_t> _columns;
+    };
+
 } // namespace cql
 
 #endif // CQL_RESULT_METADATA_H_

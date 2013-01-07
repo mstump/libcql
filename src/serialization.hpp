@@ -25,6 +25,7 @@
 #include <map>
 #include <ostream>
 #include <string>
+#include <vector>
 
 #include "cql.h"
 
@@ -55,6 +56,14 @@ namespace cql {
         std::istream&
         decode_string(std::istream& input,
                       std::string& value);
+
+        std::ostream&
+        encode_bytes(std::ostream& output,
+                     const std::vector<cql_byte_t>& value);
+
+        std::istream&
+        decode_bytes(std::istream& input,
+                     std::vector<cql_byte_t>& value);
 
         std::ostream&
         encode_long_string(std::ostream& output,
