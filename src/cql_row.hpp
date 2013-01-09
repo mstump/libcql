@@ -32,11 +32,11 @@ namespace cql {
     {
 
     public:
-        typedef  std::vector<cql_byte_t>           column;
-        typedef  boost::ptr_vector<column>         columns_container;
-        typedef  column*                           value_type;
-        typedef  column&                           reference;
-        typedef  const column&                     const_reference;
+        typedef  std::vector<cql_byte_t>           column_t;
+        typedef  boost::ptr_vector<column_t>       columns_container;
+        typedef  column_t*                         value_type;
+        typedef  column_t&                         reference;
+        typedef  const column_t&                   const_reference;
         typedef  columns_container::iterator       iterator;
         typedef  columns_container::const_iterator const_iterator;
         typedef  columns_container::size_type      size_type;
@@ -50,10 +50,10 @@ namespace cql {
         std::string
         str() const;
 
-        const column&
+        const column_t&
         operator[](size_type n) const;
 
-        const column&
+        const column_t&
         at(size_type n) const;
 
         const_iterator

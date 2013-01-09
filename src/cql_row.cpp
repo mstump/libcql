@@ -17,9 +17,23 @@
   along with this program.	If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "serialization.hpp"
+#include <boost/algorithm/string/join.hpp>
+#include <boost/range/adaptor/map.hpp>
+#include <boost/range/adaptor/transformed.hpp>
+#include <boost/range/algorithm/copy.hpp>
 
+#include "serialization.hpp"
 #include "cql_row.hpp"
+
+struct column_to_str
+{
+    typedef std::string result_type;
+
+    const char*
+    operator()(const cql::cql_row_t::column_t& c) const {
+        return reinterpret_cast<const char*>(&c[0]);
+    }
+};
 
 cql::cql_row_t::cql_row_t(const cql::cql_result_metadata_t& metadata,
                           std::istream& input) :
@@ -28,7 +42,7 @@ cql::cql_row_t::cql_row_t(const cql::cql_result_metadata_t& metadata,
 {
     for (int i = 0; i < _metadata.column_count(); ++i)
     {
-        std::auto_ptr<cql::cql_row_t::column> c( new cql::cql_row_t::column() );
+        std::auto_ptr<cql::cql_row_t::column_t> c( new cql::cql_row_t::column_t() );
         cql::internal::decode_bytes(input, *c);
         _row.push_back(c);
     }
@@ -43,16 +57,23 @@ cql::cql_row_t::size() const
 std::string
 cql::cql_row_t::str() const
 {
-    return "row";
+    std::list<std::string> columns;
+    boost::copy(
+        _row | boost::adaptors::transformed(column_to_str()),
+        std::back_inserter(columns));
+
+    std::stringstream output;
+    output << "[" << boost::algorithm::join(columns, ", ") << "]";
+    return output.str();
 }
 
-const cql::cql_row_t::column&
+const cql::cql_row_t::column_t&
 cql::cql_row_t::operator[](size_type n) const
 {
     return _row[n];
 }
 
-const cql::cql_row_t::column&
+const cql::cql_row_t::column_t&
 cql::cql_row_t::at(size_type n) const
 {
     return _row.at(n);
@@ -113,18 +134,31 @@ bool
 cql::cql_row_t::get_bool(int i,
                          bool& output) const
 {
-    // if (i > _row.size() || i < 0)
-    //     return false;
+    if (i > _row.size() || i < 0)
+        return false;
 
-    // output = _row[i].empty();
-    // return true;
-    return false;
+    const cql::cql_row_t::column_t column = _row[i];
+    if (column.empty())
+        return false;
+
+    output = column[0] != 0x00;
+    return true;
 }
 
 bool
 cql::cql_row_t::get_bool(const std::string& column,
                          bool& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        const cql::cql_row_t::column_t column = _row[i];
+        if (column.empty())
+            return false;
+
+        output = column[0] != 0x00;
+        return true;
+    }
     return false;
 }
 
@@ -134,6 +168,16 @@ cql::cql_row_t::get_bool(const std::string& keyspace,
                          const std::string& column,
                          bool& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        const cql::cql_row_t::column_t column = _row[i];
+        if (column.empty())
+            return false;
+
+        output = column[0] != 0x00;
+        return true;
+    }
     return false;
 }
 
@@ -141,13 +185,23 @@ bool
 cql::cql_row_t::get_int(int i,
                         cql_int_t& output) const
 {
-    return false;
+    if (i > _row.size() || i < 0)
+        return false;
+
+    output = cql::internal::decode_int(_row[i]);
+    return true;
 }
 
 bool
 cql::cql_row_t::get_int(const std::string& column,
                         cql_int_t& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        output = cql::internal::decode_int(_row[i]);
+        return true;
+    }
     return false;
 }
 
@@ -157,6 +211,12 @@ cql::cql_row_t::get_int(const std::string& keyspace,
                         const std::string& column,
                         cql_int_t& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        output = cql::internal::decode_int(_row[i]);
+        return true;
+    }
     return false;
 }
 
@@ -164,13 +224,23 @@ bool
 cql::cql_row_t::get_float(int i,
                           float& output) const
 {
-    return false;
+    if (i > _row.size() || i < 0)
+        return false;
+
+    output = cql::internal::decode_float(_row[i]);
+    return true;
 }
 
 bool
 cql::cql_row_t::get_float(const std::string& column,
                           float& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        output = cql::internal::decode_float(_row[i]);
+        return true;
+    }
     return false;
 }
 
@@ -180,6 +250,12 @@ cql::cql_row_t::get_float(const std::string& keyspace,
                           const std::string& column,
                           float& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        output = cql::internal::decode_float(_row[i]);
+        return true;
+    }
     return false;
 }
 
@@ -187,13 +263,23 @@ bool
 cql::cql_row_t::get_double(int i,
                            double& output) const
 {
-    return false;
+    if (i > _row.size() || i < 0)
+        return false;
+
+    output = cql::internal::decode_double(_row[i]);
+    return true;
 }
 
 bool
 cql::cql_row_t::get_double(const std::string& column,
                            double& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        output = cql::internal::decode_double(_row[i]);
+        return true;
+    }
     return false;
 }
 
@@ -203,6 +289,12 @@ cql::cql_row_t::get_double(const std::string& keyspace,
                            const std::string& column,
                            double& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        output = cql::internal::decode_double(_row[i]);
+        return true;
+    }
     return false;
 }
 
@@ -210,13 +302,23 @@ bool
 cql::cql_row_t::get_string(int i,
                            std::string& output) const
 {
-    return false;
+    if (i > _row.size() || i < 0)
+        return false;
+
+    const column_t& r = _row[i];
+    output.assign(r.begin(), r.end());
+    return true;
 }
 
 bool
 cql::cql_row_t::get_string(const std::string& column,
                            std::string& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        return get_string(i, output);
+    }
     return false;
 }
 
@@ -226,5 +328,10 @@ cql::cql_row_t::get_string(const std::string& keyspace,
                            const std::string& column,
                            std::string& output) const
 {
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        return get_string(i, output);
+    }
     return false;
 }

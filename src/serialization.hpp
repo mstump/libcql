@@ -49,6 +49,39 @@ namespace cql {
         decode_int(std::istream& input,
                    cql_int_t& value);
 
+        cql_int_t
+        decode_int(const std::vector<cql_byte_t>& input);
+
+        std::ostream&
+        encode_double(std::ostream& output,
+                     double value);
+
+        std::istream&
+        decode_double(std::istream& input,
+                     double& value);
+
+        std::ostream&
+        encode_float(std::ostream& output,
+                     float value);
+
+        float
+        decode_float(const std::vector<cql_byte_t>& input);
+
+        std::istream&
+        decode_float(std::istream& input,
+                     float& value);
+
+        std::ostream&
+        encode_double(std::ostream& output,
+                     double value);
+
+        std::istream&
+        decode_double(std::istream& input,
+                     double& value);
+
+        double
+        decode_double(const std::vector<cql_byte_t>& input);
+
         std::ostream&
         encode_string(std::ostream& output,
                       const std::string& value);

@@ -97,3 +97,27 @@ cql::cql_message_result_t::write(std::ostream& output) const
 	output.write(reinterpret_cast<char*>(&result_type), sizeof(result_type));
 	return output;
 }
+
+const cql::cql_row_t&
+cql::cql_message_result_t::operator[](size_type n) const
+{
+    return _rows[n];
+}
+
+const cql::cql_row_t&
+cql::cql_message_result_t::at(size_type n) const
+{
+    return _rows.at(n);
+}
+
+cql::cql_message_result_t::const_iterator
+cql::cql_message_result_t::begin() const
+{
+    return _rows.begin();
+}
+
+cql::cql_message_result_t::const_iterator
+cql::cql_message_result_t::end() const
+{
+    return _rows.end();
+}

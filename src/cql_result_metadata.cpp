@@ -49,8 +49,7 @@ cql::cql_result_metadata_t::str() const
         std::back_inserter(columns));
 
     std::stringstream output;
-    output << "cql_result_metadata_t [";
-    output << boost::algorithm::join(columns, ", ") << "]";
+    output << "[" << boost::algorithm::join(columns, ", ") << "]";
     return output.str();
 }
 

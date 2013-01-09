@@ -19,7 +19,36 @@
 
 #include <vector>
 #include <boost/foreach.hpp>
+#include <boost/detail/endian.hpp>
 #include "serialization.hpp"
+
+inline double
+swap_double(double source)
+{
+#if defined _WIN32
+    return byteswap_uint64(source);
+#else
+    return __builtin_bswap64(source);
+#endif
+}
+
+inline double
+ntohd(double source)
+{
+#if defined(BOOST_LITTLE_ENDIAN)
+    return swap_double(source);
+#elif defined(BOOST_BIG_ENDIAN)
+    return source;
+#else
+#error "unable to determine system endianness"
+#endif
+}
+
+inline double
+htond(double source)
+{
+    return ntohd(source);
+}
 
 std::ostream&
 cql::internal::encode_short(std::ostream& output,
@@ -55,6 +84,60 @@ cql::internal::decode_int(std::istream& input,
 	input.read(reinterpret_cast<char*>(&value), sizeof(value));
     value = ntohl(value);
 	return input;
+}
+
+cql_int_t
+cql::internal::decode_int(const std::vector<cql_byte_t>& input)
+{
+    return ntohl(*(reinterpret_cast<const float*>(&input[0])));
+}
+
+std::ostream&
+cql::internal::encode_float(std::ostream& output,
+                            float value)
+{
+	cql_int_t l = htonl(value);
+	output.write(reinterpret_cast<char*>(&l), sizeof(l));
+	return output;
+}
+
+std::istream&
+cql::internal::decode_float(std::istream& input,
+                            float& value)
+{
+	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    value = ntohl(value);
+	return input;
+}
+
+float
+cql::internal::decode_float(const std::vector<cql_byte_t>& input)
+{
+    return ntohl(*(reinterpret_cast<const float*>(&input[0])));
+}
+
+std::ostream&
+cql::internal::encode_double(std::ostream& output,
+                             double value)
+{
+	double d = htond(value);
+	output.write(reinterpret_cast<char*>(&d), sizeof(d));
+	return output;
+}
+
+std::istream&
+cql::internal::decode_double(std::istream& input,
+                             double& value)
+{
+	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    value = ntohd(value);
+	return input;
+}
+
+double
+cql::internal::decode_double(const std::vector<cql_byte_t>& input)
+{
+    return ntohd(*(reinterpret_cast<const double*>(&input[0])));
 }
 
 std::ostream&

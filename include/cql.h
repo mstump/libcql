@@ -42,10 +42,10 @@ extern "C" {
 #   endif
 #endif
 
-typedef uint8_t  cql_byte_t;
-typedef uint16_t cql_short_t;
-typedef int32_t  cql_int_t;
-typedef int8_t   cql_stream_id_t;
+typedef uint8_t   cql_byte_t;
+typedef uint16_t  cql_short_t;
+typedef int32_t   cql_int_t;
+typedef int8_t    cql_stream_id_t;
 
 #define CQL_FRAME_MAX_SIZE 1024 * 1024 * 256
 

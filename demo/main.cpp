@@ -1,6 +1,9 @@
+#include <boost/foreach.hpp>
+
 #include "cql.h"
 #include "../src/cql_message_result.hpp"
 #include "../src/cql_client.hpp"
+#include "../src/cql_row.hpp"
 
 void
 errback(cql::cql_client_t& client,
@@ -15,7 +18,10 @@ select_callback(cql::cql_client_t& client,
 				int8_t stream,
 				const cql::cql_message_result_t& result)
 {
-	std::cout << result.str();
+	BOOST_FOREACH(const cql::cql_row_t& row, result)
+    {
+        std::cout << row.str() << std::endl;
+    }
 }
 
 void
