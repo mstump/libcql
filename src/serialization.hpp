@@ -79,6 +79,17 @@ namespace cql {
         decode_double(std::istream& input,
                      double& value);
 
+        std::ostream&
+        encode_bigint(std::ostream& output,
+                      cql_bigint_t value);
+
+        std::istream&
+        decode_bigint(std::istream& input,
+                      cql_bigint_t& value);
+
+        cql_bigint_t
+        decode_bigint(const std::vector<cql_byte_t>& input);
+
         double
         decode_double(const std::vector<cql_byte_t>& input);
 

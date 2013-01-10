@@ -141,6 +141,30 @@ cql::internal::decode_double(const std::vector<cql_byte_t>& input)
 }
 
 std::ostream&
+cql::internal::encode_bigint(std::ostream& output,
+                             cql_bigint_t value)
+{
+	cql_bigint_t d = htond(value);
+	output.write(reinterpret_cast<char*>(&d), sizeof(d));
+	return output;
+}
+
+std::istream&
+cql::internal::decode_bigint(std::istream& input,
+                             cql_bigint_t& value)
+{
+	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    value = ntohd(value);
+	return input;
+}
+
+cql_bigint_t
+cql::internal::decode_bigint(const std::vector<cql_byte_t>& input)
+{
+    return ntohd(*(reinterpret_cast<const cql_bigint_t*>(&input[0])));
+}
+
+std::ostream&
 cql::internal::encode_string(std::ostream& output,
 							 const std::string& value)
 {
