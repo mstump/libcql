@@ -299,6 +299,45 @@ cql::cql_row_t::get_double(const std::string& keyspace,
 }
 
 bool
+cql::cql_row_t::get_bigint(int i,
+                           cql_bigint_t& output) const
+{
+    if (i > _row.size() || i < 0)
+        return false;
+
+    output = cql::internal::decode_bigint(_row[i]);
+    return true;
+}
+
+bool
+cql::cql_row_t::get_bigint(const std::string& column,
+                           cql_bigint_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        output = cql::internal::decode_bigint(_row[i]);
+        return true;
+    }
+    return false;
+}
+
+bool
+cql::cql_row_t::get_bigint(const std::string& keyspace,
+                           const std::string& table,
+                           const std::string& column,
+                           cql_bigint_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        output = cql::internal::decode_bigint(_row[i]);
+        return true;
+    }
+    return false;
+}
+
+bool
 cql::cql_row_t::get_string(int i,
                            std::string& output) const
 {

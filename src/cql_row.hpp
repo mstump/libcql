@@ -133,6 +133,20 @@ namespace cql {
                    double& output) const;
 
         bool
+        get_bigint(int i,
+                   cql_bigint_t& output) const;
+
+        bool
+        get_bigint(const std::string& column,
+                   cql_bigint_t& output) const;
+
+        bool
+        get_bigint(const std::string& keyspace,
+                   const std::string& table,
+                   const std::string& column,
+                   cql_bigint_t& output) const;
+
+        bool
         get_string(int i,
                    std::string& output) const;
 
