@@ -23,25 +23,27 @@
 #include <ostream>
 
 namespace cql {
-namespace internal {
+    namespace internal {
 
-struct HexCharStruct
-{
-	unsigned char c;
-	HexCharStruct(unsigned char _c) : c(_c) { }
-};
+        struct HexCharStruct
+        {
+            unsigned char c;
+            HexCharStruct(unsigned char _c) : c(_c) { }
+        };
 
-inline std::ostream& operator<<(std::ostream& o, const HexCharStruct& hs)
-{
-	return (o << std::hex << (int)hs.c);
-}
+        inline std::ostream&
+        operator<<(std::ostream& o, const HexCharStruct& hs)
+        {
+            return (o << std::hex << (int)hs.c);
+        }
 
-inline HexCharStruct hex(unsigned char _c)
-{
-	return HexCharStruct(_c);
-}
+        inline
+        HexCharStruct hex(unsigned char _c)
+        {
+            return HexCharStruct(_c);
+        }
 
-} // namespace internal
+    } // namespace internal
 } // namespace cql
 
 #endif // CQL_UTIL_H_
