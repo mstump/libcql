@@ -9,7 +9,7 @@ TEST(cql_header_cpp, serialization_size)
 	std::stringstream output;
 	cql::internal::cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, 0, CQL_OPCODE_READY, 5);
 	header.write(output);
-	EXPECT_EQ(sizeof(header), output.str().size());
+	EXPECT_EQ(header.size(), output.str().size());
 }
 
 TEST(cql_header_cpp, serialization_round_trip)
@@ -31,5 +31,20 @@ TEST(cql_header_cpp, serialization_to_byte)
 	std::stringstream output;
 	cql::internal::cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, 1, CQL_OPCODE_READY, 5);
 	header.write(output);
-    EXPECT_TRUE(memcmp(TEST_REF_HEADER, output.str().data(), sizeof(header)) == 0);
+    EXPECT_TRUE(memcmp(TEST_REF_HEADER, output.str().data(), sizeof(TEST_REF_HEADER)) == 0);
+}
+
+TEST(cql_header_cpp, serialization_from_byte)
+{
+	std::stringstream input;
+	cql::internal::cql_header_t header;
+
+    input.write(TEST_REF_HEADER, 8);
+	header.read(input);
+
+	EXPECT_EQ(1, header.version());
+	EXPECT_EQ(0, header.flags());
+	EXPECT_EQ(1, header.stream());
+	EXPECT_EQ(2, header.opcode());
+	EXPECT_EQ(5, header.length());
 }
