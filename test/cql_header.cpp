@@ -4,6 +4,35 @@
 
 char TEST_REF_HEADER[] = { 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x05 };
 
+TEST(cql_header_cpp, getters_and_constructor)
+{
+	std::stringstream output;
+	cql::internal::cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, 1, CQL_OPCODE_READY, 5);
+	EXPECT_EQ(1, header.version());
+	EXPECT_EQ(0, header.flags());
+	EXPECT_EQ(1, header.stream());
+	EXPECT_EQ(2, header.opcode());
+	EXPECT_EQ(5, header.length());
+}
+
+TEST(cql_header_cpp, setters)
+{
+	std::stringstream output;
+	cql::internal::cql_header_t header;
+
+    header.version(CQL_VERSION_1_REQUEST);
+    header.flags(CQL_FLAG_NOFLAG);
+    header.stream(1);
+    header.opcode(CQL_OPCODE_READY);
+    header.length(5);
+
+	EXPECT_EQ(1, header.version());
+	EXPECT_EQ(0, header.flags());
+	EXPECT_EQ(1, header.stream());
+	EXPECT_EQ(2, header.opcode());
+	EXPECT_EQ(5, header.length());
+}
+
 TEST(cql_header_cpp, serialization_size)
 {
 	std::stringstream output;
