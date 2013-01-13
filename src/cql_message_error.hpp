@@ -33,6 +33,9 @@ public:
 
 cql_message_error_t();
 
+    cql_message_error_t(cql_int_t code,
+                        const std::string& message);
+
 	const std::string&
 	message() const;
 

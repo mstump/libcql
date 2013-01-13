@@ -9,6 +9,12 @@ cql::cql_message_error_t::cql_message_error_t() :
 	_message()
 {}
 
+cql::cql_message_error_t::cql_message_error_t(cql_int_t code,
+                                              const std::string& message) :
+	_code(code),
+	_message(message)
+{}
+
 const std::string&
 cql::cql_message_error_t::message() const
 {
