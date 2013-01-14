@@ -19,6 +19,12 @@ TEST(cql_message_error_cpp, constructor)
 	EXPECT_EQ("foo", m.message());
 }
 
+TEST(cql_message_error_cpp, opcode)
+{
+	cql::cql_message_error_t m;
+	EXPECT_EQ(CQL_OPCODE_ERROR, m.opcode());
+}
+
 TEST(cql_message_error_cpp, serialization_round_trip)
 {
 	std::stringstream output;
