@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <sstream>
@@ -56,48 +56,48 @@ cql::cql_result_metadata_t::str() const
 std::istream&
 cql::cql_result_metadata_t::read(std::istream& input)
 {
-	cql::internal::decode_int(input, _flags);
-	cql::internal::decode_int(input, _column_count);
+    cql::internal::decode_int(input, _flags);
+    cql::internal::decode_int(input, _column_count);
 
-	std::string keyspace_name;
-	std::string table_name;
+    std::string keyspace_name;
+    std::string table_name;
 
-	if (_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
-	{
-		cql::internal::decode_string(input, keyspace_name);
-		cql::internal::decode_string(input, table_name);
-	}
+    if (_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
+    {
+        cql::internal::decode_string(input, keyspace_name);
+        cql::internal::decode_string(input, table_name);
+    }
 
-	for (int i = 0; i < _column_count; ++i)
-	{
-		if (! _flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
-		{
-			cql::internal::decode_string(input, keyspace_name);
-			cql::internal::decode_string(input, table_name);
-		}
-		std::string column_name;
-		cql::internal::decode_string(input, column_name);
+    for (int i = 0; i < _column_count; ++i)
+    {
+        if (! _flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
+        {
+            cql::internal::decode_string(input, keyspace_name);
+            cql::internal::decode_string(input, table_name);
+        }
+        std::string column_name;
+        cql::internal::decode_string(input, column_name);
 
         std::auto_ptr<option_t> option(new option_t);
-		cql::internal::decode_option(input, option->id, option->value);
+        cql::internal::decode_option(input, option->id, option->value);
 
         column_name_t name(keyspace_name, table_name, column_name);
         _column_name_idx.insert(column_name_idx_t::value_type(name, i));
         _columns.push_back(option);
-	}
+    }
     return input;
 }
 
 cql_int_t
 cql::cql_result_metadata_t::flags() const
 {
-	return _flags;
+    return _flags;
 }
 
 void
 cql::cql_result_metadata_t::flags(cql_int_t v)
 {
-	_flags = v;
+    _flags = v;
 }
 
 cql_int_t

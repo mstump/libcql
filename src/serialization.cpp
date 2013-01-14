@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <vector>
@@ -52,38 +52,38 @@ htond(double source)
 
 std::ostream&
 cql::internal::encode_short(std::ostream& output,
-							cql_short_t value)
+                            cql_short_t value)
 {
-	cql_int_t s = htons(value);
-	output.write(reinterpret_cast<char*>(&s), sizeof(s));
-	return output;
+    cql_int_t s = htons(value);
+    output.write(reinterpret_cast<char*>(&s), sizeof(s));
+    return output;
 }
 
 std::istream&
 cql::internal::decode_short(std::istream& input,
-							cql_short_t& value)
+                            cql_short_t& value)
 {
-	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    input.read(reinterpret_cast<char*>(&value), sizeof(value));
     value = ntohs(value);
-	return input;
+    return input;
 }
 
 std::ostream&
 cql::internal::encode_int(std::ostream& output,
-						  cql_int_t value)
+                          cql_int_t value)
 {
-	cql_int_t l = htonl(value);
-	output.write(reinterpret_cast<char*>(&l), sizeof(l));
-	return output;
+    cql_int_t l = htonl(value);
+    output.write(reinterpret_cast<char*>(&l), sizeof(l));
+    return output;
 }
 
 std::istream&
 cql::internal::decode_int(std::istream& input,
-						  cql_int_t& value)
+                          cql_int_t& value)
 {
-	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    input.read(reinterpret_cast<char*>(&value), sizeof(value));
     value = ntohl(value);
-	return input;
+    return input;
 }
 
 cql_int_t
@@ -96,18 +96,18 @@ std::ostream&
 cql::internal::encode_float(std::ostream& output,
                             float value)
 {
-	cql_int_t l = htonl(value);
-	output.write(reinterpret_cast<char*>(&l), sizeof(l));
-	return output;
+    cql_int_t l = htonl(value);
+    output.write(reinterpret_cast<char*>(&l), sizeof(l));
+    return output;
 }
 
 std::istream&
 cql::internal::decode_float(std::istream& input,
                             float& value)
 {
-	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    input.read(reinterpret_cast<char*>(&value), sizeof(value));
     value = ntohl(value);
-	return input;
+    return input;
 }
 
 float
@@ -120,18 +120,18 @@ std::ostream&
 cql::internal::encode_double(std::ostream& output,
                              double value)
 {
-	double d = htond(value);
-	output.write(reinterpret_cast<char*>(&d), sizeof(d));
-	return output;
+    double d = htond(value);
+    output.write(reinterpret_cast<char*>(&d), sizeof(d));
+    return output;
 }
 
 std::istream&
 cql::internal::decode_double(std::istream& input,
                              double& value)
 {
-	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    input.read(reinterpret_cast<char*>(&value), sizeof(value));
     value = ntohd(value);
-	return input;
+    return input;
 }
 
 double
@@ -144,18 +144,18 @@ std::ostream&
 cql::internal::encode_bigint(std::ostream& output,
                              cql_bigint_t value)
 {
-	cql_bigint_t d = htond(value);
-	output.write(reinterpret_cast<char*>(&d), sizeof(d));
-	return output;
+    cql_bigint_t d = htond(value);
+    output.write(reinterpret_cast<char*>(&d), sizeof(d));
+    return output;
 }
 
 std::istream&
 cql::internal::decode_bigint(std::istream& input,
                              cql_bigint_t& value)
 {
-	input.read(reinterpret_cast<char*>(&value), sizeof(value));
+    input.read(reinterpret_cast<char*>(&value), sizeof(value));
     value = ntohd(value);
-	return input;
+    return input;
 }
 
 cql_bigint_t
@@ -166,26 +166,26 @@ cql::internal::decode_bigint(const std::vector<cql_byte_t>& input)
 
 std::ostream&
 cql::internal::encode_string(std::ostream& output,
-							 const std::string& value)
+                             const std::string& value)
 {
-	cql_short_t len = htons(value.size());
-	output.write(reinterpret_cast<char*>(&len), sizeof(len));
-	output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
-	return output;
+    cql_short_t len = htons(value.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
+    return output;
 }
 
 std::istream&
 cql::internal::decode_string(std::istream& input,
-							 std::string& value)
+                             std::string& value)
 {
-	cql_short_t len;
-	input.read(reinterpret_cast<char*>(&len), sizeof(len));
-	len = ntohs(len);
+    cql_short_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohs(len);
 
-	std::vector<char> buffer(len, 0);
-	input.read(&buffer[0], len);
-	value.assign(buffer.begin(), buffer.end());
-	return input;
+    std::vector<char> buffer(len, 0);
+    input.read(&buffer[0], len);
+    value.assign(buffer.begin(), buffer.end());
+    return input;
 }
 
 
@@ -193,9 +193,9 @@ std::ostream&
 cql::internal::encode_bytes(std::ostream& output,
                             const std::vector<cql_byte_t>& value)
 {
-	cql_int_t len = htonl(value.size());
-	output.write(reinterpret_cast<char*>(&len), sizeof(len));
-	output.write(reinterpret_cast<const char*>(&value[0]), value.size());
+    cql_int_t len = htonl(value.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    output.write(reinterpret_cast<const char*>(&value[0]), value.size());
     return output;
 }
 
@@ -203,144 +203,144 @@ std::istream&
 cql::internal::decode_bytes(std::istream& input,
                             std::vector<cql_byte_t>& value)
 {
-	cql_int_t len;
-	input.read(reinterpret_cast<char*>(&len), sizeof(len));
-	len = ntohl(len);
+    cql_int_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohl(len);
 
     value.resize(len, 0);
-	input.read(reinterpret_cast<char*>(&value[0]), len);
+    input.read(reinterpret_cast<char*>(&value[0]), len);
     return input;
 }
 
 std::ostream&
 cql::internal::encode_long_string(std::ostream& output,
-								  const std::string& value)
+                                  const std::string& value)
 {
-	cql_int_t len = htonl(value.size());
-	output.write(reinterpret_cast<char*>(&len), sizeof(len));
-	output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
-	return output;
+    cql_int_t len = htonl(value.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
+    return output;
 }
 
 std::istream&
 cql::internal::decode_long_string(std::istream& input,
-								  std::string& value)
+                                  std::string& value)
 {
-	cql_int_t len;
-	input.read(reinterpret_cast<char*>(&len), sizeof(len));
-	len = ntohl(len);
+    cql_int_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohl(len);
 
-	std::vector<char> buffer(len);
-	input.read(&buffer[0], len);
-	value.assign(buffer.begin(), buffer.end());
-	return input;
+    std::vector<char> buffer(len);
+    input.read(&buffer[0], len);
+    value.assign(buffer.begin(), buffer.end());
+    return input;
 }
 
 std::ostream&
 cql::internal::encode_string_list(std::ostream& output,
-								  const std::list<std::string>& list)
+                                  const std::list<std::string>& list)
 {
-	cql_short_t len = htons(list.size());
-	output.write(reinterpret_cast<char*>(&len), sizeof(len));
-	BOOST_FOREACH(const std::string& s, list)
-		cql::internal::encode_string(output, s);
-	return output;
+    cql_short_t len = htons(list.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    BOOST_FOREACH(const std::string& s, list)
+        cql::internal::encode_string(output, s);
+    return output;
 }
 
 std::istream&
 cql::internal::decode_string_list(std::istream& input,
-								  std::list<std::string>& list)
+                                  std::list<std::string>& list)
 {
-	cql_short_t len;
-	input.read(reinterpret_cast<char*>(&len), sizeof(len));
-	len = ntohs(len);
+    cql_short_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohs(len);
 
-	list.clear();
-	for (int i = 0; i < len; i++)
-	{
-		std::string s;
-		cql::internal::decode_string(input, s);
-		list.push_back(s);
-	}
+    list.clear();
+    for (int i = 0; i < len; i++)
+    {
+        std::string s;
+        cql::internal::decode_string(input, s);
+        list.push_back(s);
+    }
 
-	return input;
+    return input;
 }
 
 std::ostream&
 cql::internal::encode_string_map(std::ostream& output,
-				  const std::map<std::string, std::string>& map)
+                  const std::map<std::string, std::string>& map)
 {
-	cql_short_t len = htons(map.size());
-	output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    cql_short_t len = htons(map.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
 
-	std::map<std::string, std::string>::const_iterator it = map.begin();
-	for (; it != map.end(); it++)
-	{
-		cql::internal::encode_string(output, (*it).first);
-		cql::internal::encode_string(output, (*it).second);
-	}
+    std::map<std::string, std::string>::const_iterator it = map.begin();
+    for (; it != map.end(); it++)
+    {
+        cql::internal::encode_string(output, (*it).first);
+        cql::internal::encode_string(output, (*it).second);
+    }
 
-	return output;
+    return output;
 }
 
 std::istream&
 cql::internal::decode_string_map(std::istream& input,
-								 std::map<std::string, std::string>& map)
+                                 std::map<std::string, std::string>& map)
 {
-	cql_short_t len;
-	input.read(reinterpret_cast<char*>(&len), sizeof(len));
-	len = ntohs(len);
+    cql_short_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohs(len);
 
-	map.clear();
-	for (int i = 0; i < len; i++)
-	{
-		std::string key;
-		std::string value;
-		cql::internal::decode_string(input, key);
-		cql::internal::decode_string(input, value);
-		map.insert(std::pair<std::string, std::string>(key, value));
-	}
+    map.clear();
+    for (int i = 0; i < len; i++)
+    {
+        std::string key;
+        std::string value;
+        cql::internal::decode_string(input, key);
+        cql::internal::decode_string(input, value);
+        map.insert(std::pair<std::string, std::string>(key, value));
+    }
 
-	return input;
+    return input;
 }
 
 std::ostream&
 cql::internal::encode_string_multimap(std::ostream& output,
-									  const std::map<std::string, std::list<std::string> >& map)
+                                      const std::map<std::string, std::list<std::string> >& map)
 {
-	cql_short_t len = htons(map.size());
-	output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    cql_short_t len = htons(map.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
 
-	std::map<std::string, std::list<std::string> >::const_iterator it = map.begin();
-	for (; it != map.end(); it++)
-	{
-		cql::internal::encode_string(output, (*it).first);
-		cql::internal::encode_string_list(output, (*it).second);
-	}
+    std::map<std::string, std::list<std::string> >::const_iterator it = map.begin();
+    for (; it != map.end(); it++)
+    {
+        cql::internal::encode_string(output, (*it).first);
+        cql::internal::encode_string_list(output, (*it).second);
+    }
 
-	return output;
+    return output;
 }
 
 std::istream&
 cql::internal::decode_string_multimap(std::istream& input,
-									  std::map<std::string, std::list<std::string> >& map)
+                                      std::map<std::string, std::list<std::string> >& map)
 {
-	cql_short_t len;
-	input.read(reinterpret_cast<char*>(&len), sizeof(len));
-	len = ntohs(len);
+    cql_short_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohs(len);
 
-	map.clear();
-	for (int i = 0; i < len; i++)
-	{
-		std::string key;
-		cql::internal::decode_string(input, key);
+    map.clear();
+    for (int i = 0; i < len; i++)
+    {
+        std::string key;
+        cql::internal::decode_string(input, key);
 
-		std::list<std::string> values;
-		cql::internal::decode_string_list(input, values);
-		map.insert(std::pair<std::string, std::list<std::string> >(key, values));
-	}
+        std::list<std::string> values;
+        cql::internal::decode_string_list(input, values);
+        map.insert(std::pair<std::string, std::list<std::string> >(key, values));
+    }
 
-	return input;
+    return input;
 }
 
 
@@ -350,9 +350,9 @@ cql::internal::encode_option(std::ostream& output,
                              const std::string& value)
 {
     cql::internal::encode_short(output, id);
-	if (id == CQL_COLUMN_TYPE_CUSTOM)
-		cql::internal::encode_string(output, value);
-	return output;
+    if (id == CQL_COLUMN_TYPE_CUSTOM)
+        cql::internal::encode_string(output, value);
+    return output;
 }
 
 std::istream&
@@ -361,7 +361,7 @@ cql::internal::decode_option(std::istream& input,
                              std::string& value)
 {
     cql::internal::decode_short(input, id);
-	if (id == CQL_COLUMN_TYPE_CUSTOM)
-		cql::internal::decode_string(input, value);
-	return input;
+    if (id == CQL_COLUMN_TYPE_CUSTOM)
+        cql::internal::decode_string(input, value);
+    return input;
 }

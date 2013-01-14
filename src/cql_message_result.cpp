@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <iomanip>
@@ -26,50 +26,50 @@
 #include "cql_message_result.hpp"
 
 cql::cql_message_result_t::cql_message_result_t() :
-	_result_type(0)
+    _result_type(0)
 {}
 
 cql_int_t
 cql::cql_message_result_t::result_type() const
 {
-	return _result_type;
+    return _result_type;
 }
 
 uint8_t
 cql::cql_message_result_t::opcode() const
 {
-	return CQL_OPCODE_RESULT;
+    return CQL_OPCODE_RESULT;
 }
 
 cql_int_t
 cql::cql_message_result_t::size() const
 {
-	std::stringstream ss(std::stringstream::out);
-	write(ss);
-	return ss.str().size();
+    std::stringstream ss(std::stringstream::out);
+    write(ss);
+    return ss.str().size();
 }
 
 std::string
 cql::cql_message_result_t::str() const
 {
-	std::stringstream output;
-	output << std::setfill('0');
-	output << std::string("RESULT 0x") << std::setw(2) << cql::internal::hex(_result_type);
-	output << " " << _metadata.str();
-	return output.str();
+    std::stringstream output;
+    output << std::setfill('0');
+    output << std::string("RESULT 0x") << std::setw(2) << cql::internal::hex(_result_type);
+    output << " " << _metadata.str();
+    return output.str();
 }
 
 std::istream&
 cql::cql_message_result_t::read(std::istream& input)
 {
-	_keyspace_name.clear();
-	_row_count = 0;
+    _keyspace_name.clear();
+    _row_count = 0;
 
     cql::internal::decode_int(input, _result_type);
 
-	switch(_result_type) {
+    switch(_result_type) {
 
-	case CQL_RESULT_ROWS:
+    case CQL_RESULT_ROWS:
         _metadata.read(input);
         cql::internal::decode_int(input, _row_count);
         for (int i = 0; i < _row_count; ++i)
@@ -77,25 +77,25 @@ cql::cql_message_result_t::read(std::istream& input)
             _rows.push_back(new cql_row_t(_metadata, input));
         }
 
-		break;
+        break;
 
-	case CQL_RESULT_SET_KEYSPACE:
-		cql::internal::decode_string(input, _keyspace_name);
-		break;
+    case CQL_RESULT_SET_KEYSPACE:
+        cql::internal::decode_string(input, _keyspace_name);
+        break;
 
-	case CQL_RESULT_VOID:
-		break;
-	}
+    case CQL_RESULT_VOID:
+        break;
+    }
 
-	return input;
+    return input;
 }
 
 std::ostream&
 cql::cql_message_result_t::write(std::ostream& output) const
 {
-	int32_t result_type = htonl(_result_type);
-	output.write(reinterpret_cast<char*>(&result_type), sizeof(result_type));
-	return output;
+    int32_t result_type = htonl(_result_type);
+    output.write(reinterpret_cast<char*>(&result_type), sizeof(result_type));
+    return output;
 }
 
 const cql::cql_row_t&

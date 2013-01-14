@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <sstream>
@@ -28,45 +28,45 @@ cql::cql_message_register_t::cql_message_register_t()
 cql_byte_t
 cql::cql_message_register_t::opcode() const
 {
-	return CQL_OPCODE_REGISTER;
+    return CQL_OPCODE_REGISTER;
 }
 
 cql_int_t
 cql::cql_message_register_t::size() const
 {
-	std::stringstream ss(std::stringstream::out);
-	write(ss);
-	return ss.str().size();
+    std::stringstream ss(std::stringstream::out);
+    write(ss);
+    return ss.str().size();
 }
 
 void
 cql::cql_message_register_t::events(const std::list<std::string>& c)
 {
-	_events = c;
+    _events = c;
 }
 
 const std::list<std::string>&
 cql::cql_message_register_t::events() const
 {
-	return _events;
+    return _events;
 }
 
 std::string
 cql::cql_message_register_t::str() const
 {
-	return std::string("[") + boost::algorithm::join(_events, ", ") + "]";
+    return std::string("[") + boost::algorithm::join(_events, ", ") + "]";
 }
 
 std::istream&
 cql::cql_message_register_t::read(std::istream& input)
 {
-	cql::internal::decode_string_list(input, _events);
-	return input;
+    cql::internal::decode_string_list(input, _events);
+    return input;
 }
 
 std::ostream&
 cql::cql_message_register_t::write(std::ostream& output) const
 {
-	cql::internal::encode_string_list(output, _events);
-	return output;
+    cql::internal::encode_string_list(output, _events);
+    return output;
 }

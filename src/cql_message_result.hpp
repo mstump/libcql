@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CQL_MESSAGE_RESULT_H_
@@ -31,7 +31,7 @@ namespace cql {
 
     class cql_message_result_t :
         boost::noncopyable,
-		public cql_message_t
+        public cql_message_t
     {
 
     public:

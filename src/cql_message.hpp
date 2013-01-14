@@ -31,20 +31,20 @@ class cql_message_t
 
 public:
 
-	virtual cql_byte_t
-	opcode() const = 0;
+    virtual cql_byte_t
+    opcode() const = 0;
 
-	virtual cql_int_t
-	size() const = 0;
+    virtual cql_int_t
+    size() const = 0;
 
-	virtual std::istream&
-	read(std::istream&) = 0;
+    virtual std::istream&
+    read(std::istream&) = 0;
 
-	virtual std::ostream&
-	write(std::ostream&) const = 0;
+    virtual std::ostream&
+    write(std::ostream&) const = 0;
 
     virtual std::string
-	str() const = 0;
+    str() const = 0;
 };
 
 } // namespace cql

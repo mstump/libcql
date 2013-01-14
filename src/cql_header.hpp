@@ -30,70 +30,70 @@ class cql_header_t {
 
 public:
 
-	cql_header_t();
+    cql_header_t();
 
-	cql_header_t(cql_byte_t version,
-				 cql_byte_t flags,
-				 cql_stream_id_t stream,
-				 cql_byte_t opcode,
-				 cql_int_t length);
+    cql_header_t(cql_byte_t version,
+                 cql_byte_t flags,
+                 cql_stream_id_t stream,
+                 cql_byte_t opcode,
+                 cql_int_t length);
 
-	std::string
-	str() const;
+    std::string
+    str() const;
 
-	std::ostream&
-	write(std::ostream& output) const;
+    std::ostream&
+    write(std::ostream& output) const;
 
-	std::istream&
-	read(std::istream& input);
+    std::istream&
+    read(std::istream& input);
 
     cql_int_t
-	size() const;
+    size() const;
 
-	cql_byte_t
-	version() const;
+    cql_byte_t
+    version() const;
 
-	cql_byte_t
-	flags() const;
+    cql_byte_t
+    flags() const;
 
-	cql_stream_id_t
-	stream() const;
+    cql_stream_id_t
+    stream() const;
 
-	cql_byte_t
-	opcode() const;
+    cql_byte_t
+    opcode() const;
 
-	cql_int_t
-	length() const;
+    cql_int_t
+    length() const;
 
-	void
-	version(cql_byte_t v);
+    void
+    version(cql_byte_t v);
 
-	void
-	flags(cql_byte_t v);
+    void
+    flags(cql_byte_t v);
 
-	void
-	stream(cql_stream_id_t v);
+    void
+    stream(cql_stream_id_t v);
 
-	void
-	opcode(cql_byte_t v);
+    void
+    opcode(cql_byte_t v);
 
-	void
-	length(cql_int_t v);
+    void
+    length(cql_int_t v);
 
-	friend std::ostream
-	&operator<<(std::ostream& output,
-				const cql_header_t& h)
-	{
-		output << h.str();
-		return output;
-	}
+    friend std::ostream
+    &operator<<(std::ostream& output,
+                const cql_header_t& h)
+    {
+        output << h.str();
+        return output;
+    }
 
 private:
-	cql_byte_t		_version;
-	cql_byte_t		_flags;
-	cql_stream_id_t _stream;
-	cql_byte_t		_opcode;
-	cql_int_t		_length;
+    cql_byte_t      _version;
+    cql_byte_t      _flags;
+    cql_stream_id_t _stream;
+    cql_byte_t      _opcode;
+    cql_int_t       _length;
 };
 #pragma pack(pop)
 

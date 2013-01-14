@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CQL_MESSAGE_REGISTER_H_
@@ -26,36 +26,36 @@
 namespace cql {
 
 class cql_message_register_t :
-		public cql_message_t
+        public cql_message_t
 {
 
 public:
 
-	cql_message_register_t();
+    cql_message_register_t();
 
-	cql_byte_t
-	opcode() const;
+    cql_byte_t
+    opcode() const;
 
-	cql_int_t
-	size() const;
+    cql_int_t
+    size() const;
 
-	void
-	events(const std::list<std::string>& c);
+    void
+    events(const std::list<std::string>& c);
 
-	const std::list<std::string>&
-	events() const;
+    const std::list<std::string>&
+    events() const;
 
-	std::string
-	str() const;
+    std::string
+    str() const;
 
-	std::istream&
-	read(std::istream& input);
+    std::istream&
+    read(std::istream& input);
 
-	std::ostream&
-	write(std::ostream& output) const;
+    std::ostream&
+    write(std::ostream& output) const;
 
 private:
-	std::list<std::string> _events;
+    std::list<std::string> _events;
 };
 
 } // namespace cql

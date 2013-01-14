@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #ifndef CQL_CLIENT_H_
@@ -34,10 +34,10 @@
 
 typedef struct
 {
-	bool		 application;
-	cql_int_t	 application_error;
-	cql_int_t	 transport_error;
-	char*		 message;
+    bool         application;
+    cql_int_t    application_error;
+    cql_int_t    transport_error;
+    char*        message;
 } cql_error_t;
 
 // Forward declarations
@@ -51,87 +51,87 @@ class cql_header_t;
 
 
 class cql_client_t :
-	boost::noncopyable
+    boost::noncopyable
 {
 
 public:
 
-	typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql_error_t&)> cql_errorback_t;
-	typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql::cql_message_result_t&)> cql_callback_result_t;
-	typedef boost::function<void(cql_client_t&)> cql_callback_connection_t;
+    typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql_error_t&)> cql_errorback_t;
+    typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql::cql_message_result_t&)> cql_callback_result_t;
+    typedef boost::function<void(cql_client_t&)> cql_callback_connection_t;
 
-	cql_client_t(boost::asio::io_service& io_service);
+    cql_client_t(boost::asio::io_service& io_service);
 
-	void
-	connect(const std::string& server,
-			unsigned int port,
-			cql_callback_connection_t callback);
+    void
+    connect(const std::string& server,
+            unsigned int port,
+            cql_callback_connection_t callback);
 
 
-	cql_stream_id_t
-	query(const std::string& query,
-		  cql_int_t consistency,
-		  cql_callback_result_t callback,
-		  cql_errorback_t errback);
+    cql_stream_id_t
+    query(const std::string& query,
+          cql_int_t consistency,
+          cql_callback_result_t callback,
+          cql_errorback_t errback);
 
 private:
-	typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
-	typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;
-	typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
+    typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
+    typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;
+    typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
 
-	cql_stream_id_t
-	get_new_stream();
+    cql_stream_id_t
+    get_new_stream();
 
-	void
-	resolve_handle(const boost::system::error_code& err,
-				   boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
+    void
+    resolve_handle(const boost::system::error_code& err,
+                   boost::asio::ip::tcp::resolver::iterator endpoint_iterator);
 
-	void
-	connect_handle(const boost::system::error_code& err);
+    void
+    connect_handle(const boost::system::error_code& err);
 
-	cql_byte_t
-	write_message(cql::cql_message_t& data,
-				  const write_callback_t& callback);
+    cql_byte_t
+    write_message(cql::cql_message_t& data,
+                  const write_callback_t& callback);
 
-	void
-	write_handle(const boost::system::error_code& err,
-				 std::size_t);
+    void
+    write_handle(const boost::system::error_code& err,
+                 std::size_t);
 
-	void
-	header_read();
+    void
+    header_read();
 
-	void
-	header_read_handle(const boost::system::error_code& err);
+    void
+    header_read_handle(const boost::system::error_code& err);
 
-	void
-	body_read(const cql::internal::cql_header_t& header);
+    void
+    body_read(const cql::internal::cql_header_t& header);
 
-	void
-	body_read_handle(const cql::internal::cql_header_t& header,
-					 const boost::system::error_code& err);
+    void
+    body_read_handle(const cql::internal::cql_header_t& header,
+                     const boost::system::error_code& err);
 
-	void
-	startup_write();
+    void
+    startup_write();
 
-	void
-	ready_receive();
+    void
+    ready_receive();
 
-	void
-	error_receive();
+    void
+    error_receive();
 
-	void
-	supported_receive();
+    void
+    supported_receive();
 
-	void
-	result_receive(const cql::internal::cql_header_t& header);
+    void
+    result_receive(const cql::internal::cql_header_t& header);
 
-	cql_stream_id_t									 _stream_counter;
-	boost::asio::ip::tcp::resolver					 _resolver;
-	boost::asio::ip::tcp::socket					 _socket;
-	boost::asio::streambuf							 _receive_buffer;
-	boost::asio::streambuf							 _request_buffer;
-	callback_map_t									 _callback_map;
-	cql_callback_connection_t						 _connect_callback;
+    cql_stream_id_t                                  _stream_counter;
+    boost::asio::ip::tcp::resolver                   _resolver;
+    boost::asio::ip::tcp::socket                     _socket;
+    boost::asio::streambuf                           _receive_buffer;
+    boost::asio::streambuf                           _request_buffer;
+    callback_map_t                                   _callback_map;
+    cql_callback_connection_t                        _connect_callback;
 };
 
 } // namespace cql
