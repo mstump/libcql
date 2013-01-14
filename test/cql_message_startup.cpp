@@ -14,6 +14,13 @@ TEST(cql_message_startup_cpp, opcode)
 	EXPECT_EQ(CQL_OPCODE_STARTUP, m.opcode());
 }
 
+TEST(cql_message_startup_cpp, serialization_size)
+{
+	cql::cql_message_startup_t m;
+    m.version(CQL_VERSION_IMPL);
+    EXPECT_EQ(sizeof(TEST_MESSAGE_STARTUP), m.size());
+}
+
 TEST(cql_message_startup_cpp, serialization_to_byte)
 {
 	std::stringstream output;
