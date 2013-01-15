@@ -1,4 +1,11 @@
 libcql
 ======
 
-implementation of the cassandra binary protocol in c
+Implementation of the Cassandra binary protocol in C++
+
+### TODO
+- [ ] Connection pools
+- [ ] Retry
+- [ ] Synchronous API
+- [ ] Docs
+- [ ] Continuations/Futures
