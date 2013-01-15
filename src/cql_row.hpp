@@ -92,7 +92,7 @@ namespace cql {
 
         bool
         get_int(int i,
-            cql_int_t& output) const;
+                cql_int_t& output) const;
 
         bool
         get_int(const std::string& column,

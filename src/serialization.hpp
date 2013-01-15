@@ -54,11 +54,11 @@ namespace cql {
 
         std::ostream&
         encode_double(std::ostream& output,
-                     double value);
+                      double value);
 
         std::istream&
         decode_double(std::istream& input,
-                     double& value);
+                      double& value);
 
         std::ostream&
         encode_float(std::ostream& output,
@@ -73,11 +73,11 @@ namespace cql {
 
         std::ostream&
         encode_double(std::ostream& output,
-                     double value);
+                      double value);
 
         std::istream&
         decode_double(std::istream& input,
-                     double& value);
+                      double& value);
 
         std::ostream&
         encode_bigint(std::ostream& output,

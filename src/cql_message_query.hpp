@@ -25,48 +25,48 @@
 
 namespace cql {
 
-class cql_message_query_t :
+    class cql_message_query_t :
         public cql_message_t
-{
+    {
 
-public:
+    public:
 
-    cql_message_query_t();
+        cql_message_query_t();
 
-    cql_message_query_t(const std::string& query,
-                        cql_short_t consistency);
+        cql_message_query_t(const std::string& query,
+                            cql_short_t consistency);
 
-    const std::string&
-    query() const;
+        const std::string&
+        query() const;
 
-    cql_short_t
-    consistency() const;
+        cql_short_t
+        consistency() const;
 
-    void
-    query(const std::string& q);
+        void
+        query(const std::string& q);
 
-    void
-    consistency(cql_short_t consistency);
+        void
+        consistency(cql_short_t consistency);
 
-    cql_byte_t
-    opcode() const;
+        cql_byte_t
+        opcode() const;
 
-    cql_int_t
-    size() const;
+        cql_int_t
+        size() const;
 
-    std::string
-    str() const;
+        std::string
+        str() const;
 
-    std::istream&
-    read(std::istream& input);
+        std::istream&
+        read(std::istream& input);
 
-    std::ostream&
-    write(std::ostream& output) const;
+        std::ostream&
+        write(std::ostream& output) const;
 
-private:
-    cql_short_t _consistency;
-    std::string _query;
-};
+    private:
+        cql_short_t _consistency;
+        std::string _query;
+    };
 
 } // namespace cql
 

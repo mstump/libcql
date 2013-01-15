@@ -25,43 +25,43 @@
 
 namespace cql {
 
-class cql_message_prepare_t :
+    class cql_message_prepare_t :
         public cql_message_t
-{
+    {
 
-public:
+    public:
 
-    cql_message_prepare_t();
+        cql_message_prepare_t();
 
-    cql_message_prepare_t(const std::string& query);
+        cql_message_prepare_t(const std::string& query);
 
-    const std::string&
-    prepare() const;
+        const std::string&
+        prepare() const;
 
-    const std::string&
-    query() const;
+        const std::string&
+        query() const;
 
-    void
-    query(const std::string& q);
+        void
+        query(const std::string& q);
 
-    cql_byte_t
-    opcode() const;
+        cql_byte_t
+        opcode() const;
 
-    cql_int_t
-    size() const;
+        cql_int_t
+        size() const;
 
-    std::string
-    str() const;
+        std::string
+        str() const;
 
-    std::istream&
-    read(std::istream& input);
+        std::istream&
+        read(std::istream& input);
 
-    std::ostream&
-    write(std::ostream& output) const;
+        std::ostream&
+        write(std::ostream& output) const;
 
-private:
-    std::string _query;
-};
+    private:
+        std::string _query;
+    };
 
 } // namespace cql
 

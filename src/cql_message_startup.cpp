@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.      If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <map>
@@ -24,82 +24,82 @@
 #include "serialization.hpp"
 
 cql::cql_message_startup_t::cql_message_startup_t() :
-	_version(),
-	_compression()
+    _version(),
+    _compression()
 {}
 
 void
 cql::cql_message_startup_t::compression(const std::string& c)
 {
-	_compression = c;
+    _compression = c;
 }
 
 const std::string&
 cql::cql_message_startup_t::compression() const
 {
-	return _compression;
+    return _compression;
 }
 
 void
 cql::cql_message_startup_t::version(const std::string& v)
 {
-	_version = v;
+    _version = v;
 }
 
 const std::string&
 cql::cql_message_startup_t::version() const
 {
-	return _version;
+    return _version;
 }
 
 cql_byte_t
 cql::cql_message_startup_t::opcode() const
 {
-	return CQL_OPCODE_STARTUP;
+    return CQL_OPCODE_STARTUP;
 }
 
 cql_int_t
 cql::cql_message_startup_t::size() const
 {
-	std::stringstream ss(std::stringstream::out);
-	write(ss);
-	return ss.str().size();
+    std::stringstream ss(std::stringstream::out);
+    write(ss);
+    return ss.str().size();
 }
 
 std::string
 cql::cql_message_startup_t::str() const
 {
-	std::stringstream output;
-	output << "{version: " << _version << ", compression: " << _compression << "}";
-	return output.str();
+    std::stringstream output;
+    output << "{version: " << _version << ", compression: " << _compression << "}";
+    return output.str();
 }
 
 std::istream&
 cql::cql_message_startup_t::read(std::istream& input)
 {
-	std::map<std::string, std::string> startup;
-	cql::internal::decode_string_map(input, startup);
+    std::map<std::string, std::string> startup;
+    cql::internal::decode_string_map(input, startup);
 
-	if (startup.find(CQL_VERSION) != startup.end())
-		_version = startup[CQL_VERSION];
+    if (startup.find(CQL_VERSION) != startup.end())
+        _version = startup[CQL_VERSION];
 
-	if (startup.find(CQL_COMPRESSION) != startup.end())
-		_compression = startup[CQL_COMPRESSION];
+    if (startup.find(CQL_COMPRESSION) != startup.end())
+        _compression = startup[CQL_COMPRESSION];
 
-	return input;
+    return input;
 }
 
 std::ostream&
 cql::cql_message_startup_t::write(std::ostream& output) const
 {
-	std::map<std::string, std::string> startup;
+    std::map<std::string, std::string> startup;
 
-	if (!_version.empty())
-		startup.insert(std::pair<std::string, std::string>(CQL_VERSION, _version));
+    if (!_version.empty())
+        startup.insert(std::pair<std::string, std::string>(CQL_VERSION, _version));
 
-	if (!_compression.empty())
-		startup.insert(std::pair<std::string, std::string>(CQL_COMPRESSION, _compression));
+    if (!_compression.empty())
+        startup.insert(std::pair<std::string, std::string>(CQL_COMPRESSION, _compression));
 
-	cql::internal::encode_string_map(output, startup);
-	return output;
+    cql::internal::encode_string_map(output, startup);
+    return output;
 }

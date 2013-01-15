@@ -10,11 +10,11 @@
 
   libcql is distributed in the hope that it will be useful,
   but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.	See the
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
   GNU Lesser General Public License for more details.
 
   You should have received a copy of the GNU Lesser General Public License
-  along with this program.	If not, see <http://www.gnu.org/licenses/>.
+  along with this program.      If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "cql_message_options.hpp"
@@ -25,29 +25,29 @@ cql::cql_message_options_t::cql_message_options_t()
 cql_byte_t
 cql::cql_message_options_t::opcode() const
 {
-	return CQL_OPCODE_OPTIONS;
+    return CQL_OPCODE_OPTIONS;
 }
 
 cql_int_t
 cql::cql_message_options_t::size() const
 {
-	return 0;
+    return 0;
 }
 
 std::string
 cql::cql_message_options_t::str() const
 {
-	return "OPTIONS";
+    return "OPTIONS";
 }
 
 std::istream&
 cql::cql_message_options_t::read(std::istream& input)
 {
-	return input;
+    return input;
 }
 
 std::ostream&
 cql::cql_message_options_t::write(std::ostream& output) const
 {
-	return output;
+    return output;
 }

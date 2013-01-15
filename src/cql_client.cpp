@@ -51,7 +51,7 @@
 
 cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service)
     : _resolver(io_service),
-    _socket(io_service)
+      _socket(io_service)
 {}
 
 void

@@ -268,7 +268,7 @@ cql::internal::decode_string_list(std::istream& input,
 
 std::ostream&
 cql::internal::encode_string_map(std::ostream& output,
-                  const std::map<std::string, std::string>& map)
+                                 const std::map<std::string, std::string>& map)
 {
     cql_short_t len = htons(map.size());
     output.write(reinterpret_cast<char*>(&len), sizeof(len));
