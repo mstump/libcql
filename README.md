@@ -5,7 +5,7 @@ Implementation of the Cassandra binary protocol in C++
 
 ### TODO
 - Connection pools
-- Rquest retry
+- Request retry
 - Synchronous API
 - Docs
 - Continuations/Futures
