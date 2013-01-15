@@ -74,6 +74,11 @@ public:
           cql_callback_result_t callback,
           cql_errorback_t errback);
 
+    cql_stream_id_t
+    prepare(const std::string& query,
+            cql_callback_result_t callback,
+            cql_errorback_t errback);
+
 private:
     typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
     typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;

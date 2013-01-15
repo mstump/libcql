@@ -17,36 +17,32 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_MESSAGE_QUERY_H_
-#define CQL_MESSAGE_QUERY_H_
+#ifndef CQL_MESSAGE_PREPARE_H_
+#define CQL_MESSAGE_PREPARE_H_
 
 #include "../include/cql.h"
 #include "cql_message.hpp"
 
 namespace cql {
 
-class cql_message_query_t :
+class cql_message_prepare_t :
         public cql_message_t
 {
 
 public:
 
-    cql_message_query_t();
+    cql_message_prepare_t();
 
-    cql_message_query_t(const std::string& query,
-                        cql_short_t consistency);
+    cql_message_prepare_t(const std::string& query);
+
+    const std::string&
+    prepare() const;
 
     const std::string&
     query() const;
 
-    cql_short_t
-    consistency() const;
-
     void
     query(const std::string& q);
-
-    void
-    consistency(cql_short_t consistency);
 
     cql_byte_t
     opcode() const;
@@ -64,10 +60,9 @@ public:
     write(std::ostream& output) const;
 
 private:
-    cql_short_t _consistency;
     std::string _query;
 };
 
 } // namespace cql
 
-#endif // CQL_MESSAGE_QUERY_H_
+#endif // CQL_MESSAGE_PREPARE_H_

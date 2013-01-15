@@ -38,6 +38,7 @@
 #include "cql_message.hpp"
 #include "cql_message_error.hpp"
 #include "cql_message_options.hpp"
+#include "cql_message_prepare.hpp"
 #include "cql_message_query.hpp"
 #include "cql_message_ready.hpp"
 #include "cql_message_register.hpp"
@@ -76,6 +77,24 @@ cql::cql_client_t::query(const std::string& query,
 {
     cql::cql_message_query_t m(query, consistency);
     std::cout << "send query: " << m.str() << std::endl;
+
+    cql_stream_id_t stream = write_message(m,
+                                           boost::bind(&cql_client_t::write_handle,
+                                                       this,
+                                                       boost::asio::placeholders::error,
+                                                       boost::asio::placeholders::bytes_transferred));
+
+    _callback_map.insert(callback_map_t::value_type(stream, callback_tuple_t(callback, errback)));
+    return stream;
+}
+
+cql_stream_id_t
+cql::cql_client_t::prepare(const std::string& query,
+                           cql_callback_result_t callback,
+                           cql_errorback_t errback)
+{
+    cql::cql_message_prepare_t m(query);
+    std::cout << "prepare query: " << m.str() << std::endl;
 
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,

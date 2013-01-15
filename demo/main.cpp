@@ -25,14 +25,25 @@ select_callback(cql::cql_client_t& client,
 }
 
 void
-use_callback(cql::cql_client_t& client,
-             int8_t stream,
-             const cql::cql_message_result_t& result)
+prepare_callback(cql::cql_client_t& client,
+                 int8_t stream,
+                 const cql::cql_message_result_t& result)
 {
     client.query("SELECT * from schema_keyspaces;",
                  CQL_CONSISTENCY_ALL,
                  &select_callback,
                  &errback);
+    std::cout << result.str();
+}
+
+void
+use_callback(cql::cql_client_t& client,
+             int8_t stream,
+             const cql::cql_message_result_t& result)
+{
+    client.prepare("SELECT * from schema_keyspaces;",
+                   &prepare_callback,
+                   &errback);
     std::cout << result.str();
 }
 

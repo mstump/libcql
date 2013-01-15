@@ -26,7 +26,9 @@
 #include "cql_message_result.hpp"
 
 cql::cql_message_result_t::cql_message_result_t() :
-    _result_type(0)
+    _result_type(0),
+    _row_count(0),
+    _query_id(0)
 {}
 
 cql_int_t
@@ -83,6 +85,11 @@ cql::cql_message_result_t::read(std::istream& input)
         cql::internal::decode_string(input, _keyspace_name);
         break;
 
+    case CQL_RESULT_PREPARED:
+        cql::internal::decode_short(input, _query_id);
+        _metadata.read(input);
+        break;
+
     case CQL_RESULT_VOID:
         break;
     }
@@ -96,6 +103,18 @@ cql::cql_message_result_t::write(std::ostream& output) const
     int32_t result_type = htonl(_result_type);
     output.write(reinterpret_cast<char*>(&result_type), sizeof(result_type));
     return output;
+}
+
+cql_int_t
+cql::cql_message_result_t::row_count() const
+{
+    return _row_count;
+}
+
+cql_short_t
+cql::cql_message_result_t::query_id() const
+{
+    return _query_id;
 }
 
 const cql::cql_row_t&

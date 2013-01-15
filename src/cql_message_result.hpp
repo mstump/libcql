@@ -69,6 +69,9 @@ namespace cql {
         cql_int_t
         row_count() const;
 
+        cql_short_t
+        query_id() const;
+
         const cql_row_t&
         operator[](size_type n) const;
 
@@ -87,6 +90,7 @@ namespace cql {
     private:
         cql_int_t                  _result_type;
         cql_int_t                  _row_count;
+        cql_short_t                _query_id;
         std::string                _keyspace_name;
         std::string                _table_name;
         cql::cql_result_metadata_t _metadata;
