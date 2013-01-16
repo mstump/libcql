@@ -97,7 +97,6 @@ std::ostream&
 cql::cql_message_query_t::write(std::ostream& output) const
 {
     cql::internal::encode_long_string(output, _query);
-    cql_short_t consistency = htons(_consistency);
-    output.write(reinterpret_cast<char*>(&consistency), sizeof(consistency));
+    cql::internal::encode_short(output, _consistency);
     return output;
 }
