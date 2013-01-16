@@ -32,14 +32,14 @@ namespace cql {
     {
 
     public:
-        typedef  std::vector<cql_byte_t>           column_t;
-        typedef  boost::ptr_vector<column_t>       columns_container;
-        typedef  column_t*                         value_type;
-        typedef  column_t&                         reference;
-        typedef  const column_t&                   const_reference;
-        typedef  columns_container::iterator       iterator;
-        typedef  columns_container::const_iterator const_iterator;
-        typedef  columns_container::size_type      size_type;
+        typedef  std::vector<cql_byte_t>             column_t;
+        typedef  boost::ptr_vector<column_t>         columns_container_t;
+        typedef  column_t*                           value_type;
+        typedef  column_t&                           reference;
+        typedef  const column_t&                     const_reference;
+        typedef  columns_container_t::iterator       iterator;
+        typedef  columns_container_t::const_iterator const_iterator;
+        typedef  columns_container_t::size_type      size_type;
 
         cql_row_t(const cql::cql_result_metadata_t& metadata,
                   std::istream& input);
@@ -162,7 +162,7 @@ namespace cql {
 
     private:
         const cql::cql_result_metadata_t& _metadata;
-        columns_container      _row;
+        columns_container_t      _row;
     };
 
 } // namespace cql
