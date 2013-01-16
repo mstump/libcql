@@ -26,3 +26,12 @@ ext/tmp/
 Testing/
 demo/cql_demo
 test/cql_test
+
+# editor
+*.swp
+*~
+.#*
+#*
+
+# OSX
+.DS_Store
