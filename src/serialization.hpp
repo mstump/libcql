@@ -32,10 +32,26 @@
 namespace cql {
     namespace internal {
 
+        std::ostream&
+        encode_bool(std::ostream& output,
+                     bool value);
+
+        void
+        encode_bool(std::vector<cql_byte_t>& output,
+                     const bool value);
+
+        std::istream&
+        decode_bool(std::istream& input,
+                     bool& value);
+
 
         std::ostream&
         encode_short(std::ostream& output,
                      cql_short_t value);
+
+        void
+        encode_short(std::vector<cql_byte_t>& output,
+                     const cql_short_t value);
 
         std::istream&
         decode_short(std::istream& input,
@@ -43,7 +59,11 @@ namespace cql {
 
         std::ostream&
         encode_int(std::ostream& output,
-                   cql_int_t value);
+                   const cql_int_t value);
+
+        void
+        encode_int(std::vector<cql_byte_t>& output,
+                   const cql_int_t value);
 
         std::istream&
         decode_int(std::istream& input,
@@ -54,7 +74,11 @@ namespace cql {
 
         std::ostream&
         encode_double(std::ostream& output,
-                      double value);
+                      const double value);
+
+        void
+        encode_double(std::vector<cql_byte_t>& output,
+                      const double value);
 
         std::istream&
         decode_double(std::istream& input,
@@ -62,26 +86,41 @@ namespace cql {
 
         std::ostream&
         encode_float(std::ostream& output,
-                     float value);
+                     const float value);
 
-        float
-        decode_float(const std::vector<cql_byte_t>& input);
+        void
+        encode_float(std::vector<cql_byte_t>& output,
+                      const float value);
 
         std::istream&
         decode_float(std::istream& input,
                      float& value);
 
+        float
+        decode_float(const std::vector<cql_byte_t>& input);
+
         std::ostream&
         encode_double(std::ostream& output,
-                      double value);
+                      const double value);
+
+        void
+        encode_double(std::vector<cql_byte_t>& output,
+                      const double value);
 
         std::istream&
         decode_double(std::istream& input,
                       double& value);
 
+        double
+        decode_double(const std::vector<cql_byte_t>& input);
+
         std::ostream&
         encode_bigint(std::ostream& output,
-                      cql_bigint_t value);
+                      const cql_bigint_t value);
+
+        void
+        encode_bigint(std::vector<cql_byte_t>& output,
+                      const cql_bigint_t value);
 
         std::istream&
         decode_bigint(std::istream& input,
@@ -90,8 +129,6 @@ namespace cql {
         cql_bigint_t
         decode_bigint(const std::vector<cql_byte_t>& input);
 
-        double
-        decode_double(const std::vector<cql_byte_t>& input);
 
         std::ostream&
         encode_string(std::ostream& output,
