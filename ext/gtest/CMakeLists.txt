@@ -8,6 +8,7 @@ ExternalProject_Add(googletest
     SVN_REPOSITORY http://googletest.googlecode.com/svn/tags/release-1.6.0
     CMAKE_ARGS -DBUILD_SHARED_LIBS=ON
     INSTALL_COMMAND "" # Disable install step
+    UPDATE_COMMAND "" # Disable update step
 )
 
 # Specify include dir
