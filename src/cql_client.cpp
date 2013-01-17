@@ -51,7 +51,15 @@
 
 cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service)
     : _resolver(io_service),
-      _socket(io_service)
+      _socket(io_service),
+      _log_callback(0)
+{}
+
+cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
+                                cql::cql_client_t::cql_callback_log_t log_callback)
+    : _resolver(io_service),
+      _socket(io_service),
+      _log_callback(log_callback)
 {}
 
 void
@@ -59,6 +67,7 @@ cql::cql_client_t::connect(const std::string& server,
                            unsigned int port,
                            cql_callback_connection_t callback)
 {
+    log(CQL_LOG_DEBUG, "connecting to " + server + ":" + boost::lexical_cast<std::string>(port));
     _connect_callback = callback;
     boost::asio::ip::tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
     _resolver.async_resolve(query,
@@ -76,8 +85,7 @@ cql::cql_client_t::query(const std::string& query,
                          cql_errorback_t errback)
 {
     cql::cql_message_query_t m(query, consistency);
-    std::cout << "send query: " << m.str() << std::endl;
-
+    log(CQL_LOG_DEBUG, "sending query '" + m.str() + "'");
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,
                                                        this,
@@ -94,8 +102,7 @@ cql::cql_client_t::prepare(const std::string& query,
                            cql_errorback_t errback)
 {
     cql::cql_message_prepare_t m(query);
-    std::cout << "prepare query: " << m.str() << std::endl;
-
+    log(CQL_LOG_DEBUG, "preparing query '" + m.str() + "'");
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,
                                                        this,
@@ -104,6 +111,15 @@ cql::cql_client_t::prepare(const std::string& query,
 
     _callback_map.insert(callback_map_t::value_type(stream, callback_tuple_t(callback, errback)));
     return stream;
+}
+
+inline void
+cql::cql_client_t::log(cql_short_t level,
+                       const std::string& message)
+{
+    if (_log_callback) {
+        _log_callback(level, message);
+    }
 }
 
 cql_stream_id_t
@@ -124,7 +140,6 @@ void
 cql::cql_client_t::resolve_handle(const boost::system::error_code& err,
                                   boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
 {
-    std::cout << "handle resolve: " << err << std::endl;
     if (!err)
     {
         // Attempt a connection to each endpoint in the list until we
@@ -137,14 +152,13 @@ cql::cql_client_t::resolve_handle(const boost::system::error_code& err,
     }
     else
     {
-        std::cout << "Error: " << err.message() << std::endl;
+        log(CQL_LOG_CRITICAL, "error resolving remote host " + err.message());
     }
 }
 
 void
 cql::cql_client_t::connect_handle(const boost::system::error_code& err)
 {
-    std::cout << "handle connect: " << err << std::endl;
     if (!err)
     {
         cql::cql_message_options_t m;
@@ -158,7 +172,7 @@ cql::cql_client_t::connect_handle(const boost::system::error_code& err)
     }
     else
     {
-        std::cout << "Error: " << err.message() << std::endl;
+        log(CQL_LOG_CRITICAL, "error connecting to remote host " + err.message());
     }
 }
 
@@ -171,21 +185,20 @@ cql::cql_client_t::write_message(cql::cql_message_t& data,
     header.write(request_stream);
     data.write(request_stream);
     boost::asio::async_write(_socket, _request_buffer, callback);
-    std::cout << "write: " << header.str() << std::endl;
     return header.stream();
 }
 
 void
 cql::cql_client_t::write_handle(const boost::system::error_code& err,
-                                std::size_t)
+                                std::size_t num_bytes)
 {
-    std::cout << "handle write: " << err << std::endl;
     if (!err)
     {
+        log(CQL_LOG_DEBUG, "wrote to socket " + boost::lexical_cast<std::string>(num_bytes) + " bytes");
     }
     else
     {
-        std::cout << "Error: " << err.message() << std::endl;
+        log(CQL_LOG_ERROR, "error writing to socket " + err.message());
     }
 }
 
@@ -201,7 +214,6 @@ cql::cql_client_t::header_read()
 void
 cql::cql_client_t::header_read_handle(const boost::system::error_code& err)
 {
-    std::cout << "header receive: " << err << std::endl;
     if (!err)
     {
         cql::internal::cql_header_t header;
@@ -211,7 +223,7 @@ cql::cql_client_t::header_read_handle(const boost::system::error_code& err)
     }
     else
     {
-        std::cout << "Error: " << err.message() << std::endl;
+        log(CQL_LOG_ERROR, "error reading header " + err.message());
     }
 }
 
@@ -228,7 +240,9 @@ void
 cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
                                     const boost::system::error_code& err)
 {
-    std::cout << "body receive: " << header.str() << std::endl;
+    log(CQL_LOG_DEBUG, "received body for message " + header.str());
+    header_read(); // loop
+
     if (!err)
     {
         switch (header.opcode()) {
@@ -249,29 +263,16 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
             ready_receive();
             break;
 
-        case CQL_OPCODE_STARTUP:
         case CQL_OPCODE_CREDENTIALS:
-        case CQL_OPCODE_QUERY:
-        case CQL_OPCODE_PREPARE:
-        case CQL_OPCODE_EXECUTE:
-        case CQL_OPCODE_REGISTER:
-
-        case CQL_OPCODE_AUTHENTICATE:
         case CQL_OPCODE_EVENT:
-
-
-        case CQL_OPCODE_OPTIONS:
-
-
         default:
-            std::cout << "Error, unhandled opcode: " << header << std::endl;
+            log(CQL_LOG_ERROR, "unhandled opcode " + header.str());
         }
     }
     else
     {
-        std::cout << "Error: " << err.message() << std::endl;
+        log(CQL_LOG_ERROR, "error reading body " + err.message());
     }
-    header_read(); // loop
 }
 
 void
@@ -279,8 +280,6 @@ cql::cql_client_t::startup_write()
 {
     cql::cql_message_startup_t m;
     m.version(CQL_VERSION_IMPL);
-    std::cout << "send startup: " << m.str() << std::endl;
-
     write_message(m,
                   boost::bind(&cql_client_t::write_handle,
                               this,
@@ -291,10 +290,10 @@ cql::cql_client_t::startup_write()
 void
 cql::cql_client_t::ready_receive()
 {
+    log(CQL_LOG_DEBUG, "received ready message");
     std::istream response_stream(&_receive_buffer);
     cql::cql_message_ready_t m;
     m.read(response_stream);
-    std::cout << "ready received: " << m.str() << std::endl;
     if (_connect_callback)
         _connect_callback(*this); // let the call know that the connection is ready
 }
@@ -304,8 +303,8 @@ cql::cql_client_t::error_receive()
 {
     std::istream response_stream(&_receive_buffer);
     cql::cql_message_error_t m;
+    log(CQL_LOG_ERROR, m.message());
     m.read(response_stream);
-    std::cout << "error received: " << m.str() << std::endl;
 }
 
 void
@@ -314,7 +313,7 @@ cql::cql_client_t::supported_receive()
     std::istream response_stream(&_receive_buffer);
     cql::cql_message_supported_t m;
     m.read(response_stream);
-    std::cout << "supported received: " << m.str() << std::endl;
+    log(CQL_LOG_DEBUG, "received supported message " + m.str());
     startup_write();
 }
 
@@ -324,12 +323,15 @@ cql::cql_client_t::result_receive(const cql::internal::cql_header_t& header)
     std::istream response_stream(&_receive_buffer);
     cql::cql_message_result_t m;
     m.read(response_stream);
+    log(CQL_LOG_DEBUG, "received result message " + m.str());
 
-    std::cout << "result received: " << m.str() << std::endl;
     callback_map_t::iterator it = _callback_map.find(header.stream());
     if (it != _callback_map.end())
     {
         (*it).second.get<0>()(*this, header.stream(), m);
         _callback_map.erase(it);
+    }
+    else {
+        std::cerr << "no callback found" << std::endl;
     }
 }

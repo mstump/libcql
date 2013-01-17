@@ -25,6 +25,34 @@
 
 #include "cql_message_result.hpp"
 
+std::string
+result_type_string(cql_short_t t)
+{
+    switch(t) {
+
+    case CQL_RESULT_ROWS:
+        return "CQL_RESULT_ROWS";
+        break;
+
+    case CQL_RESULT_SET_KEYSPACE:
+        return "CQL_RESULT_SET_KEYSPACE";
+        break;
+
+    case CQL_RESULT_PREPARED:
+        return "CQL_RESULT_PREPARED";
+        break;
+
+    case CQL_RESULT_VOID:
+        return "CQL_RESULT_VOID";
+        break;
+
+    default:
+        return "UNKNOWN";
+        break;
+    }
+}
+
+
 cql::cql_message_result_t::cql_message_result_t() :
     _result_type(0),
     _row_count(0),
@@ -55,8 +83,9 @@ std::string
 cql::cql_message_result_t::str() const
 {
     std::stringstream output;
-    output << std::setfill('0');
-    output << std::string("RESULT 0x") << std::setw(2) << cql::internal::hex(_result_type);
+    output << std::string("RESULT ") << result_type_string(_result_type);
+    output << " ROW_COUNT " << _row_count;
+    output << " QUERY_ID " << _query_id;
     output << " " << _metadata.str();
     return output.str();
 }

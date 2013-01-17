@@ -62,10 +62,7 @@ cql::cql_message_prepare_t::size() const
 std::string
 cql::cql_message_prepare_t::str() const
 {
-    std::stringstream output;
-    output << _query;
-    output << " " << std::setfill('0') << std::string("0x") << std::setw(2);
-    return output.str();
+    return _query;
 }
 
 std::istream&

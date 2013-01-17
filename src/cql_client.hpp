@@ -32,16 +32,10 @@
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_map.hpp>
 
-typedef struct
-{
-    bool         application;
-    cql_int_t    application_error;
-    cql_int_t    transport_error;
-    char*        message;
-} cql_error_t;
 
-// Forward declarations
 namespace cql {
+
+    // Forward declarations
     class cql_message_t;
     class cql_message_result_t;
 
@@ -56,11 +50,15 @@ namespace cql {
 
     public:
 
-        typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql_error_t&)> cql_errorback_t;
-        typedef boost::function<void(cql_client_t&, cql_stream_id_t, const cql::cql_message_result_t&)> cql_callback_result_t;
+        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql_error_t&)> cql_errorback_t;
+        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_callback_result_t;
         typedef boost::function<void(cql_client_t&)> cql_callback_connection_t;
+        typedef boost::function<void(const cql_short_t, const std::string&)> cql_callback_log_t;
 
         cql_client_t(boost::asio::io_service& io_service);
+
+        cql_client_t(boost::asio::io_service& io_service,
+                     cql_callback_log_t log_callback);
 
         void
         connect(const std::string& server,
@@ -79,10 +77,19 @@ namespace cql {
                 cql_callback_result_t callback,
                 cql_errorback_t errback);
 
+        // cql_stream_id_t
+        // execute(const cql_message_execute_t& params,
+        //         cql_callback_result_t callback,
+        //         cql_errorback_t errback);
+
     private:
         typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
         typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;
         typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
+
+        inline void
+        log(cql_short_t level,
+            const std::string& message);
 
         cql_stream_id_t
         get_new_stream();
@@ -130,13 +137,14 @@ namespace cql {
         void
         result_receive(const cql::internal::cql_header_t& header);
 
-        cql_stream_id_t                                  _stream_counter;
-        boost::asio::ip::tcp::resolver                   _resolver;
-        boost::asio::ip::tcp::socket                     _socket;
-        boost::asio::streambuf                           _receive_buffer;
-        boost::asio::streambuf                           _request_buffer;
-        callback_map_t                                   _callback_map;
-        cql_callback_connection_t                        _connect_callback;
+        cql_stream_id_t                _stream_counter;
+        boost::asio::ip::tcp::resolver _resolver;
+        boost::asio::ip::tcp::socket   _socket;
+        boost::asio::streambuf         _receive_buffer;
+        boost::asio::streambuf         _request_buffer;
+        callback_map_t                 _callback_map;
+        cql_callback_connection_t      _connect_callback;
+        cql_callback_log_t             _log_callback;
     };
 
 } // namespace cql

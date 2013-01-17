@@ -48,6 +48,14 @@ typedef int32_t   cql_int_t;
 typedef int64_t   cql_bigint_t;
 typedef int8_t    cql_stream_id_t;
 
+typedef struct
+{
+    bool         application;
+    cql_int_t    application_error;
+    cql_int_t    transport_error;
+    char*        message;
+} cql_error_t;
+
 #define CQL_FRAME_MAX_SIZE 1024 * 1024 * 256
 
 #define CQL_VERSION_1_REQUEST  0x01
@@ -113,6 +121,11 @@ typedef int8_t    cql_stream_id_t;
 #define CQL_COLUMN_TYPE_LIST      0x0020
 #define CQL_COLUMN_TYPE_MAP       0x0021
 #define CQL_COLUMN_TYPE_SET       0x0022
+
+#define CQL_LOG_CRITICAL 0x00
+#define CQL_LOG_ERROR    0x01
+#define CQL_LOG_INFO     0x02
+#define CQL_LOG_DEBUG    0x03
 
 #define CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC 0x0001
 

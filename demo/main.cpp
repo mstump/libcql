@@ -10,7 +10,7 @@ errback(cql::cql_client_t& client,
         int8_t stream,
         const cql_error_t& err)
 {
-
+    std::cerr << "ERROR " << err.message << std::endl;
 }
 
 void
@@ -18,6 +18,7 @@ select_callback(cql::cql_client_t& client,
                 int8_t stream,
                 const cql::cql_message_result_t& result)
 {
+    std::cout << "select callback" << std::endl;
     BOOST_FOREACH(const cql::cql_row_t& row, result)
     {
         std::cout << row.str() << std::endl;
@@ -33,7 +34,6 @@ prepare_callback(cql::cql_client_t& client,
                  CQL_CONSISTENCY_ALL,
                  &select_callback,
                  &errback);
-    std::cout << result.str();
 }
 
 void
@@ -44,16 +44,22 @@ use_callback(cql::cql_client_t& client,
     client.prepare("SELECT * from schema_keyspaces;",
                    &prepare_callback,
                    &errback);
-    std::cout << result.str();
 }
 
 void
 connect_callback(cql::cql_client_t& client)
 {
-    client.query("use system;",
+    client.query("USE system;",
                  CQL_CONSISTENCY_ALL,
                  &use_callback,
                  &errback);
+}
+
+void
+log_callback(cql_short_t level,
+             const std::string& message)
+{
+    std::cout << "LOG: " << message << std::endl;
 }
 
 int
@@ -63,7 +69,7 @@ main(int argc,
     try
     {
         boost::asio::io_service io_service;
-        cql::cql_client_t c(io_service);
+        cql::cql_client_t c(io_service, &log_callback);
         c.connect("localhost", 9042, &connect_callback);
         io_service.run();
     }
