@@ -1,8 +1,10 @@
 #include <boost/foreach.hpp>
 
 #include "cql.h"
-#include "../src/cql_message_result.hpp"
 #include "../src/cql_client.hpp"
+#include "../src/cql_message_execute.hpp"
+#include "../src/cql_message_prepare.hpp"
+#include "../src/cql_message_result.hpp"
 #include "../src/cql_row.hpp"
 
 void
@@ -18,7 +20,6 @@ select_callback(cql::cql_client_t& client,
                 int8_t stream,
                 const cql::cql_message_result_t& result)
 {
-    std::cout << "select callback" << std::endl;
     BOOST_FOREACH(const cql::cql_row_t& row, result)
     {
         std::cout << row.str() << std::endl;
@@ -26,13 +27,29 @@ select_callback(cql::cql_client_t& client,
 }
 
 void
+execute_callback(cql::cql_client_t& client,
+                 int8_t stream,
+                 const cql::cql_message_result_t& result)
+{
+    BOOST_FOREACH(const cql::cql_row_t& row, result)
+    {
+        std::cout << row.str() << std::endl;
+    }
+
+    client.query("SELECT * from schema_keyspaces;",
+                 CQL_CONSISTENCY_ALL,
+                 &select_callback,
+                 &errback);
+}
+
+void
 prepare_callback(cql::cql_client_t& client,
                  int8_t stream,
                  const cql::cql_message_result_t& result)
 {
-    client.query("SELECT * from schema_keyspaces;",
-                 CQL_CONSISTENCY_ALL,
-                 &select_callback,
+    cql::cql_message_execute_t m(result.query_id(), CQL_CONSISTENCY_ALL);
+    client.write(m,
+                 &execute_callback,
                  &errback);
 }
 
@@ -41,9 +58,10 @@ use_callback(cql::cql_client_t& client,
              int8_t stream,
              const cql::cql_message_result_t& result)
 {
-    client.prepare("SELECT * from schema_keyspaces;",
-                   &prepare_callback,
-                   &errback);
+    cql::cql_message_prepare_t m("SELECT * from schema_keyspaces;");
+    client.write(m,
+                 &prepare_callback,
+                 &errback);
 }
 
 void

@@ -18,11 +18,13 @@
 */
 
 #include <boost/foreach.hpp>
+#include <iomanip>
 #include <memory>
 #include <sstream>
 
-#include "serialization.hpp"
 #include "cql_message_execute.hpp"
+#include "serialization.hpp"
+#include "util.hpp"
 
 
 cql::cql_message_execute_t::cql_message_execute_t() :
@@ -156,7 +158,18 @@ cql::cql_message_execute_t::size() const
 std::string
 cql::cql_message_execute_t::str() const
 {
-    return "EXECUTE";
+    std::stringstream output;
+    output << "EXECUTE";
+
+    if (! _query_id.empty()) {
+        output << " QUERY_ID 0x";
+        output << std::setfill('0');
+        BOOST_FOREACH(cql_byte_t c, _query_id) {
+            output << std::setw(2) << cql::internal::hex(c);
+        }
+    }
+    output << " " << cql::internal::get_consistency_string(_consistency);
+    return output.str();
 }
 
 std::istream&

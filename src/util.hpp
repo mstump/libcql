@@ -21,6 +21,7 @@
 #define CQL_UTIL_H_
 
 #include <ostream>
+#include "cql.h"
 
 namespace cql {
     namespace internal {
@@ -41,6 +42,40 @@ namespace cql {
         HexCharStruct hex(unsigned char _c)
         {
             return HexCharStruct(_c);
+        }
+
+        inline std::string
+        get_consistency_string(const cql_short_t consistency)
+        {
+            switch (consistency)
+            {
+            case CQL_CONSISTENCY_ANY:
+                return "CQL_CONSISTENCY_ANY";
+                break;
+            case CQL_CONSISTENCY_ONE:
+                return "CQL_CONSISTENCY_ONE";
+                break;
+            case CQL_CONSISTENCY_TWO:
+                return "CQL_CONSISTENCY_TWO";
+                break;
+            case CQL_CONSISTENCY_THREE:
+                return "CQL_CONSISTENCY_THREE";
+                break;
+            case CQL_CONSISTENCY_QUORUM:
+                return "CQL_CONSISTENCY_QUORUM";
+                break;
+            case CQL_CONSISTENCY_ALL:
+                return "CQL_CONSISTENCY_ALL";
+                break;
+            case CQL_CONSISTENCY_LOCAL_QUORUM:
+                return "CQL_CONSISTENCY_LOCAL_QUORUM";
+                break;
+            case CQL_CONSISTENCY_EACH_QUORUM:
+                return "CQL_CONSISTENCY_EACH_QUORUM";
+                break;
+            default:
+                return "UNKNOWN";
+            }
         }
 
     } // namespace internal

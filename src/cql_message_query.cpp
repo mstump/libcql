@@ -24,41 +24,6 @@
 #include "util.hpp"
 #include "cql_message_query.hpp"
 
-
-inline std::string
-get_consistency_string(const cql_short_t consistency)
-{
-    switch (consistency)
-    {
-    case CQL_CONSISTENCY_ANY:
-        return "CQL_CONSISTENCY_ANY";
-        break;
-    case CQL_CONSISTENCY_ONE:
-        return "CQL_CONSISTENCY_ONE";
-        break;
-    case CQL_CONSISTENCY_TWO:
-        return "CQL_CONSISTENCY_TWO";
-        break;
-    case CQL_CONSISTENCY_THREE:
-        return "CQL_CONSISTENCY_THREE";
-        break;
-    case CQL_CONSISTENCY_QUORUM:
-        return "CQL_CONSISTENCY_QUORUM";
-        break;
-    case CQL_CONSISTENCY_ALL:
-        return "CQL_CONSISTENCY_ALL";
-        break;
-    case CQL_CONSISTENCY_LOCAL_QUORUM:
-        return "CQL_CONSISTENCY_LOCAL_QUORUM";
-        break;
-    case CQL_CONSISTENCY_EACH_QUORUM:
-        return "CQL_CONSISTENCY_EACH_QUORUM";
-        break;
-    default:
-        return "UNKNOWN";
-    }
-}
-
 cql::cql_message_query_t::cql_message_query_t() :
     _consistency(0),
     _query()
@@ -111,7 +76,7 @@ cql::cql_message_query_t::size() const
 std::string
 cql::cql_message_query_t::str() const
 {
-    return _query + " " + get_consistency_string(_consistency);
+    return _query + " " + cql::internal::get_consistency_string(_consistency);
 }
 
 std::istream&

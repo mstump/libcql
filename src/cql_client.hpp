@@ -73,14 +73,9 @@ namespace cql {
               cql_errorback_t errback);
 
         cql_stream_id_t
-        prepare(const std::string& query,
-                cql_callback_result_t callback,
-                cql_errorback_t errback);
-
-        // cql_stream_id_t
-        // execute(const cql_message_execute_t& params,
-        //         cql_callback_result_t callback,
-        //         cql_errorback_t errback);
+        write(cql::cql_message_t& data,
+              cql_callback_result_t callback,
+              cql_errorback_t errback);
 
     private:
         typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
@@ -101,7 +96,7 @@ namespace cql {
         void
         connect_handle(const boost::system::error_code& err);
 
-        cql_byte_t
+        cql_stream_id_t
         write_message(cql::cql_message_t& data,
                       const write_callback_t& callback);
 
