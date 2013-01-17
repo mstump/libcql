@@ -147,6 +147,14 @@ namespace cql {
                      std::vector<cql_byte_t>& value);
 
         std::ostream&
+        encode_short_bytes(std::ostream& output,
+                           const std::vector<cql_byte_t>& value);
+
+        std::istream&
+        decode_short_bytes(std::istream& input,
+                           std::vector<cql_byte_t>& value);
+
+        std::ostream&
         encode_long_string(std::ostream& output,
                            const std::string& value);
 

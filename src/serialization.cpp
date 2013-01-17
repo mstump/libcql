@@ -293,6 +293,29 @@ cql::internal::decode_bytes(std::istream& input,
 }
 
 std::ostream&
+cql::internal::encode_short_bytes(std::ostream& output,
+                                  const std::vector<cql_byte_t>& value)
+{
+    cql_short_t len = htons(value.size());
+    output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    output.write(reinterpret_cast<const char*>(&value[0]), value.size());
+    return output;
+}
+
+std::istream&
+cql::internal::decode_short_bytes(std::istream& input,
+                                  std::vector<cql_byte_t>& value)
+{
+    cql_short_t len;
+    input.read(reinterpret_cast<char*>(&len), sizeof(len));
+    len = ntohs(len);
+
+    value.resize(len, 0);
+    input.read(reinterpret_cast<char*>(&value[0]), len);
+    return input;
+}
+
+std::ostream&
 cql::internal::encode_long_string(std::ostream& output,
                                   const std::string& value)
 {

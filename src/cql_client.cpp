@@ -67,7 +67,7 @@ cql::cql_client_t::connect(const std::string& server,
                            unsigned int port,
                            cql_callback_connection_t callback)
 {
-    log(CQL_LOG_DEBUG, "connecting to " + server + ":" + boost::lexical_cast<std::string>(port));
+    log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
     _connect_callback = callback;
     boost::asio::ip::tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
     _resolver.async_resolve(query,
@@ -85,7 +85,6 @@ cql::cql_client_t::query(const std::string& query,
                          cql_errorback_t errback)
 {
     cql::cql_message_query_t m(query, consistency);
-    log(CQL_LOG_DEBUG, "sending query: " + m.str());
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,
                                                        this,
@@ -102,7 +101,6 @@ cql::cql_client_t::prepare(const std::string& query,
                            cql_errorback_t errback)
 {
     cql::cql_message_prepare_t m(query);
-    log(CQL_LOG_DEBUG, "preparing query: " + m.str());
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,
                                                        this,
@@ -142,8 +140,7 @@ cql::cql_client_t::resolve_handle(const boost::system::error_code& err,
 {
     if (!err)
     {
-        // Attempt a connection to each endpoint in the list until we
-        // successfully establish a connection.
+        log(CQL_LOG_DEBUG, "resolved remote host, attempting to connect");
         boost::asio::async_connect(_socket,
                                    endpoint_iterator,
                                    boost::bind(&cql_client_t::connect_handle,
@@ -161,6 +158,7 @@ cql::cql_client_t::connect_handle(const boost::system::error_code& err)
 {
     if (!err)
     {
+        log(CQL_LOG_DEBUG, "connection successful to remote host");
         cql::cql_message_options_t m;
         write_message(m,
                       boost::bind(&cql_client_t::write_handle,
@@ -180,6 +178,7 @@ cql_byte_t
 cql::cql_client_t::write_message(cql::cql_message_t& data,
                                  const write_callback_t& callback)
 {
+    log(CQL_LOG_DEBUG, "sending message: " + data.str());
     std::ostream request_stream(&_request_buffer);
     cql::internal::cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, get_new_stream(), data.opcode(), data.size());
     header.write(request_stream);
@@ -219,6 +218,7 @@ cql::cql_client_t::header_read_handle(const boost::system::error_code& err)
         cql::internal::cql_header_t header;
         std::istream response_stream(&_receive_buffer);
         header.read(response_stream);
+        log(CQL_LOG_DEBUG, "received header for message " + header.str());
         body_read(header);
     }
     else
@@ -241,7 +241,6 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
                                     const boost::system::error_code& err)
 {
     log(CQL_LOG_DEBUG, "received body for message " + header.str());
-    header_read(); // loop
 
     if (!err)
     {
@@ -273,6 +272,7 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
     {
         log(CQL_LOG_ERROR, "error reading body " + err.message());
     }
+    header_read(); // loop
 }
 
 void

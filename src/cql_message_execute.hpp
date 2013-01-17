@@ -46,14 +46,14 @@ namespace cql {
 
         cql_message_execute_t();
 
-        cql_message_execute_t(cql_short_t id,
+        cql_message_execute_t(const std::vector<cql_byte_t>& id,
                               cql_short_t consistency);
 
-        cql_short_t
-        id() const;
+        const std::vector<cql_byte_t>&
+        query_id() const;
 
         void
-        id(const cql_short_t id);
+        query_id(const std::vector<cql_byte_t>& id);
 
         cql_short_t
         consistency() const;
@@ -110,9 +110,9 @@ namespace cql {
         write(std::ostream& output) const;
 
     private:
-        cql_short_t        _id;
-        cql_short_t        _consistency;
-        params_container_t _params;
+        std::vector<cql_byte_t>  _query_id;
+        cql_short_t              _consistency;
+        params_container_t       _params;
     };
 
 } // namespace cql

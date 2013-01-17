@@ -20,6 +20,7 @@
 #include <iomanip>
 #include <iostream>
 #include <sstream>
+#include <boost/foreach.hpp>
 #include "serialization.hpp"
 #include "util.hpp"
 
@@ -84,9 +85,16 @@ cql::cql_message_result_t::str() const
 {
     std::stringstream output;
     output << std::string("RESULT ") << result_type_string(_result_type);
+
+    if (! _query_id.empty()) {
+        output << " QUERY_ID 0x";
+        output << std::setfill('0');
+        BOOST_FOREACH(cql_byte_t c, _query_id) {
+            output << std::setw(2) << cql::internal::hex(c);
+        }
+    }
     output << " ROW_COUNT " << _row_count;
-    output << " QUERY_ID " << _query_id;
-    output << " " << _metadata.str();
+    output << " METADATA " << _metadata.str();
     return output.str();
 }
 
@@ -115,7 +123,7 @@ cql::cql_message_result_t::read(std::istream& input)
         break;
 
     case CQL_RESULT_PREPARED:
-        cql::internal::decode_short(input, _query_id);
+        cql::internal::decode_short_bytes(input, _query_id);
         _metadata.read(input);
         break;
 
@@ -140,7 +148,7 @@ cql::cql_message_result_t::row_count() const
     return _row_count;
 }
 
-cql_short_t
+const std::vector<cql_byte_t>&
 cql::cql_message_result_t::query_id() const
 {
     return _query_id;

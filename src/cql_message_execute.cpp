@@ -26,28 +26,27 @@
 
 
 cql::cql_message_execute_t::cql_message_execute_t() :
-    _id(0),
     _consistency(0)
 {
 }
 
-cql::cql_message_execute_t::cql_message_execute_t(cql_short_t id,
+cql::cql_message_execute_t::cql_message_execute_t(const std::vector<cql_byte_t>& id,
                                                   cql_short_t consistency) :
-    _id(id),
+    _query_id(id),
     _consistency(consistency)
 {
 }
 
-cql_short_t
-cql::cql_message_execute_t::id() const
+const std::vector<cql_byte_t>&
+cql::cql_message_execute_t::query_id() const
 {
-    return _id;
+    return _query_id;
 }
 
 void
-cql::cql_message_execute_t::id(const cql_short_t id)
+cql::cql_message_execute_t::query_id(const std::vector<cql_byte_t>& id)
 {
-    _id = id;
+    _query_id = id;
 }
 
 cql_short_t
@@ -165,7 +164,7 @@ cql::cql_message_execute_t::read(std::istream& input)
 {
     _params.clear();
     cql_short_t count = 0;
-    cql::internal::decode_short(input, _id);
+    cql::internal::decode_short_bytes(input, _query_id);
     cql::internal::decode_short(input, count);
 
     for (int i = 0; i < count; ++i) {
@@ -181,7 +180,7 @@ cql::cql_message_execute_t::read(std::istream& input)
 std::ostream&
 cql::cql_message_execute_t::write(std::ostream& output) const
 {
-    cql::internal::encode_short(output, _id);
+    cql::internal::encode_short_bytes(output, _query_id);
     cql::internal::encode_short(output, _params.size());
 
     BOOST_FOREACH(const param_t& p, _params) {
