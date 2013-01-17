@@ -36,6 +36,7 @@
 namespace cql {
 
     // Forward declarations
+    class cql_error_t;
     class cql_message_t;
     class cql_message_result_t;
 
@@ -49,36 +50,47 @@ namespace cql {
     {
 
     public:
+        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
+        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
 
-        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql_error_t&)> cql_errorback_t;
-        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_callback_result_t;
-        typedef boost::function<void(cql_client_t&)> cql_callback_connection_t;
-        typedef boost::function<void(const cql_short_t, const std::string&)> cql_callback_log_t;
+        typedef boost::function<void(cql_client_t&)> cql_connection_callback_t;
+        typedef boost::function<void(cql_client_t&, const cql_error_t&)> cql_connection_errback_t;
+
+        typedef boost::function<void(const cql_short_t, const std::string&)> cql_log_callback_t;
 
         cql_client_t(boost::asio::io_service& io_service);
 
         cql_client_t(boost::asio::io_service& io_service,
-                     cql_callback_log_t log_callback);
+                     cql_log_callback_t log_callback);
 
         void
         connect(const std::string& server,
                 unsigned int port,
-                cql_callback_connection_t callback);
-
+                cql_connection_callback_t callback,
+                cql_connection_errback_t errback);
 
         cql_stream_id_t
         query(const std::string& query,
               cql_int_t consistency,
-              cql_callback_result_t callback,
-              cql_errorback_t errback);
+              cql_message_callback_t callback,
+              cql_message_errback_t errback);
 
         cql_stream_id_t
         write(cql::cql_message_t& data,
-              cql_callback_result_t callback,
-              cql_errorback_t errback);
+              cql_message_callback_t callback,
+              cql_message_errback_t errback);
+
+        bool
+        defunct();
+
+        void
+        close();
+
+        void
+        close(cql_error_t& err);
 
     private:
-        typedef boost::tuple<cql_callback_result_t, cql_errorback_t> callback_tuple_t;
+        typedef boost::tuple<cql_message_callback_t, cql_message_errback_t> callback_tuple_t;
         typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;
         typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
 
@@ -135,11 +147,15 @@ namespace cql {
         cql_stream_id_t                _stream_counter;
         boost::asio::ip::tcp::resolver _resolver;
         boost::asio::ip::tcp::socket   _socket;
+
         boost::asio::streambuf         _receive_buffer;
         boost::asio::streambuf         _request_buffer;
         callback_map_t                 _callback_map;
-        cql_callback_connection_t      _connect_callback;
-        cql_callback_log_t             _log_callback;
+
+        cql_connection_callback_t      _connect_callback;
+        cql_connection_errback_t       _connect_errback;
+        cql_log_callback_t             _log_callback;
+        bool                           _defunct;
     };
 
 } // namespace cql

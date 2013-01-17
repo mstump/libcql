@@ -34,6 +34,7 @@
 #include <boost/lexical_cast.hpp>
 #include <boost/unordered_map.hpp>
 
+#include "cql_error.hpp"
 #include "cql_header.hpp"
 #include "cql_message.hpp"
 #include "cql_message_error.hpp"
@@ -51,20 +52,23 @@
 cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service)
     : _resolver(io_service),
       _socket(io_service),
-      _log_callback(0)
+      _log_callback(0),
+      _defunct(false)
 {}
 
 cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
-                                cql::cql_client_t::cql_callback_log_t log_callback)
+                                cql::cql_client_t::cql_log_callback_t log_callback)
     : _resolver(io_service),
       _socket(io_service),
-      _log_callback(log_callback)
+      _log_callback(log_callback),
+      _defunct(false)
 {}
 
 void
 cql::cql_client_t::connect(const std::string& server,
                            unsigned int port,
-                           cql_callback_connection_t callback)
+                           cql_connection_callback_t callback,
+                           cql_connection_errback_t errback)
 {
     log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
     _connect_callback = callback;
@@ -80,8 +84,8 @@ cql::cql_client_t::connect(const std::string& server,
 cql_stream_id_t
 cql::cql_client_t::query(const std::string& query,
                          cql_int_t consistency,
-                         cql_callback_result_t callback,
-                         cql_errorback_t errback)
+                         cql_message_callback_t callback,
+                         cql_message_errback_t errback)
 {
     cql::cql_message_query_t m(query, consistency);
     cql_stream_id_t stream = write_message(m,
@@ -96,8 +100,8 @@ cql::cql_client_t::query(const std::string& query,
 
 cql_stream_id_t
 cql::cql_client_t::write(cql::cql_message_t& data,
-                         cql_callback_result_t callback,
-                         cql_errorback_t errback)
+                         cql_message_callback_t callback,
+                         cql_message_errback_t errback)
 {
     cql_stream_id_t stream = write_message(data,
                                            boost::bind(&cql_client_t::write_handle,
@@ -322,4 +326,32 @@ cql::cql_client_t::result_receive(const cql::internal::cql_header_t& header)
     else {
         std::cerr << "no callback found" << std::endl;
     }
+}
+
+bool
+cql::cql_client_t::defunct()
+{
+    return _defunct;
+}
+
+void
+cql::cql_client_t::close(cql_error_t& err)
+{
+    _defunct = true;
+    boost::system::error_code ec;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    _socket.close();
+    err.application(false);
+    err.application_error(0);
+    err.transport_error(ec.value());
+    err.message(ec.message());
+}
+
+void
+cql::cql_client_t::close()
+{
+    _defunct = true;
+    boost::system::error_code ec;
+    _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    _socket.close();
 }
