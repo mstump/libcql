@@ -85,7 +85,7 @@ cql::cql_client_t::query(const std::string& query,
                          cql_errorback_t errback)
 {
     cql::cql_message_query_t m(query, consistency);
-    log(CQL_LOG_DEBUG, "sending query '" + m.str() + "'");
+    log(CQL_LOG_DEBUG, "sending query: " + m.str());
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,
                                                        this,
@@ -102,7 +102,7 @@ cql::cql_client_t::prepare(const std::string& query,
                            cql_errorback_t errback)
 {
     cql::cql_message_prepare_t m(query);
-    log(CQL_LOG_DEBUG, "preparing query '" + m.str() + "'");
+    log(CQL_LOG_DEBUG, "preparing query: " + m.str());
     cql_stream_id_t stream = write_message(m,
                                            boost::bind(&cql_client_t::write_handle,
                                                        this,
