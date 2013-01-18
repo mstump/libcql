@@ -8,5 +8,4 @@ Implementation of the Cassandra binary protocol in C++
 - Request retry
 - Synchronous API
 - Docs
-- Continuations/Futures
 - SSL
