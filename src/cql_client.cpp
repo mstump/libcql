@@ -70,8 +70,10 @@ cql::cql_client_t::connect(const std::string& server,
                            cql_connection_callback_t callback,
                            cql_connection_errback_t errback)
 {
-    log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
     _connect_callback = callback;
+    _connect_errback = errback;
+    log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
+
     boost::asio::ip::tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
     _resolver.async_resolve(query,
                             boost::bind(&cql_client_t::resolve_handle,
@@ -148,14 +150,14 @@ cql::cql_client_t::resolve_handle(const boost::system::error_code& err,
     }
     else {
         log(CQL_LOG_CRITICAL, "error resolving remote host " + err.message());
+        check_transport_err(err);
     }
 }
 
 void
 cql::cql_client_t::connect_handle(const boost::system::error_code& err)
 {
-    if (!err)
-    {
+    if (!err) {
         log(CQL_LOG_DEBUG, "connection successful to remote host");
         cql::cql_message_options_t m;
         write_message(m,
@@ -168,6 +170,7 @@ cql::cql_client_t::connect_handle(const boost::system::error_code& err)
     }
     else {
         log(CQL_LOG_CRITICAL, "error connecting to remote host " + err.message());
+        check_transport_err(err);
     }
 }
 
@@ -193,6 +196,7 @@ cql::cql_client_t::write_handle(const boost::system::error_code& err,
     }
     else {
         log(CQL_LOG_ERROR, "error writing to socket " + err.message());
+        check_transport_err(err);
     }
 }
 
@@ -217,6 +221,7 @@ cql::cql_client_t::header_read_handle(const boost::system::error_code& err)
     }
     else {
         log(CQL_LOG_ERROR, "error reading header " + err.message());
+        check_transport_err(err);
     }
 }
 
@@ -239,7 +244,7 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
         switch (header.opcode()) {
 
         case CQL_OPCODE_ERROR:
-            error_receive();
+            error_receive(header);
             break;
 
         case CQL_OPCODE_RESULT:
@@ -263,6 +268,7 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
     }
     else {
         log(CQL_LOG_ERROR, "error reading body " + err.message());
+        check_transport_err(err);
     }
     header_read(); // loop
 }
@@ -287,17 +293,27 @@ cql::cql_client_t::ready_receive()
     cql::cql_message_ready_t m;
     m.read(response_stream);
     if (_connect_callback) {
-        _connect_callback(*this); // let the call know that the connection is ready
+        _connect_callback(*this); // let the caller know that the connection is ready
     }
 }
 
 void
-cql::cql_client_t::error_receive()
+cql::cql_client_t::error_receive(const cql::internal::cql_header_t& header)
 {
     std::istream response_stream(&_receive_buffer);
     cql::cql_message_error_t m;
     log(CQL_LOG_ERROR, m.message());
     m.read(response_stream);
+
+    callback_map_t::iterator it = _callback_map.find(header.stream());
+    if (it != _callback_map.end()) {
+        cql_error_t err(true, m.code(), 0, m.message());
+        (*it).second.get<1>()(*this, header.stream(), err);
+        _callback_map.erase(it);
+    }
+    else {
+        log(CQL_LOG_INFO, "no callback found for message " + header.str());
+    }
 }
 
 void
@@ -324,7 +340,7 @@ cql::cql_client_t::result_receive(const cql::internal::cql_header_t& header)
         _callback_map.erase(it);
     }
     else {
-        std::cerr << "no callback found" << std::endl;
+        log(CQL_LOG_ERROR, "no callback found for message " + header.str());
     }
 }
 
@@ -337,7 +353,6 @@ cql::cql_client_t::defunct()
 void
 cql::cql_client_t::close(cql_error_t& err)
 {
-    _defunct = true;
     boost::system::error_code ec;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     _socket.close();
@@ -350,8 +365,22 @@ cql::cql_client_t::close(cql_error_t& err)
 void
 cql::cql_client_t::close()
 {
-    _defunct = true;
+    log(CQL_LOG_INFO, "closing connection");
     boost::system::error_code ec;
     _socket.shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
     _socket.close();
+}
+
+
+inline void
+cql::cql_client_t::check_transport_err(const boost::system::error_code& err)
+{
+    if (!_socket.is_open()) {
+        _defunct = true;
+    }
+
+    if (_connect_errback) {
+        cql_error_t e(false, 0, err.value(), err.message());
+        _connect_errback(*this, e);
+    }
 }

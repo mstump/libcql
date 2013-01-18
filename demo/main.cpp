@@ -1,4 +1,5 @@
 #include <boost/foreach.hpp>
+#include <boost/lexical_cast.hpp>
 
 #include "cql.h"
 #include "../src/cql_error.hpp"
@@ -20,7 +21,7 @@ void
 connection_errback(cql::cql_client_t& client,
                    const cql::cql_error_t& err)
 {
-    std::cerr << "ERROR " << err.message() << std::endl;
+    std::cerr << "ERROR " << boost::lexical_cast<std::string>(err.application_error()) << " " << err.message() << std::endl;
 }
 
 void

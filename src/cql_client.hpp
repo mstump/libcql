@@ -136,13 +136,16 @@ namespace cql {
         ready_receive();
 
         void
-        error_receive();
-
-        void
         supported_receive();
 
         void
+        error_receive(const cql::internal::cql_header_t& header);
+
+        void
         result_receive(const cql::internal::cql_header_t& header);
+
+        inline void
+        check_transport_err(const boost::system::error_code& err);
 
         cql_stream_id_t                _stream_counter;
         boost::asio::ip::tcp::resolver _resolver;

@@ -24,7 +24,11 @@ cql::cql_error_t::cql_error_t(
     bool application,
     cql_int_t application_error,
     cql_int_t transport_error,
-    const std::string& message)
+    const std::string& message) :
+    _application(application),
+    _application_error(application_error),
+    _transport_error(transport_error),
+    _message(message)
 {
 }
 
