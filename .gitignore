@@ -21,8 +21,7 @@ CTestTestfile.cmake
 
 # build files
 build/
-ext/src/
-ext/tmp/
+ext
 Testing/
 demo/cql_demo
 test/cql_test

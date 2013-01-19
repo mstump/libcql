@@ -22,7 +22,7 @@
 
 #include <sstream>
 
-#include "../include/cql.h"
+#include "cql.h"
 #include "cql_message.hpp"
 
 #include <boost/algorithm/string/join.hpp>

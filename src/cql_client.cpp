@@ -17,8 +17,6 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "../include/cql.h"
-
 #include <stdint.h>
 
 #include <iomanip>
@@ -29,6 +27,7 @@
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
@@ -60,6 +59,15 @@ cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
                                 cql::cql_client_t::cql_log_callback_t log_callback)
     : _resolver(io_service),
       _socket(io_service),
+      _log_callback(log_callback),
+      _defunct(false)
+{}
+
+cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
+                                boost::asio::ssl::context& context,
+                                cql_log_callback_t log_callback)
+    : _resolver(io_service),
+      _socket(io_service, context),
       _log_callback(log_callback),
       _defunct(false)
 {}

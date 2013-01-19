@@ -20,8 +20,6 @@
 #ifndef CQL_CLIENT_H_
 #define CQL_CLIENT_H_
 
-#include "../include/cql.h"
-
 #include <stdint.h>
 #include <istream>
 #include <ostream>
@@ -32,6 +30,16 @@
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_map.hpp>
 
+#include "cql.h"
+
+// Forward declarations
+namespace boost {
+    namespace asio {
+        namespace ssl {
+            class context;
+        }
+    }
+}
 
 namespace cql {
 
@@ -61,6 +69,10 @@ namespace cql {
         cql_client_t(boost::asio::io_service& io_service);
 
         cql_client_t(boost::asio::io_service& io_service,
+                     cql_log_callback_t log_callback);
+
+        cql_client_t(boost::asio::io_service& io_service,
+                     boost::asio::ssl::context& context,
                      cql_log_callback_t log_callback);
 
         void

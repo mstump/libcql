@@ -20,7 +20,7 @@
 #ifndef CQL_MESSAGE_PREPARE_H_
 #define CQL_MESSAGE_PREPARE_H_
 
-#include "../include/cql.h"
+#include "cql.h"
 #include "cql_message.hpp"
 
 namespace cql {
