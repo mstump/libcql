@@ -2,12 +2,12 @@
 #include <boost/lexical_cast.hpp>
 
 #include "cql.h"
-#include "../src/cql_error.hpp"
-#include "../src/cql_client.hpp"
-#include "../src/cql_message_execute.hpp"
-#include "../src/cql_message_prepare.hpp"
-#include "../src/cql_message_result.hpp"
-#include "../src/cql_row.hpp"
+#include "cql_error.hpp"
+#include "cql_client.hpp"
+#include "cql_message_execute.hpp"
+#include "cql_message_prepare.hpp"
+#include "cql_message_result.hpp"
+#include "cql_row.hpp"
 
 void
 message_errback(cql::cql_client_t& client,

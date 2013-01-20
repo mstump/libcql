@@ -21,10 +21,18 @@ CTestTestfile.cmake
 
 # build files
 build/
-ext
 Testing/
 demo/cql_demo
 test/cql_test
+
+# external deps
+ext/bin
+ext/lib
+ext/src
+ext/share
+ext/include
+ext/ssl
+ext/tmp
 
 # editor
 *.swp

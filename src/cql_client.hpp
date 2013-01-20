@@ -47,6 +47,7 @@ namespace cql {
     class cql_error_t;
     class cql_message_t;
     class cql_message_result_t;
+    class cql_socket_t;
 
     namespace internal {
         class cql_header_t;
@@ -161,7 +162,8 @@ namespace cql {
 
         cql_stream_id_t                _stream_counter;
         boost::asio::ip::tcp::resolver _resolver;
-        boost::asio::ip::tcp::socket   _socket;
+        std::auto_ptr<cql_socket_t>    _socket;
+        bool                           _ssl;
 
         boost::asio::streambuf         _receive_buffer;
         boost::asio::streambuf         _request_buffer;
