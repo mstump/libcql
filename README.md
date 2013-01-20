@@ -3,7 +3,7 @@ libcql
 
 Implementation of the [Cassandra binary protocol](https://github.com/apache/cassandra/blob/trunk/doc/native_protocol.spec) in C++
 
-### Current Features
+### Current Functionality
 - Completely Asynchronous
 - Exception Safe
 - Minimal Memory Copies
