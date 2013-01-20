@@ -32,14 +32,6 @@
 
 #include "cql.h"
 
-// Forward declarations
-namespace boost {
-    namespace asio {
-        namespace ssl {
-            class context;
-        }
-    }
-}
 
 namespace cql {
 
@@ -47,12 +39,10 @@ namespace cql {
     class cql_error_t;
     class cql_message_t;
     class cql_message_result_t;
-    class cql_socket_t;
 
     namespace internal {
         class cql_header_t;
     } // namespace internal
-
 
     class cql_client_t :
         boost::noncopyable
@@ -67,13 +57,18 @@ namespace cql {
 
         typedef boost::function<void(const cql_short_t, const std::string&)> cql_log_callback_t;
 
-        cql_client_t(boost::asio::io_service& io_service);
+        typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_stream_t;
 
         cql_client_t(boost::asio::io_service& io_service,
+                     ssl_stream_t& stream);
+
+        cql_client_t(boost::asio::io_service& io_service,
+                     ssl_stream_t& stream,
                      cql_log_callback_t log_callback);
 
         cql_client_t(boost::asio::io_service& io_service,
-                     boost::asio::ssl::context& context,
+                     ssl_stream_t& stream,
+                     bool ssl,
                      cql_log_callback_t log_callback);
 
         void
@@ -103,8 +98,8 @@ namespace cql {
         close(cql_error_t& err);
 
     private:
-        typedef boost::tuple<cql_message_callback_t, cql_message_errback_t> callback_tuple_t;
-        typedef boost::unordered_map<cql_stream_id_t, callback_tuple_t> callback_map_t;
+        typedef std::pair<cql_message_callback_t, cql_message_errback_t> callback_pair_t;
+        typedef boost::unordered_map<cql_stream_id_t, callback_pair_t> callback_map_t;
         typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
 
         inline void
@@ -120,6 +115,9 @@ namespace cql {
 
         void
         connect_handle(const boost::system::error_code& err);
+
+        void
+        handshake_handle(const boost::system::error_code& err);
 
         cql_stream_id_t
         write_message(cql::cql_message_t& data,
@@ -143,6 +141,9 @@ namespace cql {
                          const boost::system::error_code& err);
 
         void
+        options_write();
+
+        void
         startup_write();
 
         void
@@ -162,7 +163,7 @@ namespace cql {
 
         cql_stream_id_t                _stream_counter;
         boost::asio::ip::tcp::resolver _resolver;
-        std::auto_ptr<cql_socket_t>    _socket;
+        ssl_stream_t&                  _stream;
         bool                           _ssl;
 
         boost::asio::streambuf         _receive_buffer;

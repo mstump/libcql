@@ -1,3 +1,23 @@
+/*
+  Copyright (c) 2012 Matthew Stump
+
+  This file is part of libcql.
+
+  libcql is free software; you can redistribute it and/or modify it under
+  the terms of the GNU Lesser General Public License as published by
+  the Free Software Foundation; either version 3 of the License, or
+  (at your option) any later version.
+
+  libcql is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+  GNU Lesser General Public License for more details.
+
+  You should have received a copy of the GNU Lesser General Public License
+  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
+#include <boost/asio/ssl.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
@@ -97,8 +117,11 @@ main(int argc,
     try
     {
         boost::asio::io_service io_service;
-        cql::cql_client_t c(io_service, &log_callback);
-        c.connect("localhost", 9042, &connect_callback, &connection_errback);
+        boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+
+        cql::cql_client_t::ssl_stream_t socket(io_service, ctx);
+        cql::cql_client_t client(io_service, socket, (argc > 1), &log_callback);
+        client.connect("localhost", 9042, &connect_callback, &connection_errback);
         io_service.run();
     }
     catch (std::exception& e)

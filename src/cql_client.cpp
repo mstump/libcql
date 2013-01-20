@@ -27,6 +27,7 @@
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
@@ -43,40 +44,44 @@
 #include "cql_message_result.hpp"
 #include "cql_message_startup.hpp"
 #include "cql_message_supported.hpp"
-#include "cql_socket.hpp"
-#include "cql_socket_nossl.hpp"
-#include "cql_socket_ssl.hpp"
 #include "serialization.hpp"
 
 #include "cql_client.hpp"
 
 
-cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service)
-    : _resolver(io_service),
-      _socket(new cql_socket_nossl_t(io_service)),
-      _log_callback(0),
-      _defunct(false),
-      _ssl(false)
-{}
 
 cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
-                                cql::cql_client_t::cql_log_callback_t log_callback)
-    : _resolver(io_service),
-      _socket(new cql_socket_nossl_t(io_service)),
-      _log_callback(log_callback),
-      _defunct(false),
-      _ssl(false)
+                                cql::cql_client_t::ssl_stream_t& stream) :
+    _resolver(io_service),
+    _stream(stream),
+    _log_callback(0),
+    _defunct(false),
+    _ssl(false)
 {}
 
+
 cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
-                                boost::asio::ssl::context& context,
-                                cql_log_callback_t log_callback)
-    : _resolver(io_service),
-      _socket(new cql_socket_ssl_t(io_service, context)),
-      _log_callback(log_callback),
-      _defunct(false),
-      _ssl(true)
+                                cql::cql_client_t::ssl_stream_t& stream,
+                                cql::cql_client_t::cql_log_callback_t log_callback) :
+    _resolver(io_service),
+    _stream(stream),
+    _log_callback(log_callback),
+    _defunct(false),
+    _ssl(false)
 {}
+
+
+cql::cql_client_t::cql_client_t(boost::asio::io_service& io_service,
+                                cql::cql_client_t::ssl_stream_t& stream,
+                                bool ssl,
+                                cql_log_callback_t log_callback) :
+    _resolver(io_service),
+    _stream(stream),
+    _log_callback(log_callback),
+    _defunct(false),
+    _ssl(ssl)
+{}
+
 
 void
 cql::cql_client_t::connect(const std::string& server,
@@ -110,9 +115,10 @@ cql::cql_client_t::query(const std::string& query,
                                                        boost::asio::placeholders::error,
                                                        boost::asio::placeholders::bytes_transferred));
 
-    _callback_map.insert(callback_map_t::value_type(stream, callback_tuple_t(callback, errback)));
+    _callback_map.insert(callback_map_t::value_type(stream, callback_pair_t(callback, errback)));
     return stream;
 }
+
 
 cql_stream_id_t
 cql::cql_client_t::write(cql::cql_message_t& data,
@@ -125,9 +131,10 @@ cql::cql_client_t::write(cql::cql_message_t& data,
                                                        boost::asio::placeholders::error,
                                                        boost::asio::placeholders::bytes_transferred));
 
-    _callback_map.insert(callback_map_t::value_type(stream, callback_tuple_t(callback, errback)));
+    _callback_map.insert(callback_map_t::value_type(stream, callback_pair_t(callback, errback)));
     return stream;
 }
+
 
 inline void
 cql::cql_client_t::log(cql_short_t level,
@@ -137,6 +144,7 @@ cql::cql_client_t::log(cql_short_t level,
         _log_callback(level, message);
     }
 }
+
 
 cql_stream_id_t
 cql::cql_client_t::get_new_stream()
@@ -150,13 +158,14 @@ cql::cql_client_t::get_new_stream()
     }
 }
 
+
 void
 cql::cql_client_t::resolve_handle(const boost::system::error_code& err,
                                   boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
 {
     if (!err) {
         log(CQL_LOG_DEBUG, "resolved remote host, attempting to connect");
-        boost::asio::async_connect(_socket->socket(),
+        boost::asio::async_connect(_stream.lowest_layer(),
                                    endpoint_iterator,
                                    boost::bind(&cql_client_t::connect_handle,
                                                this,
@@ -168,25 +177,43 @@ cql::cql_client_t::resolve_handle(const boost::system::error_code& err,
     }
 }
 
+
 void
 cql::cql_client_t::connect_handle(const boost::system::error_code& err)
 {
     if (!err) {
+
         log(CQL_LOG_DEBUG, "connection successful to remote host");
-        cql::cql_message_options_t m;
-        write_message(m,
-                      boost::bind(&cql_client_t::write_handle,
-                                  this,
-                                  boost::asio::placeholders::error,
-                                  boost::asio::placeholders::bytes_transferred));
-        // start listening
-        header_read();
+        if (_ssl) {
+            _stream.async_handshake(boost::asio::ssl::stream_base::client,
+                                    boost::bind(&cql_client_t::handshake_handle,
+                                                this,
+                                                boost::asio::placeholders::error));
+        }
+        else {
+            options_write();
+        }
     }
     else {
         log(CQL_LOG_CRITICAL, "error connecting to remote host " + err.message());
         check_transport_err(err);
     }
 }
+
+
+void
+cql::cql_client_t::handshake_handle(const boost::system::error_code& err)
+{
+    if (!err) {
+        log(CQL_LOG_DEBUG, "successful ssl handshake with remote host");
+        options_write();
+    }
+    else {
+        log(CQL_LOG_CRITICAL, "error performing ssl handshake " + err.message());
+        check_transport_err(err);
+    }
+}
+
 
 cql_stream_id_t
 cql::cql_client_t::write_message(cql::cql_message_t& data,
@@ -197,9 +224,10 @@ cql::cql_client_t::write_message(cql::cql_message_t& data,
     cql::internal::cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, get_new_stream(), data.opcode(), data.size());
     header.write(request_stream);
     data.write(request_stream);
-    boost::asio::async_write(_socket->socket(), _request_buffer, callback);
+    boost::asio::async_write(_stream, _request_buffer, callback);
     return header.stream();
 }
+
 
 void
 cql::cql_client_t::write_handle(const boost::system::error_code& err,
@@ -214,14 +242,16 @@ cql::cql_client_t::write_handle(const boost::system::error_code& err,
     }
 }
 
+
 void
 cql::cql_client_t::header_read()
 {
-    boost::asio::async_read(_socket->socket(),
+    boost::asio::async_read(_stream,
                             _receive_buffer,
                             boost::asio::transfer_exactly(sizeof(cql::internal::cql_header_t)),
                             boost::bind(&cql_client_t::header_read_handle, this, boost::asio::placeholders::error));
 }
+
 
 void
 cql::cql_client_t::header_read_handle(const boost::system::error_code& err)
@@ -239,14 +269,16 @@ cql::cql_client_t::header_read_handle(const boost::system::error_code& err)
     }
 }
 
+
 void
 cql::cql_client_t::body_read(const cql::internal::cql_header_t& header)
 {
-    boost::asio::async_read(_socket->socket(),
+    boost::asio::async_read(_stream,
                             _receive_buffer,
                             boost::asio::transfer_exactly(header.length()),
                             boost::bind(&cql_client_t::body_read_handle, this, header, boost::asio::placeholders::error));
 }
+
 
 void
 cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
@@ -287,6 +319,22 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
     header_read(); // loop
 }
 
+
+void
+cql::cql_client_t::options_write()
+{
+    cql::cql_message_options_t m;
+    write_message(m,
+                  boost::bind(&cql_client_t::write_handle,
+                              this,
+                              boost::asio::placeholders::error,
+                              boost::asio::placeholders::bytes_transferred));
+
+    // start listening
+    header_read();
+}
+
+
 void
 cql::cql_client_t::startup_write()
 {
@@ -298,6 +346,7 @@ cql::cql_client_t::startup_write()
                               boost::asio::placeholders::error,
                               boost::asio::placeholders::bytes_transferred));
 }
+
 
 void
 cql::cql_client_t::ready_receive()
@@ -311,6 +360,7 @@ cql::cql_client_t::ready_receive()
     }
 }
 
+
 void
 cql::cql_client_t::error_receive(const cql::internal::cql_header_t& header)
 {
@@ -322,13 +372,14 @@ cql::cql_client_t::error_receive(const cql::internal::cql_header_t& header)
     callback_map_t::iterator it = _callback_map.find(header.stream());
     if (it != _callback_map.end()) {
         cql_error_t err(true, m.code(), 0, m.message());
-        (*it).second.get<1>()(*this, header.stream(), err);
+        (*it).second.second(*this, header.stream(), err);
         _callback_map.erase(it);
     }
     else {
         log(CQL_LOG_INFO, "no callback found for message " + header.str());
     }
 }
+
 
 void
 cql::cql_client_t::supported_receive()
@@ -340,6 +391,7 @@ cql::cql_client_t::supported_receive()
     startup_write();
 }
 
+
 void
 cql::cql_client_t::result_receive(const cql::internal::cql_header_t& header)
 {
@@ -350,7 +402,7 @@ cql::cql_client_t::result_receive(const cql::internal::cql_header_t& header)
 
     callback_map_t::iterator it = _callback_map.find(header.stream());
     if (it != _callback_map.end()) {
-        (*it).second.get<0>()(*this, header.stream(), m);
+        (*it).second.first(*this, header.stream(), m);
         _callback_map.erase(it);
     }
     else {
@@ -358,38 +410,41 @@ cql::cql_client_t::result_receive(const cql::internal::cql_header_t& header)
     }
 }
 
+
 bool
 cql::cql_client_t::defunct()
 {
     return _defunct;
 }
 
+
 void
 cql::cql_client_t::close(cql_error_t& err)
 {
     boost::system::error_code ec;
-    _socket->socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-    _socket->socket().close();
+    _stream.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    _stream.lowest_layer().close();
     err.application(false);
     err.application_error(0);
     err.transport_error(ec.value());
     err.message(ec.message());
 }
 
+
 void
 cql::cql_client_t::close()
 {
     log(CQL_LOG_INFO, "closing connection");
     boost::system::error_code ec;
-    _socket->socket().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
-    _socket->socket().close();
+    _stream.lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
+    _stream.lowest_layer().close();
 }
 
 
 inline void
 cql::cql_client_t::check_transport_err(const boost::system::error_code& err)
 {
-    if (!_socket->socket().is_open()) {
+    if (!_stream.lowest_layer().is_open()) {
         _defunct = true;
     }
 
