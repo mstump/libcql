@@ -162,7 +162,7 @@ namespace cql {
 
     private:
         const cql::cql_result_metadata_t& _metadata;
-        columns_container_t      _row;
+        columns_container_t               _row;
     };
 
 } // namespace cql

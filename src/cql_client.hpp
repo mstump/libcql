@@ -37,8 +37,11 @@ namespace cql {
 
     // Forward declarations
     class cql_error_t;
+    class cql_event_t;
     class cql_message_t;
     class cql_message_result_t;
+    class cql_message_prepare_t;
+    class cql_message_execute_t;
 
     namespace internal {
         class cql_header_t;
@@ -49,15 +52,16 @@ namespace cql {
     {
 
     public:
+        typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_stream_t;
+        typedef boost::function<void(const cql_short_t, const std::string&)> cql_log_callback_t;
+
         typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
         typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
 
         typedef boost::function<void(cql_client_t&)> cql_connection_callback_t;
         typedef boost::function<void(cql_client_t&, const cql_error_t&)> cql_connection_errback_t;
 
-        typedef boost::function<void(const cql_short_t, const std::string&)> cql_log_callback_t;
-
-        typedef boost::asio::ssl::stream<boost::asio::ip::tcp::socket> ssl_stream_t;
+        typedef boost::function<void(cql_client_t&, const cql_event_t&)> cql_event_callback_t;
 
         cql_client_t(boost::asio::io_service& io_service,
                      ssl_stream_t& stream);
@@ -66,16 +70,21 @@ namespace cql {
                      ssl_stream_t& stream,
                      cql_log_callback_t log_callback);
 
-        cql_client_t(boost::asio::io_service& io_service,
-                     ssl_stream_t& stream,
-                     bool ssl,
-                     cql_log_callback_t log_callback);
+        void
+        connect(const std::string& server,
+                unsigned int port,
+                bool ssl,
+                cql_connection_callback_t callback,
+                cql_connection_errback_t errback);
 
         void
         connect(const std::string& server,
                 unsigned int port,
+                bool ssl,
                 cql_connection_callback_t callback,
-                cql_connection_errback_t errback);
+                cql_connection_errback_t errback,
+                cql_event_callback_t event_callback,
+                const std::list<std::string>& events);
 
         cql_stream_id_t
         query(const std::string& query,
@@ -84,9 +93,14 @@ namespace cql {
               cql_message_errback_t errback);
 
         cql_stream_id_t
-        write(cql::cql_message_t& data,
-              cql_message_callback_t callback,
-              cql_message_errback_t errback);
+        prepare(const cql::cql_message_prepare_t& message,
+                cql_message_callback_t callback,
+                cql_message_errback_t errback);
+
+        cql_stream_id_t
+        execute(const cql::cql_message_execute_t& message,
+                cql_message_callback_t callback,
+                cql_message_errback_t errback);
 
         bool
         defunct();
@@ -100,7 +114,7 @@ namespace cql {
     private:
         typedef std::pair<cql_message_callback_t, cql_message_errback_t> callback_pair_t;
         typedef boost::unordered_map<cql_stream_id_t, callback_pair_t> callback_map_t;
-        typedef boost::function<void (const boost::system::error_code&, std::size_t)> write_callback_t;
+        typedef boost::function<void(const boost::system::error_code&, std::size_t)> write_callback_t;
 
         inline void
         log(cql_short_t level,
@@ -120,8 +134,13 @@ namespace cql {
         handshake_handle(const boost::system::error_code& err);
 
         cql_stream_id_t
-        write_message(cql::cql_message_t& data,
+        write_message(const cql::cql_message_t& data,
                       const write_callback_t& callback);
+
+        cql_stream_id_t
+        write_message(const cql::cql_message_t& data,
+                      cql_message_callback_t callback,
+                      cql_message_errback_t errback);
 
         void
         write_handle(const boost::system::error_code& err,
@@ -139,6 +158,9 @@ namespace cql {
         void
         body_read_handle(const cql::internal::cql_header_t& header,
                          const boost::system::error_code& err);
+
+        void
+        events_register();
 
         void
         options_write();
@@ -173,6 +195,10 @@ namespace cql {
         cql_connection_callback_t      _connect_callback;
         cql_connection_errback_t       _connect_errback;
         cql_log_callback_t             _log_callback;
+
+        std::list<std::string>         _events;
+        cql_event_callback_t           _event_callback;
+
         bool                           _defunct;
     };
 

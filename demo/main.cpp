@@ -78,9 +78,9 @@ prepare_callback(cql::cql_client_t& client,
                  const cql::cql_message_result_t& result)
 {
     cql::cql_message_execute_t m(result.query_id(), CQL_CONSISTENCY_ALL);
-    client.write(m,
-                 &execute_callback,
-                 &message_errback);
+    client.execute(m,
+                   &execute_callback,
+                   &message_errback);
 }
 
 void
@@ -89,9 +89,9 @@ use_callback(cql::cql_client_t& client,
              const cql::cql_message_result_t& result)
 {
     cql::cql_message_prepare_t m("SELECT * from schema_keyspaces;");
-    client.write(m,
-                 &prepare_callback,
-                 &message_errback);
+    client.prepare(m,
+                   &prepare_callback,
+                   &message_errback);
 }
 
 void
@@ -110,6 +110,13 @@ log_callback(cql_short_t level,
     std::cout << "LOG: " << message << std::endl;
 }
 
+// void
+// event_callback(cql::cql_client_t& client,
+//                const cql::cql_event_t& err)
+// {
+
+// }
+
 int
 main(int argc,
      char* argv[])
@@ -119,9 +126,14 @@ main(int argc,
         boost::asio::io_service io_service;
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
 
+        std::list<std::string> events;
+        events.push_back("SCHEMA_CHANGE");
+
         cql::cql_client_t::ssl_stream_t socket(io_service, ctx);
-        cql::cql_client_t client(io_service, socket, (argc > 1), &log_callback);
-        client.connect("localhost", 9042, &connect_callback, &connection_errback);
+        cql::cql_client_t client(io_service, socket, &log_callback);
+        client.connect("localhost", 9042, (argc > 1),
+                       &connect_callback, &connection_errback, NULL, events);
+
         io_service.run();
     }
     catch (std::exception& e)
