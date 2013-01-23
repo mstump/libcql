@@ -12,6 +12,7 @@ Implementation of the [Cassandra binary protocol](https://github.com/apache/cass
 - Prepared Statements
 
 ### TODO
+- Authentication
 - Connection Pools
 - Request Retry
 - Synchronous API
