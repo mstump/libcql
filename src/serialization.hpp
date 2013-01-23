@@ -196,6 +196,16 @@ namespace cql {
                       cql_short_t& id,
                       std::string& value);
 
+        std::ostream&
+        encode_inet(std::ostream& output,
+                    const std::string& ip,
+                    const cql_int_t port);
+
+        std::istream&
+        decode_inet(std::istream& input,
+                    std::string& ip,
+                    cql_int_t& port);
+
     } // namespace internal
 } // namespace cql
 

@@ -80,14 +80,6 @@ namespace cql {
             void
             length(cql_int_t v);
 
-            friend std::ostream
-            &operator<<(std::ostream& output,
-                        const cql_header_t& h)
-                {
-                    output << h.str();
-                    return output;
-                }
-
         private:
             cql_byte_t      _version;
             cql_byte_t      _flags;

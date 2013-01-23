@@ -37,8 +37,8 @@ namespace cql {
 
     // Forward declarations
     class cql_error_t;
-    class cql_event_t;
     class cql_message_t;
+    class cql_message_event_t;
     class cql_message_result_t;
     class cql_message_prepare_t;
     class cql_message_execute_t;
@@ -61,7 +61,7 @@ namespace cql {
         typedef boost::function<void(cql_client_t&)> cql_connection_callback_t;
         typedef boost::function<void(cql_client_t&, const cql_error_t&)> cql_connection_errback_t;
 
-        typedef boost::function<void(cql_client_t&, const cql_event_t&)> cql_event_callback_t;
+        typedef boost::function<void(cql_client_t&, const cql_message_event_t&)> cql_event_callback_t;
 
         cql_client_t(boost::asio::io_service& io_service,
                      ssl_stream_t& stream);
@@ -167,6 +167,9 @@ namespace cql {
 
         void
         startup_write();
+
+        void
+        event_receive();
 
         void
         ready_receive();

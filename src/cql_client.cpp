@@ -35,6 +35,7 @@
 #include "cql_header.hpp"
 #include "cql_message.hpp"
 #include "cql_message_error.hpp"
+#include "cql_message_event.hpp"
 #include "cql_message_execute.hpp"
 #include "cql_message_options.hpp"
 #include "cql_message_prepare.hpp"
@@ -323,8 +324,11 @@ cql::cql_client_t::body_read_handle(const cql::internal::cql_header_t& header,
             ready_receive();
             break;
 
-        case CQL_OPCODE_CREDENTIALS:
         case CQL_OPCODE_EVENT:
+            event_receive();
+            break;
+
+        case CQL_OPCODE_CREDENTIALS:
 
         default:
             log(CQL_LOG_ERROR, "unhandled opcode " + header.str());
@@ -391,6 +395,18 @@ cql::cql_client_t::ready_receive()
     else if (_connect_callback) {
         // let the caller know that the connection is ready
         _connect_callback(*this);
+    }
+}
+
+void
+cql::cql_client_t::event_receive()
+{
+    log(CQL_LOG_DEBUG, "received event message");
+    std::istream response_stream(&_receive_buffer);
+    std::auto_ptr<cql::cql_message_event_t> m(cql::read_cql_event(response_stream));
+
+    if (_event_callback) {
+        _event_callback(*this, *m);
     }
 }
 

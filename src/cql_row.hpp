@@ -20,6 +20,7 @@
 #ifndef CQL_ROW_H_
 #define CQL_ROW_H_
 
+#include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
 #include "cql.h"

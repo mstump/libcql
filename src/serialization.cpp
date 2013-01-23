@@ -469,3 +469,23 @@ cql::internal::decode_option(std::istream& input,
         cql::internal::decode_string(input, value);
     return input;
 }
+
+std::ostream&
+cql::internal::encode_inet(std::ostream& output,
+                           const std::string& ip,
+                           const cql_int_t port)
+{
+    cql::internal::encode_string(output, ip);
+    cql::internal::encode_int(output, port);
+    return output;
+}
+
+std::istream&
+cql::internal::decode_inet(std::istream& input,
+                           std::string& ip,
+                           cql_int_t& port)
+{
+    cql::internal::decode_string(input, ip);
+    cql::internal::decode_int(input, port);
+    return input;
+}
