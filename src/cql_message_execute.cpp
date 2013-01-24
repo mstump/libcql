@@ -23,8 +23,8 @@
 #include <sstream>
 
 #include "cql_message_execute.hpp"
-#include "serialization.hpp"
-#include "util.hpp"
+#include "internal/serialization.hpp"
+#include "internal/util.hpp"
 
 
 cql::cql_message_execute_t::cql_message_execute_t() :

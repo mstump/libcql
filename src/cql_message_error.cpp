@@ -1,7 +1,8 @@
 #include <sstream>
 #include <boost/foreach.hpp>
-#include "cql_header.hpp"
-#include "serialization.hpp"
+#include "internal/cql_header.hpp"
+#include "internal/serialization.hpp"
+
 #include "cql_message_error.hpp"
 
 cql::cql_message_error_t::cql_message_error_t() :

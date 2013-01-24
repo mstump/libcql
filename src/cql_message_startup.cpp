@@ -21,7 +21,7 @@
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "cql_message_startup.hpp"
-#include "serialization.hpp"
+#include "internal/serialization.hpp"
 
 cql::cql_message_startup_t::cql_message_startup_t() :
     _version(),

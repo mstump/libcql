@@ -17,12 +17,11 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "serialization.hpp"
-
 #include "cql_message_event.hpp"
 #include "cql_message_event_schema.hpp"
 #include "cql_message_event_status.hpp"
 #include "cql_message_event_topology.hpp"
+#include "internal/serialization.hpp"
 
 cql::cql_message_event_t*
 cql::read_cql_event(std::istream& input)

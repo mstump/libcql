@@ -22,7 +22,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>
 
-#include "serialization.hpp"
+#include "internal/serialization.hpp"
 #include "cql_row.hpp"
 
 struct column_to_str

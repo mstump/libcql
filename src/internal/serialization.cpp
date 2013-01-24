@@ -20,7 +20,7 @@
 #include <vector>
 #include <boost/foreach.hpp>
 #include <boost/detail/endian.hpp>
-#include "serialization.hpp"
+#include "internal/serialization.hpp"
 
 inline double
 swap_double(double source)

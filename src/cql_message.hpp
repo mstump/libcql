@@ -23,6 +23,7 @@
 #include <istream>
 #include <ostream>
 #include <string>
+#include "cql.h"
 
 namespace cql {
 

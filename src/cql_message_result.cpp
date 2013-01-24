@@ -21,8 +21,8 @@
 #include <iostream>
 #include <sstream>
 #include <boost/foreach.hpp>
-#include "serialization.hpp"
-#include "util.hpp"
+#include "internal/serialization.hpp"
+#include "internal/util.hpp"
 
 #include "cql_message_result.hpp"
 

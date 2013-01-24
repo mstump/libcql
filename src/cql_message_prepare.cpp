@@ -20,8 +20,8 @@
 #include <iomanip>
 #include <sstream>
 
-#include "serialization.hpp"
-#include "util.hpp"
+#include "internal/serialization.hpp"
+#include "internal/util.hpp"
 #include "cql_message_prepare.hpp"
 
 

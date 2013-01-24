@@ -17,7 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "serialization.hpp"
+#include "internal/serialization.hpp"
 
 #include "cql_message_event_topology.hpp"
 

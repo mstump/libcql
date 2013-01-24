@@ -24,13 +24,15 @@
 #include "cql.h"
 #include "cql_error.hpp"
 #include "cql_client.hpp"
+#include "cql_client_factory.hpp"
+#include "cql_message_event.hpp"
 #include "cql_message_execute.hpp"
 #include "cql_message_prepare.hpp"
 #include "cql_message_result.hpp"
 #include "cql_row.hpp"
 
 void
-message_errback(cql::cql_client_t& client,
+message_errback(cql::cql_client_t* client,
                 int8_t stream,
                 const cql::cql_error_t& err)
 {
@@ -38,14 +40,14 @@ message_errback(cql::cql_client_t& client,
 }
 
 void
-connection_errback(cql::cql_client_t& client,
+connection_errback(cql::cql_client_t* client,
                    const cql::cql_error_t& err)
 {
     std::cerr << "ERROR " << boost::lexical_cast<std::string>(err.application_error()) << " " << err.message() << std::endl;
 }
 
 void
-select_callback(cql::cql_client_t& client,
+select_callback(cql::cql_client_t* client,
                 int8_t stream,
                 const cql::cql_message_result_t& result)
 {
@@ -53,11 +55,12 @@ select_callback(cql::cql_client_t& client,
     {
         std::cout << row.str() << std::endl;
     }
-    client.close();
+
+    client->close();
 }
 
 void
-execute_callback(cql::cql_client_t& client,
+execute_callback(cql::cql_client_t* client,
                  int8_t stream,
                  const cql::cql_message_result_t& result)
 {
@@ -66,56 +69,56 @@ execute_callback(cql::cql_client_t& client,
         std::cout << row.str() << std::endl;
     }
 
-    client.query("SELECT * from schema_keyspaces;",
-                 CQL_CONSISTENCY_ALL,
-                 &select_callback,
-                 &message_errback);
+    client->query("SELECT * from schema_keyspaces;",
+                  CQL_CONSISTENCY_ALL,
+                  &select_callback,
+                  &message_errback);
 }
 
 void
-prepare_callback(cql::cql_client_t& client,
+prepare_callback(cql::cql_client_t* client,
                  int8_t stream,
                  const cql::cql_message_result_t& result)
 {
     cql::cql_message_execute_t m(result.query_id(), CQL_CONSISTENCY_ALL);
-    client.execute(m,
-                   &execute_callback,
-                   &message_errback);
+    client->execute(m,
+                    &execute_callback,
+                    &message_errback);
 }
 
 void
-use_callback(cql::cql_client_t& client,
+use_callback(cql::cql_client_t* client,
              int8_t stream,
              const cql::cql_message_result_t& result)
 {
     cql::cql_message_prepare_t m("SELECT * from schema_keyspaces;");
-    client.prepare(m,
-                   &prepare_callback,
-                   &message_errback);
+    client->prepare(m,
+                    &prepare_callback,
+                    &message_errback);
 }
 
 void
-connect_callback(cql::cql_client_t& client)
+connect_callback(cql::cql_client_t* client)
 {
-    client.query("USE system;",
-                 CQL_CONSISTENCY_ALL,
-                 &use_callback,
-                 &message_errback);
+    client->query("USE system;",
+                  CQL_CONSISTENCY_ALL,
+                  &use_callback,
+                  &message_errback);
 }
 
 void
-log_callback(cql_short_t level,
+log_callback(const cql_short_t level,
              const std::string& message)
 {
     std::cout << "LOG: " << message << std::endl;
 }
 
-// void
-// event_callback(cql::cql_client_t& client,
-//                const cql::cql_event_t& err)
-// {
-
-// }
+void
+event_callback(cql::cql_client_t* client,
+               const cql::cql_message_event_t& event)
+{
+    std::cout << "EVENT RECEIVED: " << event.str() << std::endl;
+}
 
 int
 main(int argc,
@@ -124,15 +127,19 @@ main(int argc,
     try
     {
         boost::asio::io_service io_service;
+        std::auto_ptr<cql::cql_client_t> client;
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
+
+        if (argc > 1) {
+            client.reset(cql::create_cql_client_t(io_service, ctx));
+        }
+        else {
+            client.reset(cql::create_cql_client_t(io_service));
+        }
 
         std::list<std::string> events;
         events.push_back("SCHEMA_CHANGE");
-
-        cql::cql_client_t::ssl_stream_t socket(io_service, ctx);
-        cql::cql_client_t client(io_service, socket, &log_callback);
-        client.connect("localhost", 9042, (argc > 1),
-                       &connect_callback, &connection_errback, NULL, events);
+        client->connect("localhost", 9042, &connect_callback, &connection_errback, NULL, events);
 
         io_service.run();
     }
