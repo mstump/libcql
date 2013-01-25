@@ -35,14 +35,29 @@ namespace cql {
         template<typename ConstBufferSequence, typename WriteHandler>
         void
         async_write_some(const ConstBufferSequence& buffers,
-                         WriteHandler handler);
+                         WriteHandler handler)
+        {
+            _socket.async_write_some(buffers, handler);
+        }
+
+        template<typename MutableBufferSequence, typename ReadHandler>
+        void
+        async_read_some(const MutableBufferSequence& buffers,
+                        ReadHandler handler)
+        {
+            _socket.async_read_some(buffers, handler);
+        }
 
         template<typename HandshakeHandler>
         void
-        async_handshake(HandshakeHandler);
+        async_handshake(HandshakeHandler)
+        {}
 
         bool
         requires_handshake();
+
+        boost::asio::ip::tcp::socket&
+        lowest_layer();
 
     private:
         boost::asio::ip::tcp::socket _socket;

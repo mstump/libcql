@@ -131,10 +131,10 @@ main(int argc,
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
 
         if (argc > 1) {
-            client.reset(cql::create_cql_client_t(io_service, ctx));
+            client.reset(cql::create_cql_client_t(io_service, ctx, &log_callback));
         }
         else {
-            client.reset(cql::create_cql_client_t(io_service));
+            client.reset(cql::create_cql_client_t(io_service, &log_callback));
         }
 
         std::list<std::string> events;

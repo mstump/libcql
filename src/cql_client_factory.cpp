@@ -49,7 +49,7 @@ cql::create_cql_client_t(boost::asio::io_service& io_service,
 
 cql::cql_client_t*
 cql::create_cql_client_t(boost::asio::io_service& io_service,
-                         cql::cql_client_t::cql_log_callback_t& log_callback)
+                         cql::cql_client_t::cql_log_callback_t log_callback)
 {
     std::auto_ptr<client_t> client(
         new client_t(io_service,
@@ -61,7 +61,7 @@ cql::create_cql_client_t(boost::asio::io_service& io_service,
 cql::cql_client_t*
 cql::create_cql_client_t(boost::asio::io_service& io_service,
                          boost::asio::ssl::context& context,
-                         cql::cql_client_t::cql_log_callback_t& log_callback)
+                         cql::cql_client_t::cql_log_callback_t log_callback)
 {
     std::auto_ptr<client_ssl_t> client(
         new client_ssl_t(io_service,

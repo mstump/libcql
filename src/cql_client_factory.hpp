@@ -35,12 +35,12 @@ namespace cql {
 
     cql_client_t*
     create_cql_client_t(boost::asio::io_service& service,
-                        cql::cql_client_t::cql_log_callback_t& log_callback);
+                        cql::cql_client_t::cql_log_callback_t log_callback);
 
     cql_client_t*
     create_cql_client_t(boost::asio::io_service& service,
                         boost::asio::ssl::context& context,
-                        cql::cql_client_t::cql_log_callback_t& log_callback);
+                        cql::cql_client_t::cql_log_callback_t log_callback);
 
 
 } // namespace cql

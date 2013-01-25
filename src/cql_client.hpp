@@ -41,21 +41,20 @@ namespace cql {
     class cql_message_prepare_t;
     class cql_message_execute_t;
 
-
     class cql_client_t :
         boost::noncopyable
     {
 
     public:
-        typedef boost::function<void(const cql_short_t, const std::string&)> cql_log_callback_t;
 
-        typedef boost::function<void(cql_client_t*, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
-        typedef boost::function<void(cql_client_t*, const cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
+    typedef void(*cql_log_callback_t)(const cql_short_t, const std::string&);
 
-        typedef boost::function<void(cql_client_t*)> cql_connection_callback_t;
-        typedef boost::function<void(cql_client_t*, const cql_error_t&)> cql_connection_errback_t;
+        typedef void(*cql_connection_callback_t)(cql_client_t*);
+        typedef void(*cql_connection_errback_t)(cql_client_t*, const cql_error_t&);
+        typedef void(*cql_event_callback_t)(cql_client_t*, const cql_message_event_t&);
 
-        typedef boost::function<void(cql_client_t*, const cql_message_event_t&)> cql_event_callback_t;
+        typedef void(*cql_message_callback_t)(cql_client_t*, const cql_stream_id_t, const cql::cql_message_result_t&);
+        typedef void(*cql_message_errback_t)(cql_client_t*, const cql_stream_id_t, const cql_error_t&);
 
         virtual void
         connect(const std::string& server,

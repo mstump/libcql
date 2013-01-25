@@ -30,23 +30,14 @@ cql::cql_socket_t::get_io_service()
     return _socket.get_io_service();
 }
 
-template<typename ConstBufferSequence, typename WriteHandler>
-void
-cql::cql_socket_t::async_write_some(const ConstBufferSequence& buffers,
-                                    WriteHandler handler)
-{
-    _socket.async_write_some(buffers, handler);
-}
-
-template<typename HandshakeHandler>
-void
-cql::cql_socket_t::async_handshake(HandshakeHandler)
-{
-
-}
-
 bool
 cql::cql_socket_t::requires_handshake()
 {
     return false;
+}
+
+boost::asio::ip::tcp::socket&
+cql::cql_socket_t::lowest_layer()
+{
+    return _socket;
 }
