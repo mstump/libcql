@@ -46,6 +46,9 @@ namespace cql {
 
         virtual std::string
         str() const = 0;
+
+        virtual
+        ~cql_message_t(){};
     };
 
 } // namespace cql

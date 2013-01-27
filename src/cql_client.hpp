@@ -56,6 +56,9 @@ namespace cql {
         typedef void(*cql_message_callback_t)(cql_client_t*, const cql_stream_id_t, const cql::cql_message_result_t&);
         typedef void(*cql_message_errback_t)(cql_client_t*, const cql_stream_id_t, const cql_error_t&);
 
+        virtual
+        ~cql_client_t(){};
+
         virtual void
         connect(const std::string& server,
                 unsigned int port,
@@ -88,6 +91,9 @@ namespace cql {
 
         virtual bool
         defunct() = 0;
+
+        virtual bool
+        ready() = 0;
 
         virtual void
         close() = 0;

@@ -69,7 +69,8 @@ namespace cql {
                 _resolver(io_service),
                 _transport(transport),
                 _log_callback(0),
-                _defunct(false)
+                _defunct(false),
+                _ready(false)
             {}
 
             cql_client_impl_t(boost::asio::io_service& io_service,
@@ -78,7 +79,8 @@ namespace cql {
                 _resolver(io_service),
                 _transport(transport),
                 _log_callback(log_callback),
-                _defunct(false)
+                _defunct(false),
+                _ready(false)
             {}
 
             void
@@ -164,6 +166,12 @@ namespace cql {
             defunct()
             {
                 return _defunct;
+            }
+
+            bool
+            ready()
+            {
+                return _ready;
             }
 
             void
@@ -443,9 +451,12 @@ namespace cql {
                 if (!_events.empty()) {
                     events_register();
                 }
-                else if (_connect_callback) {
-                    // let the caller know that the connection is ready
-                    _connect_callback(this);
+                else  {
+                    _ready = true;
+                    if (_connect_callback) {
+                        // let the caller know that the connection is ready
+                        _connect_callback(this);
+                    }
                 }
             }
 
@@ -525,6 +536,7 @@ namespace cql {
             cql_event_callback_t           _event_callback;
 
             bool                           _defunct;
+            bool                           _ready;
         };
 
     } // namespace internal

@@ -52,6 +52,9 @@ namespace cql {
 
         virtual cql_event_enum
         event_type() const = 0;
+
+        virtual
+        ~cql_message_event_t(){};
     };
 
     cql_message_event_t*
