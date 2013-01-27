@@ -100,6 +100,12 @@ namespace cql {
 
         virtual void
         close(cql_error_t& err) = 0;
+
+        virtual const std::string&
+        server() = 0;
+
+        virtual unsigned int
+        port() = 0;
     };
 
 } // namespace cql

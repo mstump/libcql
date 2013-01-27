@@ -66,9 +66,13 @@ namespace cql {
 
             cql_client_impl_t(boost::asio::io_service& io_service,
                               cql_transport_t* transport) :
+                _port(0),
                 _resolver(io_service),
                 _transport(transport),
+                _connect_callback(0),
+                _connect_errback(0),
                 _log_callback(0),
+                _event_callback(0),
                 _defunct(false),
                 _ready(false)
             {}
@@ -76,9 +80,13 @@ namespace cql {
             cql_client_impl_t(boost::asio::io_service& io_service,
                               cql_transport_t* transport,
                               cql::cql_client_t::cql_log_callback_t log_callback) :
+                _port(0),
                 _resolver(io_service),
                 _transport(transport),
+                _connect_callback(0),
+                _connect_errback(0),
                 _log_callback(log_callback),
+                _event_callback(0),
                 _defunct(false),
                 _ready(false)
             {}
@@ -101,10 +109,12 @@ namespace cql {
                     cql::cql_client_t::cql_event_callback_t event_callback,
                     const std::list<std::string>& events)
             {
-                _events = events;
-                _event_callback = event_callback;
+                _server = server;
+                _port = port;
                 _connect_callback = callback;
                 _connect_errback = errback;
+                _event_callback = event_callback;
+                _events = events;
                 log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
 
                 boost::asio::ip::tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
@@ -193,6 +203,18 @@ namespace cql {
                 err.application_error(0);
                 err.transport_error(ec.value());
                 err.message(ec.message());
+            }
+
+            const std::string&
+            server()
+            {
+                return _server;
+            }
+
+            unsigned int
+            port()
+            {
+                return _port;
             }
 
         private:
@@ -511,6 +533,7 @@ namespace cql {
             check_transport_err(const boost::system::error_code& err)
             {
                 if (!_transport->lowest_layer().is_open()) {
+                    _ready = false
                     _defunct = true;
                 }
 
@@ -519,6 +542,9 @@ namespace cql {
                     _connect_errback(this, e);
                 }
             }
+
+            std::string                    _server;
+            unsigned int                   _port;
 
             cql_stream_id_t                _stream_counter;
             boost::asio::ip::tcp::resolver _resolver;
