@@ -458,7 +458,7 @@ namespace cql {
                 std::auto_ptr<cql::cql_message_event_t> m(cql::read_cql_event(response_stream));
 
                 if (_event_callback) {
-                    _event_callback(this, *m);
+                    _event_callback(*this, *m);
                 }
             }
 
@@ -477,7 +477,7 @@ namespace cql {
                     _ready = true;
                     if (_connect_callback) {
                         // let the caller know that the connection is ready
-                        _connect_callback(this);
+                        _connect_callback(*this);
                     }
                 }
             }
@@ -503,7 +503,7 @@ namespace cql {
                 callback_map_t::iterator it = _callback_map.find(header.stream());
                 if (it != _callback_map.end()) {
                     cql_error_t err(true, m.code(), 0, m.message());
-                    (*it).second.second(this, header.stream(), err);
+                    (*it).second.second(*this, header.stream(), err);
                     _callback_map.erase(it);
                 }
                 else {
@@ -521,7 +521,7 @@ namespace cql {
 
                 callback_map_t::iterator it = _callback_map.find(header.stream());
                 if (it != _callback_map.end()) {
-                    (*it).second.first(this, header.stream(), m);
+                    (*it).second.first(*this, header.stream(), m);
                     _callback_map.erase(it);
                 }
                 else {
@@ -533,13 +533,13 @@ namespace cql {
             check_transport_err(const boost::system::error_code& err)
             {
                 if (!_transport->lowest_layer().is_open()) {
-                    _ready = false
+                    _ready = false;
                     _defunct = true;
                 }
 
                 if (_connect_errback) {
                     cql_error_t e(false, 0, err.value(), err.message());
-                    _connect_errback(this, e);
+                    _connect_errback(*this, e);
                 }
             }
 
