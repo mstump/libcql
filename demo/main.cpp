@@ -17,6 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include <boost/bind.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
@@ -121,6 +122,54 @@ event_callback(cql::cql_client_t& client,
     std::cout << "EVENT RECEIVED: " << event.str() << std::endl;
 }
 
+struct client_functor_t
+{
+
+public:
+
+    client_functor_t(boost::asio::io_service&              service,
+                     cql::cql_client_t::cql_log_callback_t log_callback) :
+        _io_service(service),
+        _log_callback(log_callback)
+    {}
+
+    cql::cql_client_t*
+    operator()()
+    {
+        return cql::create_cql_client_t(_io_service, _log_callback);
+    }
+
+private:
+    boost::asio::io_service&              _io_service;
+    cql::cql_client_t::cql_log_callback_t _log_callback;
+};
+
+struct client_ssl_functor_t
+{
+
+public:
+
+    client_ssl_functor_t(boost::asio::io_service&              service,
+                         boost::asio::ssl::context&            context,
+                         cql::cql_client_t::cql_log_callback_t log_callback) :
+        _io_service(service),
+        _ssl_ctx(context),
+        _log_callback(log_callback)
+    {}
+
+    cql::cql_client_t*
+    operator()()
+    {
+        return cql::create_cql_client_t(_io_service, _ssl_ctx, _log_callback);
+    }
+
+private:
+    boost::asio::io_service&              _io_service;
+    boost::asio::ssl::context&            _ssl_ctx;
+    cql::cql_client_t::cql_log_callback_t _log_callback;
+};
+
+
 int
 main(int argc,
      char* argv[])
@@ -129,28 +178,20 @@ main(int argc,
     {
         boost::asio::io_service io_service;
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
-        cql::cql_client_pool_t pool(&connect_callback, NULL);
+
+        cql::cql_client_pool_t::cql_client_callback_t client_factory;
+        if (argc > 1) {
+            client_factory = client_ssl_functor_t(io_service, ctx, &log_callback);
+        }
+        else {
+            client_factory = client_functor_t(io_service, &log_callback);
+        }
+        cql::cql_client_pool_t pool(client_factory, &connect_callback, NULL);
 
         std::list<std::string> events;
         events.push_back("SCHEMA_CHANGE");
 
-        if (argc > 1) {
-            pool.add_client(cql::create_cql_client_t(io_service, ctx, &log_callback),
-                            "localhost",
-                            9042,
-                            NULL,
-                            events);
-
-
-        }
-        else {
-            pool.add_client(cql::create_cql_client_t(io_service, &log_callback),
-                            "localhost",
-                            9042,
-                            NULL,
-                            events);
-        }
-
+        pool.add_client("localhost", 9042, NULL, events);
         io_service.run();
     }
     catch (std::exception& e)

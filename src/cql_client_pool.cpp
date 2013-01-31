@@ -18,51 +18,51 @@
 */
 
 #include <algorithm>
-#include <boost/mem_fn.hpp>
 #include <boost/bind.hpp>
-#include <boost/function.hpp>
 #include <boost/foreach.hpp>
 #include "cql_client_pool.hpp"
 
-cql::cql_client_pool_t::cql_client_pool_t(cql::cql_client_pool_t::cql_ready_callback_t ready_callback,
+cql::cql_client_pool_t::cql_client_pool_t(cql::cql_client_pool_t::cql_client_callback_t  client_callback,
+                                          cql::cql_client_pool_t::cql_ready_callback_t   ready_callback,
                                           cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback) :
     _ready(false),
     _defunct(false),
+    _client_callback(client_callback),
     _ready_callback(ready_callback),
     _defunct_callback(defunct_callback)
 {}
 
 void
-cql::cql_client_pool_t::add_client(cql::cql_client_t* client,
-                                   const std::string& server,
-                                   unsigned int port)
+cql::cql_client_pool_t::add_client(const std::string& server,
+                                   unsigned int       port)
 {
     std::list<std::string> e;
-    add_client(client, server, port, NULL, e);
+    add_client(server, port, NULL, e);
 }
 
 void
-cql::cql_client_pool_t::add_client(cql::cql_client_t* client,
-                                   const std::string& server,
-                                   unsigned int port,
+cql::cql_client_pool_t::add_client(const std::string&                      server,
+                                   unsigned int                            port,
                                    cql::cql_client_t::cql_event_callback_t event_callback,
-                                   const std::list<std::string>& events)
+                                   const std::list<std::string>&           events)
 {
-    _clients.push_back(client);
-    client->connect(server,
-                    port,
-                    boost::bind(&cql_client_pool_t::connect_callback, this, _1),
-                    boost::bind(&cql_client_pool_t::connect_errback, this, _1, _2),
-                    event_callback,
-                    events);
-
+    if (_client_callback) {
+        cql::cql_client_t* client = _client_callback();
+        _clients.push_back(client);
+        client->connect(server,
+                        port,
+                        boost::bind(&cql_client_pool_t::connect_callback, this, _1),
+                        boost::bind(&cql_client_pool_t::connect_errback, this, _1, _2),
+                        event_callback,
+                        events);
+    }
 }
 
 cql_stream_id_t
-cql::cql_client_pool_t::query(const std::string& query,
-                              cql_int_t consistency,
+cql::cql_client_pool_t::query(const std::string&                        query,
+                              cql_int_t                                 consistency,
                               cql::cql_client_t::cql_message_callback_t callback,
-                              cql::cql_client_t::cql_message_errback_t errback)
+                              cql::cql_client_t::cql_message_errback_t  errback)
 {
     cql_client_t* client = next_client();
     if (client) {
@@ -72,9 +72,9 @@ cql::cql_client_pool_t::query(const std::string& query,
 }
 
 cql_stream_id_t
-cql::cql_client_pool_t::prepare(const cql::cql_message_prepare_t& message,
+cql::cql_client_pool_t::prepare(const cql::cql_message_prepare_t&         message,
                                 cql::cql_client_t::cql_message_callback_t callback,
-                                cql::cql_client_t::cql_message_errback_t errback)
+                                cql::cql_client_t::cql_message_errback_t  errback)
 {
     cql_client_t* client = next_client();
     if (client) {
@@ -84,9 +84,9 @@ cql::cql_client_pool_t::prepare(const cql::cql_message_prepare_t& message,
 }
 
 cql_stream_id_t
-cql::cql_client_pool_t::execute(const cql::cql_message_execute_t& message,
+cql::cql_client_pool_t::execute(const cql::cql_message_execute_t&         message,
                                 cql::cql_client_t::cql_message_callback_t callback,
-                                cql::cql_client_t::cql_message_errback_t errback)
+                                cql::cql_client_t::cql_message_errback_t  errback)
 {
     cql_client_t* client = next_client();
     if (client) {

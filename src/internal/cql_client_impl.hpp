@@ -72,6 +72,7 @@ namespace cql {
                 _connect_callback(0),
                 _connect_errback(0),
                 _log_callback(0),
+                _events_registered(false),
                 _event_callback(0),
                 _defunct(false),
                 _ready(false)
@@ -86,6 +87,7 @@ namespace cql {
                 _connect_callback(0),
                 _connect_errback(0),
                 _log_callback(log_callback),
+                _events_registered(false),
                 _event_callback(0),
                 _defunct(false),
                 _ready(false)
@@ -173,13 +175,13 @@ namespace cql {
             }
 
             bool
-            defunct()
+            defunct() const
             {
                 return _defunct;
             }
 
             bool
-            ready()
+            ready() const
             {
                 return _ready;
             }
@@ -206,15 +208,27 @@ namespace cql {
             }
 
             const std::string&
-            server()
+            server() const
             {
                 return _server;
             }
 
             unsigned int
-            port()
+            port() const
             {
                 return _port;
+            }
+
+            const std::list<std::string>&
+            events() const
+            {
+                return _events;
+            }
+
+            cql::cql_client_t::cql_event_callback_t
+            event_callback() const
+            {
+                return _event_callback;
             }
 
         private:
@@ -421,7 +435,7 @@ namespace cql {
                                           this,
                                           boost::asio::placeholders::error,
                                           boost::asio::placeholders::bytes_transferred));
-                _events.clear();
+                _events_registered = true;
             }
 
             void
@@ -470,7 +484,7 @@ namespace cql {
                 cql::cql_message_ready_t m;
                 m.read(response_stream);
 
-                if (!_events.empty()) {
+                if (!_events_registered) {
                     events_register();
                 }
                 else  {
@@ -558,6 +572,7 @@ namespace cql {
             cql_connection_errback_t       _connect_errback;
             cql_log_callback_t             _log_callback;
 
+            bool                           _events_registered;
             std::list<std::string>         _events;
             cql_event_callback_t           _event_callback;
 

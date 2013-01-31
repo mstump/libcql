@@ -50,40 +50,40 @@ namespace cql {
 
     public:
 
+        typedef boost::function<cql::cql_client_t*()> cql_client_callback_t;
         typedef boost::function<void(cql_client_pool_t&)> cql_ready_callback_t;
         typedef boost::function<void(cql_client_pool_t&)> cql_defunct_callback_t;
         typedef boost::function<bool(cql_client_pool_t&, cql::cql_client_t&, const cql::cql_error_t&)> cql_connection_errback_t;
 
-        cql_client_pool_t(cql_ready_callback_t ready_callback,
+        cql_client_pool_t(cql_client_callback_t  client_callback,
+                          cql_ready_callback_t   ready_callback,
                           cql_defunct_callback_t defunct_callback);
 
         void
-        add_client(cql::cql_client_t* client,
-                   const std::string& server,
-                   unsigned int port);
+        add_client(const std::string& server,
+                   unsigned int       port);
 
         void
-        add_client(cql::cql_client_t* client,
-                   const std::string& server,
-                   unsigned int port,
+        add_client(const std::string&                      server,
+                   unsigned int                            port,
                    cql::cql_client_t::cql_event_callback_t event_callback,
-                   const std::list<std::string>& events);
+                   const std::list<std::string>&           events);
 
         cql_stream_id_t
-        query(const std::string& query,
-              cql_int_t consistency,
+        query(const std::string&                        query,
+              cql_int_t                                 consistency,
               cql::cql_client_t::cql_message_callback_t callback,
-              cql::cql_client_t::cql_message_errback_t errback);
+              cql::cql_client_t::cql_message_errback_t  errback);
 
         cql_stream_id_t
-        prepare(const cql::cql_message_prepare_t& message,
+        prepare(const cql::cql_message_prepare_t&         message,
                 cql::cql_client_t::cql_message_callback_t callback,
-                cql::cql_client_t::cql_message_errback_t errback);
+                cql::cql_client_t::cql_message_errback_t  errback);
 
         cql_stream_id_t
-        execute(const cql::cql_message_execute_t& message,
+        execute(const cql::cql_message_execute_t&         message,
                 cql::cql_client_t::cql_message_callback_t callback,
-                cql::cql_client_t::cql_message_errback_t errback);
+                cql::cql_client_t::cql_message_errback_t  errback);
 
         bool
         defunct();
@@ -113,13 +113,14 @@ namespace cql {
         cql::cql_client_t*
         next_client();
 
-        unsigned int             _index;
-        bool                     _ready;
-        bool                     _defunct;
-        clients_collection_t     _clients;
-        cql_ready_callback_t     _ready_callback;
-        cql_defunct_callback_t   _defunct_callback;
-        cql_connection_errback_t _connect_errback;
+        unsigned int                  _index;
+        bool                          _ready;
+        bool                          _defunct;
+        clients_collection_t          _clients;
+        cql_client_callback_t         _client_callback;
+        cql_ready_callback_t          _ready_callback;
+        cql_defunct_callback_t        _defunct_callback;
+        cql_connection_errback_t      _connect_errback;
     };
 
 } // namespace cql
