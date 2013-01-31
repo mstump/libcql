@@ -64,9 +64,8 @@ cql::cql_client_pool_t::query(const std::string& query,
                               cql::cql_client_t::cql_message_callback_t callback,
                               cql::cql_client_t::cql_message_errback_t errback)
 {
-    cql_client_t* client = NULL;
-    if (next_client(client))
-    {
+    cql_client_t* client = next_client();
+    if (client) {
         return client->query(query, consistency, callback, errback);
     }
     return 0;
@@ -77,9 +76,8 @@ cql::cql_client_pool_t::prepare(const cql::cql_message_prepare_t& message,
                                 cql::cql_client_t::cql_message_callback_t callback,
                                 cql::cql_client_t::cql_message_errback_t errback)
 {
-    cql_client_t* client = NULL;
-    if (next_client(client))
-    {
+    cql_client_t* client = next_client();
+    if (client) {
         return client->prepare(message, callback, errback);
     }
     return 0;
@@ -90,9 +88,8 @@ cql::cql_client_pool_t::execute(const cql::cql_message_execute_t& message,
                                 cql::cql_client_t::cql_message_callback_t callback,
                                 cql::cql_client_t::cql_message_errback_t errback)
 {
-    cql_client_t* client = NULL;
-    if (next_client(client))
-    {
+    cql_client_t* client = next_client();
+    if (client) {
         return client->execute(message, callback, errback);
     }
     return 0;
@@ -173,18 +170,16 @@ cql::cql_client_pool_t::connect_errback(cql::cql_client_t& client,
     }
 }
 
-bool
-cql::cql_client_pool_t::next_client(cql_client_t* client)
+cql::cql_client_t*
+cql::cql_client_pool_t::next_client()
 {
-    if (_ready && !_defunct)
-    {
+    cql_client_t* client = NULL;
+    if (_ready && !_defunct) {
         client = &(_clients[_index++]);
 
         if (_index > _clients.size()) {
             _index = 0;
         }
-        return true;
     }
-    client = NULL;
-    return false;
+    return client;
 }

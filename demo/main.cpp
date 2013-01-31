@@ -25,6 +25,7 @@
 #include "cql_error.hpp"
 #include "cql_client.hpp"
 #include "cql_client_factory.hpp"
+#include "cql_client_pool.hpp"
 #include "cql_message_event.hpp"
 #include "cql_message_execute.hpp"
 #include "cql_message_prepare.hpp"
@@ -98,12 +99,12 @@ use_callback(cql::cql_client_t& client,
 }
 
 void
-connect_callback(cql::cql_client_t& client)
+connect_callback(cql::cql_client_pool_t& pool)
 {
-    client.query("USE system;",
-                  CQL_CONSISTENCY_ALL,
-                  &use_callback,
-                  &message_errback);
+    pool.query("USE system;",
+               CQL_CONSISTENCY_ALL,
+               &use_callback,
+               &message_errback);
 }
 
 void
@@ -127,19 +128,28 @@ main(int argc,
     try
     {
         boost::asio::io_service io_service;
-        std::auto_ptr<cql::cql_client_t> client;
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
-
-        if (argc > 1) {
-            client.reset(cql::create_cql_client_t(io_service, ctx, &log_callback));
-        }
-        else {
-            client.reset(cql::create_cql_client_t(io_service, &log_callback));
-        }
+        cql::cql_client_pool_t pool(&connect_callback, NULL);
 
         std::list<std::string> events;
         events.push_back("SCHEMA_CHANGE");
-        client->connect("localhost", 9042, &connect_callback, &connection_errback, NULL, events);
+
+        if (argc > 1) {
+            pool.add_client(cql::create_cql_client_t(io_service, ctx, &log_callback),
+                            "localhost",
+                            9042,
+                            NULL,
+                            events);
+
+
+        }
+        else {
+            pool.add_client(cql::create_cql_client_t(io_service, &log_callback),
+                            "localhost",
+                            9042,
+                            NULL,
+                            events);
+        }
 
         io_service.run();
     }

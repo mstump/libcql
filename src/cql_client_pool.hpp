@@ -110,8 +110,8 @@ namespace cql {
         connect_errback(cql::cql_client_t&,
                         const cql_error_t&);
 
-        bool
-        next_client(cql::cql_client_t* client);
+        cql::cql_client_t*
+        next_client();
 
         unsigned int             _index;
         bool                     _ready;
