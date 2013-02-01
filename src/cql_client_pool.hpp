@@ -49,15 +49,26 @@ namespace cql {
     {
 
     public:
-
-        typedef boost::function<cql::cql_client_t*()> cql_client_callback_t;
-        typedef boost::function<void(cql_client_pool_t&)> cql_ready_callback_t;
-        typedef boost::function<void(cql_client_pool_t&)> cql_defunct_callback_t;
-        typedef boost::function<bool(cql_client_pool_t&, cql::cql_client_t&, const cql::cql_error_t&)> cql_connection_errback_t;
+        typedef boost::function<cql::cql_client_t*()>                                                  cql_client_callback_t;
+        typedef boost::function<void(cql_client_pool_t&)>                                              cql_ready_callback_t;
+        typedef boost::function<void(cql_client_pool_t&)>                                              cql_defunct_callback_t;
+        typedef boost::function<void(cql_client_pool_t&, cql::cql_client_t&, const cql::cql_error_t&)> cql_connection_errback_t;
+        typedef boost::function<void(const cql_short_t, const std::string&)>                           cql_log_callback_t;
 
         cql_client_pool_t(cql_client_callback_t  client_callback,
                           cql_ready_callback_t   ready_callback,
                           cql_defunct_callback_t defunct_callback);
+
+        cql_client_pool_t(cql_client_callback_t  client_callback,
+                          cql_ready_callback_t   ready_callback,
+                          cql_defunct_callback_t defunct_callback,
+                          cql_log_callback_t     log_callback);
+
+        cql_client_pool_t(cql_client_callback_t  client_callback,
+                          cql_ready_callback_t   ready_callback,
+                          cql_defunct_callback_t defunct_callback,
+                          cql_log_callback_t     log_callback,
+                          size_t                 reconnect_limit);
 
         void
         add_client(const std::string& server,
@@ -108,7 +119,23 @@ namespace cql {
         empty();
 
     private:
-        typedef boost::ptr_vector<cql::cql_client_t> clients_collection_t;
+
+        struct client_container_t
+        {
+            client_container_t(cql::cql_client_t* c) :
+                client(c),
+                errors(0)
+            {}
+
+            std::auto_ptr<cql::cql_client_t> client;
+            size_t errors;
+        };
+
+        typedef boost::ptr_vector<client_container_t> clients_collection_t;
+
+        inline void
+        log(cql_short_t level,
+            const std::string& message);
 
         void
         connect_callback(cql::cql_client_t&);
@@ -127,7 +154,9 @@ namespace cql {
         cql_client_callback_t         _client_callback;
         cql_ready_callback_t          _ready_callback;
         cql_defunct_callback_t        _defunct_callback;
+        cql_log_callback_t            _log_callback;
         cql_connection_errback_t      _connect_errback;
+        size_t                        _reconnect_limit;
     };
 
 } // namespace cql

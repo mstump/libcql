@@ -133,14 +133,8 @@ namespace cql {
                 _event_callback = event_callback;
                 _events = events;
                 _credentials = credentials;
-                log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
 
-                boost::asio::ip::tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
-                _resolver.async_resolve(query,
-                                        boost::bind(&cql_client_impl_t::resolve_handle,
-                                                    this,
-                                                    boost::asio::placeholders::error,
-                                                    boost::asio::placeholders::iterator));
+                resolve();
             }
 
             cql_stream_id_t
@@ -253,6 +247,15 @@ namespace cql {
                 return _credentials;
             }
 
+            void
+            reconnect()
+            {
+                _events_registered = false;
+                _ready = false;
+                _defunct = false;
+                resolve();
+            }
+
         private:
             typedef std::pair<cql_message_callback_t, cql_message_errback_t> callback_pair_t;
             typedef boost::unordered_map<cql_stream_id_t, callback_pair_t> callback_map_t;
@@ -277,6 +280,18 @@ namespace cql {
                     _stream_counter = 0;
                     return _stream_counter;
                 }
+            }
+
+            void
+            resolve()
+            {
+                log(CQL_LOG_DEBUG, "resolving remote host " + _server + ":" + boost::lexical_cast<std::string>(_port));
+                boost::asio::ip::tcp::resolver::query query(_server, boost::lexical_cast<std::string>(_port));
+                _resolver.async_resolve(query,
+                                        boost::bind(&cql_client_impl_t::resolve_handle,
+                                                    this,
+                                                    boost::asio::placeholders::error,
+                                                    boost::asio::placeholders::iterator));
             }
 
             void

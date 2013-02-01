@@ -127,6 +127,9 @@ namespace cql {
 
         virtual const cql_credentials_t&
         credentials() const = 0;
+
+        virtual void
+        reconnect() = 0;
     };
 
 } // namespace cql

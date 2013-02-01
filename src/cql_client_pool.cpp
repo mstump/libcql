@@ -29,7 +29,36 @@ cql::cql_client_pool_t::cql_client_pool_t(cql::cql_client_pool_t::cql_client_cal
     _defunct(false),
     _client_callback(client_callback),
     _ready_callback(ready_callback),
-    _defunct_callback(defunct_callback)
+    _defunct_callback(defunct_callback),
+    _log_callback(NULL),
+    _reconnect_limit(0)
+{}
+
+cql::cql_client_pool_t::cql_client_pool_t(cql::cql_client_pool_t::cql_client_callback_t  client_callback,
+                                          cql::cql_client_pool_t::cql_ready_callback_t   ready_callback,
+                                          cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback,
+                                          cql::cql_client_pool_t::cql_log_callback_t     log_callback) :
+    _ready(false),
+    _defunct(false),
+    _client_callback(client_callback),
+    _ready_callback(ready_callback),
+    _defunct_callback(defunct_callback),
+    _log_callback(log_callback),
+    _reconnect_limit(0)
+{}
+
+cql::cql_client_pool_t::cql_client_pool_t(cql::cql_client_pool_t::cql_client_callback_t  client_callback,
+                                          cql::cql_client_pool_t::cql_ready_callback_t   ready_callback,
+                                          cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback,
+                                          cql::cql_client_pool_t::cql_log_callback_t     log_callback,
+                                          size_t                                         reconnect_limit) :
+    _ready(false),
+    _defunct(false),
+    _client_callback(client_callback),
+    _ready_callback(ready_callback),
+    _defunct_callback(defunct_callback),
+    _log_callback(log_callback),
+    _reconnect_limit(reconnect_limit)
 {}
 
 void
@@ -59,15 +88,15 @@ cql::cql_client_pool_t::add_client(const std::string&                        ser
                                    const std::map<std::string, std::string>& credentials)
 {
     if (_client_callback) {
-        cql::cql_client_t* client = _client_callback();
-        _clients.push_back(client);
-        client->connect(server,
-                        port,
-                        boost::bind(&cql_client_pool_t::connect_callback, this, _1),
-                        boost::bind(&cql_client_pool_t::connect_errback, this, _1, _2),
-                        event_callback,
-                        events,
-                        credentials);
+        std::auto_ptr<cql::cql_client_pool_t::client_container_t> client_container(new cql::cql_client_pool_t::client_container_t(_client_callback()));
+        client_container->client->connect(server,
+                                          port,
+                                          boost::bind(&cql_client_pool_t::connect_callback, this, _1),
+                                          boost::bind(&cql_client_pool_t::connect_errback, this, _1, _2),
+                                          event_callback,
+                                          events,
+                                          credentials);
+        _clients.push_back(client_container);
     }
 }
 
@@ -123,8 +152,8 @@ cql::cql_client_pool_t::ready()
 void
 cql::cql_client_pool_t::close()
 {
-    BOOST_FOREACH(cql::cql_client_t& c, _clients) {
-        c.close();
+    BOOST_FOREACH(cql::cql_client_pool_t::client_container_t& c, _clients) {
+        c.client->close();
     }
 }
 
@@ -138,6 +167,15 @@ bool
 cql::cql_client_pool_t::empty()
 {
     return _clients.empty();
+}
+
+inline void
+cql::cql_client_pool_t::log(cql_short_t level,
+    const std::string& message)
+{
+    if (_log_callback) {
+        _log_callback(level, message);
+    }
 }
 
 void
@@ -159,28 +197,39 @@ void
 cql::cql_client_pool_t::connect_errback(cql::cql_client_t& client,
                                         const cql_error_t& error)
 {
-    bool keep = false;
-    if (_connect_errback) {
-        keep = _connect_errback(*this, client, error);
-    }
-    if (!keep) {
+    clients_collection_t::iterator pos = _clients.begin();
+    for (; pos != _clients.end(); ++pos) {
+        cql::cql_client_pool_t::client_container_t& client_container = (*pos);
 
-        clients_collection_t::iterator pos = _clients.begin();
-        for (; pos != _clients.end(); ++pos) {
-            if (&(*pos) == &client) {
+        if (client_container.client.get() == &client) {
+
+            if (++client_container.errors > _reconnect_limit) {
+
+                if (_connect_errback) {
+                    _connect_errback(*this, client, error);
+                }
+
+                log(CQL_LOG_ERROR, "client has reached error threshold, removing from pool");
                 _clients.erase(pos);
-                break;
             }
-        }
-
-        if (_clients.empty()) {
-            _ready = false;
-            _defunct = true;
-            if (_defunct_callback) {
-                _defunct_callback(*this);
+            else {
+                log(CQL_LOG_INFO, "attempting to reconnect client");
+                client_container.client->reconnect();
             }
+            break;
         }
     }
+
+    if (_clients.empty()) {
+        log(CQL_LOG_ERROR, "no clients left in pool");
+
+        _ready = false;
+        _defunct = true;
+        if (_defunct_callback) {
+            _defunct_callback(*this);
+        }
+    }
+
 }
 
 cql::cql_client_t*
@@ -188,7 +237,7 @@ cql::cql_client_pool_t::next_client()
 {
     cql_client_t* client = NULL;
     if (_ready && !_defunct) {
-        client = &(_clients[_index++]);
+        client = _clients[_index++].client.get();
 
         if (_index > _clients.size()) {
             _index = 0;

@@ -24,7 +24,9 @@
 
 namespace cql {
 
-    class cql_socket_t {
+    class cql_socket_t :
+        boost::noncopyable
+    {
     public:
 
         cql_socket_t(boost::asio::io_service& io_service);
@@ -37,7 +39,7 @@ namespace cql {
         async_write_some(const ConstBufferSequence& buffers,
                          WriteHandler handler)
         {
-            _socket.async_write_some(buffers, handler);
+            _socket->async_write_some(buffers, handler);
         }
 
         template<typename MutableBufferSequence, typename ReadHandler>
@@ -45,7 +47,7 @@ namespace cql {
         async_read_some(const MutableBufferSequence& buffers,
                         ReadHandler handler)
         {
-            _socket.async_read_some(buffers, handler);
+            _socket->async_read_some(buffers, handler);
         }
 
         template<typename HandshakeHandler>
@@ -59,8 +61,11 @@ namespace cql {
         boost::asio::ip::tcp::socket&
         lowest_layer();
 
+        void
+        reset();
+
     private:
-        boost::asio::ip::tcp::socket _socket;
+        std::auto_ptr<boost::asio::ip::tcp::socket> _socket;
     };
 } // namespace cql
 
