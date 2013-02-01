@@ -76,7 +76,8 @@ namespace cql {
                 _events_registered(false),
                 _event_callback(0),
                 _defunct(false),
-                _ready(false)
+                _ready(false),
+                _closing(false)
             {}
 
             cql_client_impl_t(boost::asio::io_service& io_service,
@@ -91,7 +92,8 @@ namespace cql {
                 _events_registered(false),
                 _event_callback(0),
                 _defunct(false),
-                _ready(false)
+                _ready(false),
+                _closing(false)
             {}
 
             void
@@ -199,6 +201,7 @@ namespace cql {
             void
             close()
             {
+                _closing = true;
                 log(CQL_LOG_INFO, "closing connection");
                 boost::system::error_code ec;
                 _transport->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
@@ -208,6 +211,7 @@ namespace cql {
             void
             close(cql_error_t& err)
             {
+                _closing = true;
                 boost::system::error_code ec;
                 _transport->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
                 _transport->lowest_layer().close();
@@ -250,6 +254,7 @@ namespace cql {
             void
             reconnect()
             {
+                _closing = false;
                 _events_registered = false;
                 _ready = false;
                 _defunct = false;
@@ -602,7 +607,7 @@ namespace cql {
                     _defunct = true;
                 }
 
-                if (_connect_errback) {
+                if (_connect_errback && !_closing) {
                     cql_error_t e(false, 0, err.value(), err.message());
                     _connect_errback(*this, e);
                 }
@@ -625,6 +630,7 @@ namespace cql {
             cql::cql_client_t::cql_credentials_t _credentials;
             bool                                 _defunct;
             bool                                 _ready;
+            bool                                 _closing;
         };
 
     } // namespace internal
