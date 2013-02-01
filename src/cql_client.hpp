@@ -22,6 +22,7 @@
 
 #include <istream>
 #include <list>
+#include <map>
 #include <ostream>
 #include <string>
 
@@ -56,6 +57,8 @@ namespace cql {
         typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
         typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
 
+        typedef std::map<std::string, std::string> cql_credentials_t;
+
         virtual
         ~cql_client_t(){};
 
@@ -72,6 +75,15 @@ namespace cql {
                 cql_connection_errback_t errback,
                 cql_event_callback_t event_callback,
                 const std::list<std::string>& events) = 0;
+
+        virtual void
+        connect(const std::string& server,
+                unsigned int port,
+                cql_connection_callback_t callback,
+                cql_connection_errback_t errback,
+                cql_event_callback_t event_callback,
+                const std::list<std::string>& events,
+                cql_credentials_t credentials) = 0;
 
         virtual cql_stream_id_t
         query(const std::string& query,
@@ -112,6 +124,9 @@ namespace cql {
 
         virtual cql_event_callback_t
         event_callback() const = 0;
+
+        virtual const cql_credentials_t&
+        credentials() const = 0;
     };
 
 } // namespace cql

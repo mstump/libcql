@@ -39,6 +39,7 @@
 #include "cql_client.hpp"
 #include "cql_error.hpp"
 #include "cql_message.hpp"
+#include "cql_message_credentials.hpp"
 #include "cql_message_error.hpp"
 #include "cql_message_event.hpp"
 #include "cql_message_execute.hpp"
@@ -100,7 +101,8 @@ namespace cql {
                     cql::cql_client_t::cql_connection_errback_t errback)
             {
                 std::list<std::string> events;
-                connect(server, port, callback, errback, NULL, events);
+                cql::cql_client_t::cql_credentials_t credentials;
+                connect(server, port, callback, errback, NULL, events, credentials);
             }
 
             void
@@ -111,12 +113,26 @@ namespace cql {
                     cql::cql_client_t::cql_event_callback_t event_callback,
                     const std::list<std::string>& events)
             {
+                cql::cql_client_t::cql_credentials_t credentials;
+                connect(server, port, callback, errback, event_callback, events, credentials);
+            }
+
+            void
+            connect(const std::string& server,
+                    unsigned int port,
+                    cql_connection_callback_t callback,
+                    cql_connection_errback_t errback,
+                    cql::cql_client_t::cql_event_callback_t event_callback,
+                    const std::list<std::string>& events,
+                    cql::cql_client_t::cql_credentials_t credentials)
+            {
                 _server = server;
                 _port = port;
                 _connect_callback = callback;
                 _connect_errback = errback;
                 _event_callback = event_callback;
                 _events = events;
+                _credentials = credentials;
                 log(CQL_LOG_DEBUG, "resolving remote host " + server + ":" + boost::lexical_cast<std::string>(port));
 
                 boost::asio::ip::tcp::resolver::query query(server, boost::lexical_cast<std::string>(port));
@@ -229,6 +245,12 @@ namespace cql {
             event_callback() const
             {
                 return _event_callback;
+            }
+
+            const cql_credentials_t&
+            credentials() const
+            {
+                return _credentials;
             }
 
         private:
@@ -412,7 +434,9 @@ namespace cql {
                         event_receive();
                         break;
 
-                    case CQL_OPCODE_CREDENTIALS:
+                    case CQL_OPCODE_AUTHENTICATE:
+                        credentials_write();
+                        break;
 
                     default:
                         log(CQL_LOG_ERROR, "unhandled opcode " + header.str());
@@ -457,6 +481,18 @@ namespace cql {
             {
                 cql::cql_message_startup_t m;
                 m.version(CQL_VERSION_IMPL);
+                write_message(m,
+                              boost::bind(&cql_client_impl_t::write_handle,
+                                          this,
+                                          boost::asio::placeholders::error,
+                                          boost::asio::placeholders::bytes_transferred));
+            }
+
+            void
+            credentials_write()
+            {
+                cql::cql_message_credentials_t m;
+                m.credentials(_credentials);
                 write_message(m,
                               boost::bind(&cql_client_impl_t::write_handle,
                                           this,
@@ -557,27 +593,23 @@ namespace cql {
                 }
             }
 
-            std::string                    _server;
-            unsigned int                   _port;
-
-            cql_stream_id_t                _stream_counter;
-            boost::asio::ip::tcp::resolver _resolver;
-            std::auto_ptr<cql_transport_t> _transport;
-
-            boost::asio::streambuf         _receive_buffer;
-            boost::asio::streambuf         _request_buffer;
-            callback_map_t                 _callback_map;
-
-            cql_connection_callback_t      _connect_callback;
-            cql_connection_errback_t       _connect_errback;
-            cql_log_callback_t             _log_callback;
-
-            bool                           _events_registered;
-            std::list<std::string>         _events;
-            cql_event_callback_t           _event_callback;
-
-            bool                           _defunct;
-            bool                           _ready;
+            std::string                          _server;
+            unsigned int                         _port;
+            cql_stream_id_t                      _stream_counter;
+            boost::asio::ip::tcp::resolver       _resolver;
+            std::auto_ptr<cql_transport_t>       _transport;
+            boost::asio::streambuf               _receive_buffer;
+            boost::asio::streambuf               _request_buffer;
+            callback_map_t                       _callback_map;
+            cql_connection_callback_t            _connect_callback;
+            cql_connection_errback_t             _connect_errback;
+            cql_log_callback_t                   _log_callback;
+            bool                                 _events_registered;
+            std::list<std::string>               _events;
+            cql_event_callback_t                 _event_callback;
+            cql::cql_client_t::cql_credentials_t _credentials;
+            bool                                 _defunct;
+            bool                                 _ready;
         };
 
     } // namespace internal
