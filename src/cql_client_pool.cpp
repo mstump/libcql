@@ -46,6 +46,18 @@ cql::cql_client_pool_t::add_client(const std::string&                      serve
                                    cql::cql_client_t::cql_event_callback_t event_callback,
                                    const std::list<std::string>&           events)
 {
+    std::map<std::string, std::string> credentials;
+    add_client(server, port, event_callback, events, credentials);
+}
+
+
+void
+cql::cql_client_pool_t::add_client(const std::string&                        server,
+                                   unsigned int                              port,
+                                   cql::cql_client_t::cql_event_callback_t   event_callback,
+                                   const std::list<std::string>&             events,
+                                   const std::map<std::string, std::string>& credentials)
+{
     if (_client_callback) {
         cql::cql_client_t* client = _client_callback();
         _clients.push_back(client);
@@ -54,7 +66,8 @@ cql::cql_client_pool_t::add_client(const std::string&                      serve
                         boost::bind(&cql_client_pool_t::connect_callback, this, _1),
                         boost::bind(&cql_client_pool_t::connect_errback, this, _1, _2),
                         event_callback,
-                        events);
+                        events,
+                        credentials);
     }
 }
 

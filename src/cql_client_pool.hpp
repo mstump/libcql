@@ -22,6 +22,7 @@
 
 #include <istream>
 #include <list>
+#include <map>
 #include <ostream>
 #include <string>
 
@@ -31,7 +32,6 @@
 
 #include "cql.h"
 #include "cql_client.hpp"
-
 
 
 namespace cql {
@@ -68,6 +68,13 @@ namespace cql {
                    unsigned int                            port,
                    cql::cql_client_t::cql_event_callback_t event_callback,
                    const std::list<std::string>&           events);
+
+        void
+        add_client(const std::string&                        server,
+                   unsigned int                              port,
+                   cql::cql_client_t::cql_event_callback_t   event_callback,
+                   const std::list<std::string>&             events,
+                   const std::map<std::string, std::string>& credentials);
 
         cql_stream_id_t
         query(const std::string&                        query,
