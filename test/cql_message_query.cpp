@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "cql.h"
-#include "../src/cql_message_query.hpp"
+#include "cql_message_query.hpp"
 
 char TEST_MESSAGE_QUERY[] = {
     0x00, 0x00, 0x00, 0x0b, 0x75, 0x73, 0x65, 0x20,

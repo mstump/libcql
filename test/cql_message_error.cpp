@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "cql.h"
-#include "../src/cql_message_error.hpp"
+#include "internal/cql_message_error.hpp"
 
 
 TEST(cql_message_error_cpp, setters_and_getters)

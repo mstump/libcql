@@ -1,6 +1,6 @@
 #include "gtest/gtest.h"
 #include "cql.h"
-#include "../src/cql_message_startup.hpp"
+#include "internal/cql_message_startup.hpp"
 
 char TEST_MESSAGE_STARTUP[] = {
     0x00, 0x01, 0x00, 0x0b, 0x43, 0x51, 0x4c, 0x5f,
