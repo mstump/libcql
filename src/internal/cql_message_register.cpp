@@ -20,7 +20,8 @@
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "internal/serialization.hpp"
-#include "cql_message_register.hpp"
+
+#include "internal/cql_message_register.hpp"
 
 cql::cql_message_register_t::cql_message_register_t()
 {}

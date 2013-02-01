@@ -20,7 +20,8 @@
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "internal/serialization.hpp"
-#include "cql_message_supported.hpp"
+
+#include "internal/cql_message_supported.hpp"
 
 cql::cql_message_supported_t::cql_message_supported_t() :
     _versions(),

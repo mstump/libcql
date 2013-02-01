@@ -22,8 +22,9 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include "cql_message_credentials.hpp"
 #include "internal/serialization.hpp"
+
+#include "internal/cql_message_credentials.hpp"
 
 cql::cql_message_credentials_t::cql_message_credentials_t() :
     _credentials()

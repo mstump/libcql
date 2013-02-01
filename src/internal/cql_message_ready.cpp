@@ -17,7 +17,7 @@
   along with this program.      If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cql_message_ready.hpp"
+#include "internal/cql_message_ready.hpp"
 
 cql::cql_message_ready_t::cql_message_ready_t()
 {}

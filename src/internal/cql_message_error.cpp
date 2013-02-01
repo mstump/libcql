@@ -3,7 +3,7 @@
 #include "internal/cql_header.hpp"
 #include "internal/serialization.hpp"
 
-#include "cql_message_error.hpp"
+#include "internal/cql_message_error.hpp"
 
 cql::cql_message_error_t::cql_message_error_t() :
     _code(0),

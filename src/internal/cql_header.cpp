@@ -19,8 +19,8 @@
 
 #include <iomanip>
 #include <boost/lexical_cast.hpp>
-#include "util.hpp"
-#include "cql_header.hpp"
+#include "internal/util.hpp"
+#include "internal/cql_header.hpp"
 
 cql::internal::cql_header_t::cql_header_t() :
     _version(0),

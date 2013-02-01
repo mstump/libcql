@@ -17,7 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cql_socket_ssl.hpp"
+#include "internal/cql_socket_ssl.hpp"
 
 cql::cql_socket_ssl_t::cql_socket_ssl_t(boost::asio::io_service& io_service,
                                         boost::asio::ssl::context& ctx) :

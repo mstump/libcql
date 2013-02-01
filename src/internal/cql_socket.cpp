@@ -17,7 +17,7 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cql_socket.hpp"
+#include "internal/cql_socket.hpp"
 
 cql::cql_socket_t::cql_socket_t(boost::asio::io_service& io_service) :
     _socket(new boost::asio::ip::tcp::socket(io_service))

@@ -17,7 +17,7 @@
   along with this program.      If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "cql_message_options.hpp"
+#include "internal/cql_message_options.hpp"
 
 cql::cql_message_options_t::cql_message_options_t()
 {}
