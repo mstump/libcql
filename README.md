@@ -10,10 +10,10 @@ Implementation of the [Cassandra binary protocol](https://github.com/apache/cass
 - SSL Support
 - Ad-hoc Queries
 - Prepared Statements
-
-### TODO
 - Authentication
 - Connection Pools
+
+### TODO
 - Request Retry
 - Synchronous API
 - Docs
