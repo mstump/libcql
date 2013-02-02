@@ -23,6 +23,10 @@ set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.49.0 COMPONENTS system)
 
+add_custom_target (AppDependencies ALL
+  DEPENDS ${APP_DEPENDENCIES}
+  COMMENT "Installing any missing dependencies.")
+
 # Build up the lib and include pathes
 set(LIBS ${LIBS} ${Boost_LIBRARIES} )
 set(LIBS ${LIBS} ${zlib_STATIC_LIBRARIES} )
@@ -31,10 +35,7 @@ set(LIBS ${LIBS} ${openssl_STATIC_LIBRARIES} )
 set(INCLUDES ${INCLUDES} ${openssl_INCLUDE_DIRS} )
 set(INCLUDES ${INCLUDES} ${zlib_INCLUDE_DIRS} )
 set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} )
-
-add_custom_target (AppDependencies ALL
-  DEPENDS ${APP_DEPENDENCIES}
-  COMMENT "Installing any missing dependencies.")
+set(INCLUDES ${INCLUDES} ${PROJECT_SOURCE_DIR}/include )
 
 #-------------------
 # libcql static and shared
@@ -50,11 +51,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
 
-set(PROJECT_INCLUDES ${PROJECT_SOURCE_DIR}/include)
-set(PROJECT_INCLUDES ${PROJECT_INCLUDES})
-message(${PROJECT_INCLUDES})
-
-include_directories(${INCLUDES} ${PROJECT_INCLUDES})
+include_directories(${INCLUDES})
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/*.cpp ${PROJECT_SOURCE_DIR}/src/internal/*.cpp)
 
 add_library(${PROJECT_LIB_NAME} SHARED ${SRC_FILES})
@@ -62,28 +59,6 @@ add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})
 target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
 
 
-#-------------------
-# Demo
-#-------------------
-
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "demo")
-set(PROJECT_TEST_NAME ${PROJECT_NAME_STR}_demo)
-
-include_directories(${PROJECT_SOURCE_DIR}/src/)
-file(GLOB DEMO_SRC_FILES ${PROJECT_SOURCE_DIR}/demo/*.cpp)
-add_executable(${PROJECT_TEST_NAME} ${DEMO_SRC_FILES})
-target_link_libraries(${PROJECT_TEST_NAME} ${LIBS} ${PROJECT_LIB_NAME})
-
-
-#-------------------
-# Test
-#-------------------
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "test")
 enable_testing()
-set(PROJECT_TEST_NAME ${PROJECT_NAME_STR}_test)
-include_directories(${INCLUDES} ${PROJECT_SOURCE_DIR}/src/)
-
-file(GLOB TEST_SRC_FILES ${PROJECT_SOURCE_DIR}/test/*.cpp)
-add_executable(${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
-add_dependencies(${PROJECT_TEST_NAME} gtest)
-target_link_libraries(${PROJECT_TEST_NAME} ${gtest_STATIC_LIBRARIES} ${LIBS} ${PROJECT_LIB_NAME})
+add_subdirectory(demo)
+add_subdirectory(test/unit_tests)
