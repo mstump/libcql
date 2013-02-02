@@ -22,7 +22,7 @@
 
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 #include "cql_result_metadata.hpp"
 #include "cql_row.hpp"
@@ -48,7 +48,7 @@ namespace cql {
         cql_int_t
         result_type() const;
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t
@@ -69,7 +69,7 @@ namespace cql {
         cql_int_t
         row_count() const;
 
-        const std::vector<cql_byte_t>&
+        const std::vector<cql::cql_byte_t>&
         query_id() const;
 
         const cql_row_t&
@@ -90,7 +90,7 @@ namespace cql {
     private:
         cql_int_t                  _result_type;
         cql_int_t                  _row_count;
-        std::vector<cql_byte_t>    _query_id;
+        std::vector<cql::cql_byte_t>    _query_id;
         std::string                _keyspace_name;
         std::string                _table_name;
         cql::cql_result_metadata_t _metadata;

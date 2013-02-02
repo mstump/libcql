@@ -35,7 +35,7 @@ namespace cql {
                               CQL_EVENT_TYPE_STATUS,
                               CQL_EVENT_TYPE_SCHEMA };
 
-        virtual cql_byte_t
+        virtual cql::cql_byte_t
         opcode() const = 0;
 
         virtual cql_int_t

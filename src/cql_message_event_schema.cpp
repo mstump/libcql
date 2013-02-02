@@ -17,7 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "internal/serialization.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
 #include "cql_message_event_schema.hpp"
 
@@ -36,13 +37,13 @@ cql::cql_message_event_schema_t::cql_message_event_schema_t(cql_event_schema_enu
     _column_family(column_family)
 {}
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_event_schema_t::opcode() const
 {
     return CQL_OPCODE_EVENT;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_event_schema_t::size() const
 {
     return 0;

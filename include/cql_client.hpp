@@ -29,7 +29,7 @@
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 
 
 namespace cql {
@@ -48,14 +48,14 @@ namespace cql {
 
     public:
 
-        typedef boost::function<void(const cql_short_t, const std::string&)> cql_log_callback_t;
+        typedef boost::function<void(const cql::cql_short_t, const std::string&)> cql_log_callback_t;
 
         typedef boost::function<void(cql_client_t&)> cql_connection_callback_t;
         typedef boost::function<void(cql_client_t&, const cql_error_t&)> cql_connection_errback_t;
         typedef boost::function<void(cql_client_t&, const cql_message_event_t&)> cql_event_callback_t;
 
-        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
-        typedef boost::function<void(cql_client_t&, const cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
+        typedef boost::function<void(cql_client_t&, const cql::cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
+        typedef boost::function<void(cql_client_t&, const cql::cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
 
         typedef std::map<std::string, std::string> cql_credentials_t;
 
@@ -85,18 +85,18 @@ namespace cql {
                 const std::list<std::string>& events,
                 cql_credentials_t credentials) = 0;
 
-        virtual cql_stream_id_t
+        virtual cql::cql_stream_id_t
         query(const std::string& query,
               cql_int_t consistency,
               cql_message_callback_t callback,
               cql_message_errback_t errback) = 0;
 
-        virtual cql_stream_id_t
+        virtual cql::cql_stream_id_t
         prepare(const cql::cql_message_prepare_t& message,
                 cql_message_callback_t callback,
                 cql_message_errback_t errback) = 0;
 
-        virtual cql_stream_id_t
+        virtual cql::cql_stream_id_t
         execute(const cql::cql_message_execute_t& message,
                 cql_message_callback_t callback,
                 cql_message_errback_t errback) = 0;

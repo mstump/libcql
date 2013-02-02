@@ -17,7 +17,8 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "internal/serialization.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
 #include "cql_message_event_status.hpp"
 
@@ -29,20 +30,20 @@ cql::cql_message_event_status_t::cql_message_event_status_t() :
 
 cql::cql_message_event_status_t::cql_message_event_status_t(cql::cql_message_event_status_t::cql_event_status_enum direction,
                                                             const std::string& ip,
-                                                            const cql_int_t port) :
+                                                            const cql::cql_int_t port) :
 
     _direction(direction),
     _ip(ip),
     _port(port)
 {}
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_event_status_t::opcode() const
 {
     return CQL_OPCODE_EVENT;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_event_status_t::size() const
 {
     return 0;
@@ -99,7 +100,7 @@ cql::cql_message_event_status_t::ip() const
     return _ip;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_event_status_t::port() const
 {
     return _port;

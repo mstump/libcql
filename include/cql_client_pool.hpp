@@ -30,7 +30,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_client.hpp"
 
 
@@ -53,7 +53,7 @@ namespace cql {
         typedef boost::function<void(cql_client_pool_t&)>                                              cql_ready_callback_t;
         typedef boost::function<void(cql_client_pool_t&)>                                              cql_defunct_callback_t;
         typedef boost::function<void(cql_client_pool_t&, cql::cql_client_t&, const cql::cql_error_t&)> cql_connection_errback_t;
-        typedef boost::function<void(const cql_short_t, const std::string&)>                           cql_log_callback_t;
+        typedef boost::function<void(const cql::cql_short_t, const std::string&)>                           cql_log_callback_t;
 
         cql_client_pool_t(cql_client_callback_t  client_callback,
                           cql_ready_callback_t   ready_callback,
@@ -87,18 +87,18 @@ namespace cql {
                    const std::list<std::string>&             events,
                    const std::map<std::string, std::string>& credentials);
 
-        cql_stream_id_t
+        cql::cql_stream_id_t
         query(const std::string&                        query,
               cql_int_t                                 consistency,
               cql::cql_client_t::cql_message_callback_t callback,
               cql::cql_client_t::cql_message_errback_t  errback);
 
-        cql_stream_id_t
+        cql::cql_stream_id_t
         prepare(const cql::cql_message_prepare_t&         message,
                 cql::cql_client_t::cql_message_callback_t callback,
                 cql::cql_client_t::cql_message_errback_t  errback);
 
-        cql_stream_id_t
+        cql::cql_stream_id_t
         execute(const cql::cql_message_execute_t&         message,
                 cql::cql_client_t::cql_message_callback_t callback,
                 cql::cql_client_t::cql_message_errback_t  errback);
@@ -134,7 +134,7 @@ namespace cql {
         typedef boost::ptr_vector<client_container_t> clients_collection_t;
 
         inline void
-        log(cql_short_t level,
+        log(cql::cql_short_t level,
             const std::string& message);
 
         void

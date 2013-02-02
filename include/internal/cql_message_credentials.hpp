@@ -20,7 +20,7 @@
 #ifndef CQL_MESSAGE_CREDENTIALS_H_
 #define CQL_MESSAGE_CREDENTIALS_H_
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 
 namespace cql {
@@ -39,7 +39,7 @@ namespace cql {
         const std::map<std::string, std::string>&
         credentials() const;
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t

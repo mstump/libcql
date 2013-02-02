@@ -19,9 +19,10 @@
 
 #include <iomanip>
 #include <sstream>
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
+#include "internal/cql_util.hpp"
 
-#include "internal/serialization.hpp"
-#include "internal/util.hpp"
 #include "cql_message_query.hpp"
 
 cql::cql_message_query_t::cql_message_query_t() :
@@ -30,7 +31,7 @@ cql::cql_message_query_t::cql_message_query_t() :
 {}
 
 cql::cql_message_query_t::cql_message_query_t(const std::string& query,
-                                              cql_short_t consistency) :
+                                              cql::cql_short_t consistency) :
     _consistency(consistency),
     _query(query)
 {}
@@ -41,7 +42,7 @@ cql::cql_message_query_t::query() const
     return _query;
 }
 
-cql_short_t
+cql::cql_short_t
 cql::cql_message_query_t::consistency() const
 {
     return _consistency;
@@ -54,18 +55,18 @@ cql::cql_message_query_t::query(const std::string& q)
 }
 
 void
-cql::cql_message_query_t::consistency(cql_short_t consistency)
+cql::cql_message_query_t::consistency(cql::cql_short_t consistency)
 {
     _consistency = consistency;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_query_t::opcode() const
 {
     return CQL_OPCODE_QUERY;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_query_t::size() const
 {
     std::stringstream ss(std::stringstream::out);

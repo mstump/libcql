@@ -20,6 +20,7 @@
 #include <algorithm>
 #include <boost/bind.hpp>
 #include <boost/foreach.hpp>
+#include "internal/cql_defines.hpp"
 #include "cql_client_pool.hpp"
 
 cql::cql_client_pool_t::cql_client_pool_t(cql::cql_client_pool_t::cql_client_callback_t  client_callback,
@@ -100,9 +101,9 @@ cql::cql_client_pool_t::add_client(const std::string&                        ser
     }
 }
 
-cql_stream_id_t
+cql::cql_stream_id_t
 cql::cql_client_pool_t::query(const std::string&                        query,
-                              cql_int_t                                 consistency,
+                              cql::cql_int_t                                 consistency,
                               cql::cql_client_t::cql_message_callback_t callback,
                               cql::cql_client_t::cql_message_errback_t  errback)
 {
@@ -113,7 +114,7 @@ cql::cql_client_pool_t::query(const std::string&                        query,
     return 0;
 }
 
-cql_stream_id_t
+cql::cql_stream_id_t
 cql::cql_client_pool_t::prepare(const cql::cql_message_prepare_t&         message,
                                 cql::cql_client_t::cql_message_callback_t callback,
                                 cql::cql_client_t::cql_message_errback_t  errback)
@@ -125,7 +126,7 @@ cql::cql_client_pool_t::prepare(const cql::cql_message_prepare_t&         messag
     return 0;
 }
 
-cql_stream_id_t
+cql::cql_stream_id_t
 cql::cql_client_pool_t::execute(const cql::cql_message_execute_t&         message,
                                 cql::cql_client_t::cql_message_callback_t callback,
                                 cql::cql_client_t::cql_message_errback_t  errback)
@@ -170,7 +171,7 @@ cql::cql_client_pool_t::empty()
 }
 
 inline void
-cql::cql_client_pool_t::log(cql_short_t level,
+cql::cql_client_pool_t::log(cql::cql_short_t level,
     const std::string& message)
 {
     if (_log_callback) {

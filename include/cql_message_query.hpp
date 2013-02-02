@@ -20,7 +20,7 @@
 #ifndef CQL_MESSAGE_QUERY_H_
 #define CQL_MESSAGE_QUERY_H_
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 
 namespace cql {
@@ -34,21 +34,21 @@ namespace cql {
         cql_message_query_t();
 
         cql_message_query_t(const std::string& query,
-                            cql_short_t consistency);
+                            cql::cql_short_t consistency);
 
         const std::string&
         query() const;
 
-        cql_short_t
+        cql::cql_short_t
         consistency() const;
 
         void
         query(const std::string& q);
 
         void
-        consistency(cql_short_t consistency);
+        consistency(cql::cql_short_t consistency);
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t
@@ -64,7 +64,7 @@ namespace cql {
         write(std::ostream& output) const;
 
     private:
-        cql_short_t _consistency;
+        cql::cql_short_t _consistency;
         std::string _query;
     };
 

@@ -21,8 +21,9 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
-#include "internal/serialization.hpp"
 #include "cql_row.hpp"
 
 struct column_to_str
@@ -48,7 +49,7 @@ cql::cql_row_t::cql_row_t(const cql::cql_result_metadata_t& metadata,
     }
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_row_t::size() const
 {
     return _row.size();
@@ -183,7 +184,7 @@ cql::cql_row_t::get_bool(const std::string& keyspace,
 
 bool
 cql::cql_row_t::get_int(int i,
-                        cql_int_t& output) const
+                        cql::cql_int_t& output) const
 {
     if (i > _row.size() || i < 0)
         return false;
@@ -194,7 +195,7 @@ cql::cql_row_t::get_int(int i,
 
 bool
 cql::cql_row_t::get_int(const std::string& column,
-                        cql_int_t& output) const
+                        cql::cql_int_t& output) const
 {
     int i = 0;
     if (_metadata.get_index(column, i))
@@ -209,7 +210,7 @@ bool
 cql::cql_row_t::get_int(const std::string& keyspace,
                         const std::string& table,
                         const std::string& column,
-                        cql_int_t& output) const
+                        cql::cql_int_t& output) const
 {
     int i = 0;
     if (_metadata.get_index(keyspace, table, column, i))
@@ -300,7 +301,7 @@ cql::cql_row_t::get_double(const std::string& keyspace,
 
 bool
 cql::cql_row_t::get_bigint(int i,
-                           cql_bigint_t& output) const
+                           cql::cql_bigint_t& output) const
 {
     if (i > _row.size() || i < 0)
         return false;
@@ -311,7 +312,7 @@ cql::cql_row_t::get_bigint(int i,
 
 bool
 cql::cql_row_t::get_bigint(const std::string& column,
-                           cql_bigint_t& output) const
+                           cql::cql_bigint_t& output) const
 {
     int i = 0;
     if (_metadata.get_index(column, i))
@@ -326,7 +327,7 @@ bool
 cql::cql_row_t::get_bigint(const std::string& keyspace,
                            const std::string& table,
                            const std::string& column,
-                           cql_bigint_t& output) const
+                           cql::cql_bigint_t& output) const
 {
     int i = 0;
     if (_metadata.get_index(keyspace, table, column, i))

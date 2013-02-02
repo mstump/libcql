@@ -21,13 +21,14 @@
 #include <iostream>
 #include <sstream>
 #include <boost/foreach.hpp>
-#include "internal/serialization.hpp"
-#include "internal/util.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
+#include "internal/cql_util.hpp"
 
 #include "cql_message_result.hpp"
 
 std::string
-result_type_string(cql_short_t t)
+result_type_string(cql::cql_short_t t)
 {
     switch(t) {
 
@@ -60,7 +61,7 @@ cql::cql_message_result_t::cql_message_result_t() :
     _query_id(0)
 {}
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_result_t::result_type() const
 {
     return _result_type;
@@ -72,7 +73,7 @@ cql::cql_message_result_t::opcode() const
     return CQL_OPCODE_RESULT;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_result_t::size() const
 {
     std::stringstream ss(std::stringstream::out);
@@ -89,7 +90,7 @@ cql::cql_message_result_t::str() const
     if (! _query_id.empty()) {
         output << " QUERY_ID 0x";
         output << std::setfill('0');
-        BOOST_FOREACH(cql_byte_t c, _query_id) {
+        BOOST_FOREACH(cql::cql_byte_t c, _query_id) {
             output << std::setw(2) << cql::internal::hex(c);
         }
     }
@@ -142,13 +143,13 @@ cql::cql_message_result_t::write(std::ostream& output) const
     return output;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_result_t::row_count() const
 {
     return _row_count;
 }
 
-const std::vector<cql_byte_t>&
+const std::vector<cql::cql_byte_t>&
 cql::cql_message_result_t::query_id() const
 {
     return _query_id;

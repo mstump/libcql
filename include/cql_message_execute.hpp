@@ -24,7 +24,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_list.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 
 namespace cql {
@@ -35,7 +35,7 @@ namespace cql {
     {
 
     public:
-        typedef  std::vector<cql_byte_t>            param_t;
+        typedef  std::vector<cql::cql_byte_t>            param_t;
         typedef  boost::ptr_list<param_t>           params_container_t;
         typedef  param_t*                           value_type;
         typedef  param_t&                           reference;
@@ -46,20 +46,20 @@ namespace cql {
 
         cql_message_execute_t();
 
-        cql_message_execute_t(const std::vector<cql_byte_t>& id,
-                              cql_short_t consistency);
+        cql_message_execute_t(const std::vector<cql::cql_byte_t>& id,
+                              cql::cql_short_t consistency);
 
-        const std::vector<cql_byte_t>&
+        const std::vector<cql::cql_byte_t>&
         query_id() const;
 
         void
-        query_id(const std::vector<cql_byte_t>& id);
+        query_id(const std::vector<cql::cql_byte_t>& id);
 
-        cql_short_t
+        cql::cql_short_t
         consistency() const;
 
         void
-        consistency(const cql_short_t consistency);
+        consistency(const cql::cql_short_t consistency);
 
         void
         push_back(const param_t& val);
@@ -68,13 +68,13 @@ namespace cql {
         push_back(const std::string& val);
 
         void
-        push_back(const cql_short_t val);
+        push_back(const cql::cql_short_t val);
 
         void
         push_back(const cql_int_t val);
 
         void
-        push_back(const cql_bigint_t val);
+        push_back(const cql::cql_bigint_t val);
 
         void
         push_back(const float val);
@@ -94,7 +94,7 @@ namespace cql {
         const_iterator
         end() const;
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t
@@ -110,8 +110,8 @@ namespace cql {
         write(std::ostream& output) const;
 
     private:
-        std::vector<cql_byte_t>  _query_id;
-        cql_short_t              _consistency;
+        std::vector<cql::cql_byte_t>  _query_id;
+        cql::cql_short_t              _consistency;
         params_container_t       _params;
     };
 

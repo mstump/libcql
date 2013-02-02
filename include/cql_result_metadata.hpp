@@ -25,7 +25,7 @@
 #include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/unordered_map.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 
 namespace cql {
 
@@ -98,17 +98,17 @@ namespace cql {
 
         bool
         column_type(int i,
-                    cql_short_t& output) const;
+                    cql::cql_short_t& output) const;
 
         bool
         column_type(const std::string& column,
-                    cql_short_t& output) const;
+                    cql::cql_short_t& output) const;
 
         bool
         column_type(const std::string& keyspace,
                     const std::string& table,
                     const std::string& column,
-                    cql_short_t& output) const;
+                    cql::cql_short_t& output) const;
 
         bool
         get_index(const std::string& column,
@@ -124,7 +124,7 @@ namespace cql {
     private:
 
         struct option_t {
-            cql_short_t id;
+            cql::cql_short_t id;
             std::string value;
         };
 

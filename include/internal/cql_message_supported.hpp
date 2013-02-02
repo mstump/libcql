@@ -22,7 +22,7 @@
 
 #include <sstream>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 
 #include <boost/algorithm/string/join.hpp>
@@ -49,7 +49,7 @@ namespace cql {
         const std::list<std::string>&
         version() const;
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t

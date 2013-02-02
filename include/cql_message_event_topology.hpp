@@ -46,7 +46,7 @@ namespace cql {
                                      const std::string& ip,
                                      const cql_int_t port);
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t

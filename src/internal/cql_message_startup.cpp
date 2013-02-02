@@ -20,7 +20,8 @@
 #include <map>
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
-#include "internal/serialization.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
 #include "internal/cql_message_startup.hpp"
 
@@ -53,13 +54,13 @@ cql::cql_message_startup_t::version() const
     return _version;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_startup_t::opcode() const
 {
     return CQL_OPCODE_STARTUP;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_startup_t::size() const
 {
     std::stringstream ss(std::stringstream::out);

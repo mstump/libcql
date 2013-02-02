@@ -21,7 +21,7 @@
 #define CQL_UTIL_H_
 
 #include <ostream>
-#include "cql.h"
+#include "cql.hpp"
 
 namespace cql {
     namespace internal {
@@ -45,7 +45,7 @@ namespace cql {
         }
 
         inline std::string
-        get_consistency_string(const cql_short_t consistency)
+        get_consistency_string(const cql::cql_short_t consistency)
         {
             switch (consistency)
             {

@@ -20,7 +20,7 @@
 #ifndef CQL_MESSAGE_PREPARE_H_
 #define CQL_MESSAGE_PREPARE_H_
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 
 namespace cql {
@@ -44,7 +44,7 @@ namespace cql {
         void
         query(const std::string& q);
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t

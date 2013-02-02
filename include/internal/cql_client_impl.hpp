@@ -35,8 +35,9 @@
 #include <boost/noncopyable.hpp>
 #include <boost/unordered_map.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_client.hpp"
+#include "cql_defines.hpp"
 #include "cql_error.hpp"
 #include "cql_message.hpp"
 #include "cql_message_event.hpp"
@@ -52,7 +53,7 @@
 #include "internal/cql_message_register.hpp"
 #include "internal/cql_message_startup.hpp"
 #include "internal/cql_message_supported.hpp"
-#include "internal/serialization.hpp"
+#include "internal/cql_serialization.hpp"
 
 namespace cql {
     namespace internal {
@@ -139,14 +140,14 @@ namespace cql {
                 resolve();
             }
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             query(const std::string& query,
                   cql_int_t consistency,
                   cql::cql_client_t::cql_message_callback_t callback,
                   cql::cql_client_t::cql_message_errback_t errback)
             {
                 cql::cql_message_query_t m(query, consistency);
-                cql_stream_id_t stream = write_message(m,
+                cql::cql_stream_id_t stream = write_message(m,
                                                        boost::bind(&cql_client_impl_t::write_handle,
                                                                    this,
                                                                    boost::asio::placeholders::error,
@@ -156,12 +157,12 @@ namespace cql {
                 return stream;
             }
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             prepare(const cql::cql_message_prepare_t& message,
                     cql::cql_client_t::cql_message_callback_t callback,
                     cql::cql_client_t::cql_message_errback_t errback)
             {
-                cql_stream_id_t stream = write_message(message,
+                cql::cql_stream_id_t stream = write_message(message,
                                                        boost::bind(&cql_client_impl_t::write_handle,
                                                                    this,
                                                                    boost::asio::placeholders::error,
@@ -171,12 +172,12 @@ namespace cql {
                 return stream;
             }
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             execute(const cql::cql_message_execute_t& message,
                     cql::cql_client_t::cql_message_callback_t callback,
                     cql::cql_client_t::cql_message_errback_t errback)
             {
-                cql_stream_id_t stream = write_message(message,
+                cql::cql_stream_id_t stream = write_message(message,
                                                        boost::bind(&cql_client_impl_t::write_handle,
                                                                    this,
                                                                    boost::asio::placeholders::error,
@@ -263,11 +264,11 @@ namespace cql {
 
         private:
             typedef std::pair<cql_message_callback_t, cql_message_errback_t> callback_pair_t;
-            typedef boost::unordered_map<cql_stream_id_t, callback_pair_t> callback_map_t;
+            typedef boost::unordered_map<cql::cql_stream_id_t, callback_pair_t> callback_map_t;
             typedef boost::function<void(const boost::system::error_code&, std::size_t)> write_callback_t;
 
             inline void
-            log(cql_short_t level,
+            log(cql::cql_short_t level,
                 const std::string& message)
             {
                 if (_log_callback) {
@@ -275,7 +276,7 @@ namespace cql {
                 }
             }
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             get_new_stream()
             {
                 if (_stream_counter < INT8_MAX) {
@@ -350,7 +351,7 @@ namespace cql {
                 }
             }
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             write_message(const cql::cql_message_t& data,
                           write_callback_t callback)
             {
@@ -363,12 +364,12 @@ namespace cql {
                 return header.stream();
             }
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             write_message(const cql::cql_message_t& data,
                           cql::cql_client_t::cql_message_callback_t callback,
                           cql::cql_client_t::cql_message_errback_t errback)
             {
-                cql_stream_id_t stream = write_message(data,
+                cql::cql_stream_id_t stream = write_message(data,
                                                        boost::bind(&cql_client_impl_t::write_handle,
                                                                    this,
                                                                    boost::asio::placeholders::error,
@@ -615,7 +616,7 @@ namespace cql {
 
             std::string                          _server;
             unsigned int                         _port;
-            cql_stream_id_t                      _stream_counter;
+            cql::cql_stream_id_t                      _stream_counter;
             boost::asio::ip::tcp::resolver       _resolver;
             std::auto_ptr<cql_transport_t>       _transport;
             boost::asio::streambuf               _receive_buffer;

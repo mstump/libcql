@@ -1,7 +1,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
-#include "internal/cql_header.hpp"
-#include "internal/serialization.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
 #include "internal/cql_message_error.hpp"
 
@@ -10,7 +10,7 @@ cql::cql_message_error_t::cql_message_error_t() :
     _message()
 {}
 
-cql::cql_message_error_t::cql_message_error_t(cql_int_t code,
+cql::cql_message_error_t::cql_message_error_t(cql::cql_int_t code,
                                               const std::string& message) :
     _code(code),
     _message(message)
@@ -28,25 +28,25 @@ cql::cql_message_error_t::message(const std::string& m)
     _message = m;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_error_t::code() const
 {
     return _code;
 }
 
 void
-cql::cql_message_error_t::code(cql_int_t c)
+cql::cql_message_error_t::code(cql::cql_int_t c)
 {
     _code = c;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_error_t::opcode() const
 {
     return CQL_OPCODE_ERROR;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_error_t::size() const
 {
     std::stringstream ss(std::stringstream::out);
@@ -72,7 +72,7 @@ cql::cql_message_error_t::read(std::istream& input)
 std::ostream&
 cql::cql_message_error_t::write(std::ostream& output) const
 {
-    cql_int_t code = htonl(_code);
+    cql::cql_int_t code = htonl(_code);
     output.write(reinterpret_cast<char*>(&code), sizeof(code));
     cql::internal::encode_string(output, _message);
     return output;

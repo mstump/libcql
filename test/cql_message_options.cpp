@@ -1,5 +1,6 @@
 #include "gtest/gtest.h"
-#include "cql.h"
+#include "cql.hpp"
+#include "internal/cql_defines.hpp"
 #include "internal/cql_message_options.hpp"
 
 

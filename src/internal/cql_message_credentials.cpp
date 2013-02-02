@@ -22,7 +22,8 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include <boost/algorithm/string/join.hpp>
-#include "internal/serialization.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
 #include "internal/cql_message_credentials.hpp"
 
@@ -42,13 +43,13 @@ cql::cql_message_credentials_t::credentials() const
     return _credentials;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_credentials_t::opcode() const
 {
     return CQL_OPCODE_CREDENTIALS;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_credentials_t::size() const
 {
     std::stringstream ss(std::stringstream::out);

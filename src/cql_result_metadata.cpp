@@ -22,8 +22,9 @@
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
-#include "internal/serialization.hpp"
 #include "cql_result_metadata.hpp"
 
 struct column_name_to_str
@@ -88,26 +89,26 @@ cql::cql_result_metadata_t::read(std::istream& input)
     return input;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_result_metadata_t::flags() const
 {
     return _flags;
 }
 
 void
-cql::cql_result_metadata_t::flags(cql_int_t v)
+cql::cql_result_metadata_t::flags(cql::cql_int_t v)
 {
     _flags = v;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_result_metadata_t::column_count() const
 {
     return _column_count;
 }
 
 void
-cql::cql_result_metadata_t::column_count(cql_int_t v)
+cql::cql_result_metadata_t::column_count(cql::cql_int_t v)
 {
     _column_count = v;
 }
@@ -186,7 +187,7 @@ cql::cql_result_metadata_t::column_class(const std::string& keyspace,
 
 bool
 cql::cql_result_metadata_t::column_type(int i,
-                                        cql_short_t& output) const
+                                        cql::cql_short_t& output) const
 {
     if (i > _column_count || i < 0)
         return false;
@@ -197,7 +198,7 @@ cql::cql_result_metadata_t::column_type(int i,
 
 bool
 cql::cql_result_metadata_t::column_type(const std::string& column,
-                                        cql_short_t& output) const
+                                        cql::cql_short_t& output) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty())
         return false;
@@ -209,7 +210,7 @@ bool
 cql::cql_result_metadata_t::column_type(const std::string& keyspace,
                                         const std::string& table,
                                         const std::string& column,
-                                        cql_short_t& output) const
+                                        cql::cql_short_t& output) const
 {
     column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
     if(it != _column_name_idx.end())

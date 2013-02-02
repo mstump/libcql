@@ -21,7 +21,7 @@
 #define CQL_ERROR_H_
 
 #include <string>
-#include "cql.h"
+#include "cql.hpp"
 
 namespace cql {
 

@@ -18,7 +18,7 @@
 */
 
 #include <memory>
-
+#include "internal/cql_defines.hpp"
 #include "internal/cql_client_impl.hpp"
 #include "internal/cql_socket.hpp"
 #include "internal/cql_socket_ssl.hpp"

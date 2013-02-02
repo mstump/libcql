@@ -19,20 +19,21 @@
 
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
-#include "internal/serialization.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
 
 #include "internal/cql_message_register.hpp"
 
 cql::cql_message_register_t::cql_message_register_t()
 {}
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_register_t::opcode() const
 {
     return CQL_OPCODE_REGISTER;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_register_t::size() const
 {
     std::stringstream ss(std::stringstream::out);

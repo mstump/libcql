@@ -19,9 +19,10 @@
 
 #include <iomanip>
 #include <sstream>
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
+#include "internal/cql_util.hpp"
 
-#include "internal/serialization.hpp"
-#include "internal/util.hpp"
 #include "cql_message_prepare.hpp"
 
 
@@ -45,13 +46,13 @@ cql::cql_message_prepare_t::query(const std::string& q)
     _query = q;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_prepare_t::opcode() const
 {
     return CQL_OPCODE_PREPARE;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_prepare_t::size() const
 {
     std::stringstream ss(std::stringstream::out);

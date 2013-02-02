@@ -22,8 +22,8 @@
 
 cql::cql_error_t::cql_error_t(
     bool application,
-    cql_int_t application_error,
-    cql_int_t transport_error,
+    cql::cql_int_t application_error,
+    cql::cql_int_t transport_error,
     const std::string& message) :
     _application(application),
     _application_error(application_error),
@@ -38,13 +38,13 @@ cql::cql_error_t::application() const
     return _application;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_error_t::application_error() const
 {
     return _application_error;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_error_t::transport_error() const
 {
     return _transport_error;
@@ -63,13 +63,13 @@ cql::cql_error_t::application(bool v)
 }
 
 void
-cql::cql_error_t::application_error(cql_int_t err)
+cql::cql_error_t::application_error(cql::cql_int_t err)
 {
     _application_error = err;
 }
 
 void
-cql::cql_error_t::transport_error(cql_int_t err)
+cql::cql_error_t::transport_error(cql::cql_int_t err)
 {
     _transport_error = err;
 }

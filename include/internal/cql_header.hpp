@@ -20,7 +20,7 @@
 #ifndef CQL_HEADER_H_
 #define CQL_HEADER_H_
 
-#include "cql.h"
+#include "cql.hpp"
 
 namespace cql {
     namespace internal {
@@ -32,10 +32,10 @@ namespace cql {
 
             cql_header_t();
 
-            cql_header_t(cql_byte_t version,
-                         cql_byte_t flags,
-                         cql_stream_id_t stream,
-                         cql_byte_t opcode,
+            cql_header_t(cql::cql_byte_t version,
+                         cql::cql_byte_t flags,
+                         cql::cql_stream_id_t stream,
+                         cql::cql_byte_t opcode,
                          cql_int_t length);
 
             std::string
@@ -50,41 +50,41 @@ namespace cql {
             cql_int_t
             size() const;
 
-            cql_byte_t
+            cql::cql_byte_t
             version() const;
 
-            cql_byte_t
+            cql::cql_byte_t
             flags() const;
 
-            cql_stream_id_t
+            cql::cql_stream_id_t
             stream() const;
 
-            cql_byte_t
+            cql::cql_byte_t
             opcode() const;
 
             cql_int_t
             length() const;
 
             void
-            version(cql_byte_t v);
+            version(cql::cql_byte_t v);
 
             void
-            flags(cql_byte_t v);
+            flags(cql::cql_byte_t v);
 
             void
-            stream(cql_stream_id_t v);
+            stream(cql::cql_stream_id_t v);
 
             void
-            opcode(cql_byte_t v);
+            opcode(cql::cql_byte_t v);
 
             void
             length(cql_int_t v);
 
         private:
-            cql_byte_t      _version;
-            cql_byte_t      _flags;
-            cql_stream_id_t _stream;
-            cql_byte_t      _opcode;
+            cql::cql_byte_t      _version;
+            cql::cql_byte_t      _flags;
+            cql::cql_stream_id_t _stream;
+            cql::cql_byte_t      _opcode;
             cql_int_t       _length;
         };
 #pragma pack(pop)

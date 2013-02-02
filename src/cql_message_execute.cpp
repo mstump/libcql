@@ -21,10 +21,11 @@
 #include <iomanip>
 #include <memory>
 #include <sstream>
+#include "internal/cql_defines.hpp"
+#include "internal/cql_serialization.hpp"
+#include "internal/cql_util.hpp"
 
 #include "cql_message_execute.hpp"
-#include "internal/serialization.hpp"
-#include "internal/util.hpp"
 
 
 cql::cql_message_execute_t::cql_message_execute_t() :
@@ -32,33 +33,33 @@ cql::cql_message_execute_t::cql_message_execute_t() :
 {
 }
 
-cql::cql_message_execute_t::cql_message_execute_t(const std::vector<cql_byte_t>& id,
-                                                  cql_short_t consistency) :
+cql::cql_message_execute_t::cql_message_execute_t(const std::vector<cql::cql_byte_t>& id,
+                                                  cql::cql_short_t consistency) :
     _query_id(id),
     _consistency(consistency)
 {
 }
 
-const std::vector<cql_byte_t>&
+const std::vector<cql::cql_byte_t>&
 cql::cql_message_execute_t::query_id() const
 {
     return _query_id;
 }
 
 void
-cql::cql_message_execute_t::query_id(const std::vector<cql_byte_t>& id)
+cql::cql_message_execute_t::query_id(const std::vector<cql::cql_byte_t>& id)
 {
     _query_id = id;
 }
 
-cql_short_t
+cql::cql_short_t
 cql::cql_message_execute_t::consistency() const
 {
     return _consistency;
 }
 
 void
-cql::cql_message_execute_t::consistency(const cql_short_t consistency)
+cql::cql_message_execute_t::consistency(const cql::cql_short_t consistency)
 {
     _consistency = consistency;
 }
@@ -76,7 +77,7 @@ cql::cql_message_execute_t::push_back(const std::string& val)
 }
 
 void
-cql::cql_message_execute_t::push_back(const cql_short_t val)
+cql::cql_message_execute_t::push_back(const cql::cql_short_t val)
 {
     std::auto_ptr<param_t> p(new param_t);
     cql::internal::encode_short(*p, val);
@@ -84,7 +85,7 @@ cql::cql_message_execute_t::push_back(const cql_short_t val)
 }
 
 void
-cql::cql_message_execute_t::push_back(const cql_int_t val)
+cql::cql_message_execute_t::push_back(const cql::cql_int_t val)
 {
     std::auto_ptr<param_t> p(new param_t);
     cql::internal::encode_int(*p, val);
@@ -92,7 +93,7 @@ cql::cql_message_execute_t::push_back(const cql_int_t val)
 }
 
 void
-cql::cql_message_execute_t::push_back(const cql_bigint_t val)
+cql::cql_message_execute_t::push_back(const cql::cql_bigint_t val)
 {
     std::auto_ptr<param_t> p(new param_t);
     cql::internal::encode_bigint(*p, val);
@@ -141,13 +142,13 @@ cql::cql_message_execute_t::end() const
     return _params.end();
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_execute_t::opcode() const
 {
     return CQL_OPCODE_EXECUTE;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_execute_t::size() const
 {
     std::stringstream ss(std::stringstream::out);
@@ -164,7 +165,7 @@ cql::cql_message_execute_t::str() const
     if (! _query_id.empty()) {
         output << " QUERY_ID 0x";
         output << std::setfill('0');
-        BOOST_FOREACH(cql_byte_t c, _query_id) {
+        BOOST_FOREACH(cql::cql_byte_t c, _query_id) {
             output << std::setw(2) << cql::internal::hex(c);
         }
     }
@@ -176,7 +177,7 @@ std::istream&
 cql::cql_message_execute_t::read(std::istream& input)
 {
     _params.clear();
-    cql_short_t count = 0;
+    cql::cql_short_t count = 0;
     cql::internal::decode_short_bytes(input, _query_id);
     cql::internal::decode_short(input, count);
 

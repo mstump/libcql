@@ -17,18 +17,19 @@
   along with this program.      If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "internal/cql_defines.hpp"
 #include "internal/cql_message_ready.hpp"
 
 cql::cql_message_ready_t::cql_message_ready_t()
 {}
 
-cql_byte_t
+cql::cql_byte_t
 cql::cql_message_ready_t::opcode() const
 {
     return CQL_OPCODE_READY;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::cql_message_ready_t::size() const
 {
     return 0;

@@ -20,7 +20,7 @@
 #ifndef CQL_MESSAGE_ERROR_H_
 #define CQL_MESSAGE_ERROR_H_
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_message.hpp"
 
 namespace cql {
@@ -48,7 +48,7 @@ namespace cql {
         void
         code(cql_int_t c);
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t

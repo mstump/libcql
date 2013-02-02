@@ -47,7 +47,7 @@ namespace cql {
                                    const std::string& keyspace,
                                    const std::string& column_family);
 
-        cql_byte_t
+        cql::cql_byte_t
         opcode() const;
 
         cql_int_t

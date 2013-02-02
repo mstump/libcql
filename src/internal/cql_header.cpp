@@ -19,7 +19,9 @@
 
 #include <iomanip>
 #include <boost/lexical_cast.hpp>
-#include "internal/util.hpp"
+#include "internal/cql_defines.hpp"
+#include "internal/cql_util.hpp"
+
 #include "internal/cql_header.hpp"
 
 cql::internal::cql_header_t::cql_header_t() :
@@ -30,11 +32,11 @@ cql::internal::cql_header_t::cql_header_t() :
     _length(0)
 {}
 
-cql::internal::cql_header_t::cql_header_t(cql_byte_t version,
-                                          cql_byte_t flags,
-                                          cql_stream_id_t stream,
-                                          cql_byte_t opcode,
-                                          cql_int_t length) :
+cql::internal::cql_header_t::cql_header_t(cql::cql_byte_t version,
+                                          cql::cql_byte_t flags,
+                                          cql::cql_stream_id_t stream,
+                                          cql::cql_byte_t opcode,
+                                          cql::cql_int_t length) :
     _version(version),
     _flags(flags),
     _stream(stream),
@@ -63,7 +65,7 @@ cql::internal::cql_header_t::write(std::ostream& output) const
     output.put(_stream);
     output.put(_opcode);
 
-    cql_int_t l = htonl(_length);
+    cql::cql_int_t l = htonl(_length);
     output.write(reinterpret_cast<char*>(&l), sizeof(l));
     return output;
 }
@@ -80,68 +82,68 @@ cql::internal::cql_header_t::read(std::istream& input)
     return input;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::internal::cql_header_t::size() const
 {
     return sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length);
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::internal::cql_header_t::version() const
 {
     return _version;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::internal::cql_header_t::flags() const
 {
     return _flags;
 }
 
-cql_stream_id_t
+cql::cql_stream_id_t
 cql::internal::cql_header_t::stream() const
 {
     return _stream;
 }
 
-cql_byte_t
+cql::cql_byte_t
 cql::internal::cql_header_t::opcode() const
 {
     return _opcode;
 }
 
-cql_int_t
+cql::cql_int_t
 cql::internal::cql_header_t::length() const
 {
     return _length;
 }
 
 void
-cql::internal::cql_header_t::version(cql_byte_t v)
+cql::internal::cql_header_t::version(cql::cql_byte_t v)
 {
     _version = v;
 }
 
 void
-cql::internal::cql_header_t::flags(cql_byte_t v)
+cql::internal::cql_header_t::flags(cql::cql_byte_t v)
 {
     _flags = v;
 }
 
 void
-cql::internal::cql_header_t::stream(cql_stream_id_t v)
+cql::internal::cql_header_t::stream(cql::cql_stream_id_t v)
 {
     _stream = v;
 }
 
 void
-cql::internal::cql_header_t::opcode(cql_byte_t v)
+cql::internal::cql_header_t::opcode(cql::cql_byte_t v)
 {
     _opcode = v;
 }
 
 void
-cql::internal::cql_header_t::length(cql_int_t v)
+cql::internal::cql_header_t::length(cql::cql_int_t v)
 {
     _length = v;
 }

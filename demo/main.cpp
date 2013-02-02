@@ -22,7 +22,7 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_error.hpp"
 #include "cql_client.hpp"
 #include "cql_client_factory.hpp"
@@ -109,7 +109,7 @@ connect_callback(cql::cql_client_pool_t& pool)
 }
 
 void
-log_callback(const cql_short_t level,
+log_callback(const cql::cql_short_t level,
              const std::string& message)
 {
     std::cout << "LOG: " << message << std::endl;

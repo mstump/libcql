@@ -23,7 +23,7 @@
 #include <boost/noncopyable.hpp>
 #include <boost/ptr_container/ptr_vector.hpp>
 
-#include "cql.h"
+#include "cql.hpp"
 #include "cql_result_metadata.hpp"
 
 namespace cql {
@@ -33,7 +33,7 @@ namespace cql {
     {
 
     public:
-        typedef  std::vector<cql_byte_t>             column_t;
+        typedef  std::vector<cql::cql_byte_t>             column_t;
         typedef  boost::ptr_vector<column_t>         columns_container_t;
         typedef  column_t*                           value_type;
         typedef  column_t&                           reference;
@@ -135,17 +135,17 @@ namespace cql {
 
         bool
         get_bigint(int i,
-                   cql_bigint_t& output) const;
+                   cql::cql_bigint_t& output) const;
 
         bool
         get_bigint(const std::string& column,
-                   cql_bigint_t& output) const;
+                   cql::cql_bigint_t& output) const;
 
         bool
         get_bigint(const std::string& keyspace,
                    const std::string& table,
                    const std::string& column,
-                   cql_bigint_t& output) const;
+                   cql::cql_bigint_t& output) const;
 
         bool
         get_string(int i,
