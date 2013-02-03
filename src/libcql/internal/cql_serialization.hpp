@@ -57,6 +57,9 @@ namespace cql {
         decode_short(std::istream& input,
                      cql::cql_short_t& value);
 
+        cql::cql_short_t
+        decode_short(const std::vector<cql::cql_byte_t>& input);
+
         std::ostream&
         encode_int(std::ostream& output,
                    const cql_int_t value);

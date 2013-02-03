@@ -21,6 +21,8 @@
 #define CQL_UTIL_H_
 
 #include <ostream>
+#include <streambuf>
+#include <vector>
 #include "libcql/cql.hpp"
 
 namespace cql {
@@ -77,6 +79,22 @@ namespace cql {
                 return "UNKNOWN";
             }
         }
+
+        struct vector_stream_t : std::streambuf
+        {
+            vector_stream_t(std::vector<cql::cql_byte_t>& vec)
+            {
+                char* start = reinterpret_cast<char*>(&vec[0]);
+                this->setg(start, start, start + vec.size());
+            }
+
+            vector_stream_t(std::vector<cql::cql_byte_t>& vec,
+                            size_t offset)
+            {
+                char* start = reinterpret_cast<char*>(&vec[0]);
+                this->setg(start + offset, start + offset, start + vec.size() - offset);
+            }
+        };
 
     } // namespace internal
 } // namespace cql

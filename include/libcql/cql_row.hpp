@@ -33,7 +33,7 @@ namespace cql {
     {
 
     public:
-        typedef  std::vector<cql::cql_byte_t>             column_t;
+        typedef  std::vector<cql::cql_byte_t>        column_t;
         typedef  boost::ptr_vector<column_t>         columns_container_t;
         typedef  column_t*                           value_type;
         typedef  column_t&                           reference;

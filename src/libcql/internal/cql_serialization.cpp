@@ -115,6 +115,12 @@ cql::internal::decode_short(std::istream& input,
     return input;
 }
 
+cql::cql_short_t
+cql::internal::decode_short(const std::vector<cql::cql_byte_t>& input)
+{
+    return ntohs(*(reinterpret_cast<const cql_short_t*>(&input[0])));
+}
+
 std::ostream&
 cql::internal::encode_int(std::ostream& output,
                           const cql::cql_int_t value)
@@ -145,7 +151,7 @@ cql::internal::decode_int(std::istream& input,
 cql::cql_int_t
 cql::internal::decode_int(const std::vector<cql::cql_byte_t>& input)
 {
-    return ntohl(*(reinterpret_cast<const float*>(&input[0])));
+    return ntohl(*(reinterpret_cast<const cql_int_t*>(&input[0])));
 }
 
 std::ostream&
