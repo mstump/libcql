@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "cql.hpp"
-#include "internal/cql_defines.hpp"
-#include "internal/cql_header.hpp"
+#include "libcql/cql.hpp"
+#include "libcql/internal/cql_defines.hpp"
+#include "libcql/internal/cql_header.hpp"
 
 char TEST_HEADER[] = { 0x01, 0x00, 0x01, 0x02, 0x00, 0x00, 0x00, 0x05 };
 

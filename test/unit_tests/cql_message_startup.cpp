@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "cql.hpp"
-#include "internal/cql_defines.hpp"
-#include "internal/cql_message_startup.hpp"
+#include "libcql/cql.hpp"
+#include "libcql/internal/cql_defines.hpp"
+#include "libcql/internal/cql_message_startup.hpp"
 
 char TEST_MESSAGE_STARTUP[] = {
     0x00, 0x01, 0x00, 0x0b, 0x43, 0x51, 0x4c, 0x5f,

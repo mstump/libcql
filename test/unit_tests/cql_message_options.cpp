@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "cql.hpp"
-#include "internal/cql_defines.hpp"
-#include "internal/cql_message_options.hpp"
+#include "libcql/cql.hpp"
+#include "libcql/internal/cql_defines.hpp"
+#include "libcql/internal/cql_message_options.hpp"
 
 
 TEST(cql_message_options_cpp, zero_size)

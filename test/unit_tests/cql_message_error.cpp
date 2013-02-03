@@ -1,7 +1,7 @@
 #include "gtest/gtest.h"
-#include "cql.hpp"
-#include "internal/cql_defines.hpp"
-#include "internal/cql_message_error.hpp"
+#include "libcql/cql.hpp"
+#include "libcql/internal/cql_defines.hpp"
+#include "libcql/internal/cql_message_error.hpp"
 
 
 TEST(cql_message_error_cpp, setters_and_getters)

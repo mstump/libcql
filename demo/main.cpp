@@ -22,16 +22,16 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include "cql.hpp"
-#include "cql_error.hpp"
-#include "cql_client.hpp"
-#include "cql_client_factory.hpp"
-#include "cql_client_pool.hpp"
-#include "cql_message_event.hpp"
-#include "cql_message_execute.hpp"
-#include "cql_message_prepare.hpp"
-#include "cql_message_result.hpp"
-#include "cql_row.hpp"
+#include <libcql/cql.hpp>
+#include <libcql/cql_error.hpp>
+#include <libcql/cql_client.hpp>
+#include <libcql/cql_client_factory.hpp>
+#include <libcql/cql_client_pool.hpp>
+#include <libcql/cql_message_event.hpp>
+#include <libcql/cql_message_execute.hpp>
+#include <libcql/cql_message_prepare.hpp>
+#include <libcql/cql_message_result.hpp>
+#include <libcql/cql_row.hpp>
 
 void
 message_errback(cql::cql_client_t& client,
