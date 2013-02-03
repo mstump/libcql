@@ -24,12 +24,12 @@
 #include "libcql/internal/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"
 
-#include "libcql/cql_list.hpp"
+#include "libcql/cql_set.hpp"
 
 template<typename T, typename DecodeFunction>
 void
-decode_list(cql::cql_list_t::column_t column,
-            std::list<T>& output,
+decode_set(cql::cql_set_t::column_t column,
+            std::set<T>& output,
             DecodeFunction decoder)
 {
     cql::internal::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
@@ -41,68 +41,68 @@ decode_list(cql::cql_list_t::column_t column,
     for (int i = 0; i < count; ++i) {
         T elem;
         decoder(stream, elem);
-        output.push_back(elem);
+        output.insert(elem);
     }
 }
 
 
-cql::cql_list_t::cql_list_t(cql::cql_list_t::column_t column) :
+cql::cql_set_t::cql_set_t(cql::cql_set_t::column_t column) :
     _column(column),
     _type(cql::internal::decode_short(column))
 {}
 
 std::string
-cql::cql_list_t::str() const
+cql::cql_set_t::str() const
 {
-    return "list";
+    return "set";
 }
 
 cql::cql_short_t
-cql::cql_list_t::member_type() const
+cql::cql_set_t::member_type() const
 {
     return _type;
 }
 
 void
-cql::cql_list_t::get_list(std::list<bool>& output) const
+cql::cql_set_t::get_set(std::set<bool>& output) const
 {
-    decode_list(_column, output, &cql::internal::decode_bool);
+    decode_set(_column, output, &cql::internal::decode_bool);
 }
 
 void
-cql::cql_list_t::get_list(std::list<cql::cql_int_t>& output) const
+cql::cql_set_t::get_set(std::set<cql::cql_int_t>& output) const
 {
-    decode_list(_column,
+    decode_set(_column,
                 output,
                 (std::istream& (&) (std::istream&, int&)) &cql::internal::decode_int);
 }
 
 void
-cql::cql_list_t::get_list(std::list<float>& output) const
+cql::cql_set_t::get_set(std::set<float>& output) const
 {
-    decode_list(_column,
+    decode_set(_column,
                 output,
                 (std::istream& (&) (std::istream&, float&)) &cql::internal::decode_float);
 }
 
 void
-cql::cql_list_t::get_list(std::list<double>& output) const
+cql::cql_set_t::get_set(std::set<double>& output) const
 {
-    decode_list(_column,
+    decode_set(_column,
                 output,
                 (std::istream& (&) (std::istream&, double&)) &cql::internal::decode_double);
 }
 
 void
-cql::cql_list_t::get_list(std::list<cql::cql_bigint_t>& output) const
+cql::cql_set_t::get_set(std::set<cql::cql_bigint_t>& output) const
 {
-    decode_list(_column,
+    decode_set(_column,
                 output,
                 (std::istream& (&) (std::istream&, cql::cql_bigint_t&)) &cql::internal::decode_bigint);
 }
 
 void
-cql::cql_list_t::get_list(std::list<std::string>& output) const
+cql::cql_set_t::get_set(std::set<std::string>& output) const
 {
-    decode_list(_column, output, &cql::internal::decode_string);
+    decode_set(_column, output, &cql::internal::decode_string);
 }
