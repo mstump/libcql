@@ -17,3 +17,5 @@ Implementation of the [Cassandra binary protocol](https://github.com/apache/cass
 - Synchronous API
 - Docs
 - Cassandra 1.2 native collections
+- Integration tests
+- More unit tests
