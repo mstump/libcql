@@ -35,7 +35,6 @@ set(LIBS ${LIBS} ${openssl_STATIC_LIBRARIES} )
 set(INCLUDES ${INCLUDES} ${openssl_INCLUDE_DIRS} )
 set(INCLUDES ${INCLUDES} ${zlib_INCLUDE_DIRS} )
 set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} )
-set(INCLUDES ${INCLUDES} ${PROJECT_SOURCE_DIR}/include )
 
 #-------------------
 # libcql static and shared
@@ -50,13 +49,24 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin/")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
+set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
-include_directories(${INCLUDES} ${PROJECT_SOURCE_DIR}/src)
+include_directories(${INCLUDES} ${PROJECT_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src)
 file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/libcql/*.cpp ${PROJECT_SOURCE_DIR}/src/libcql/internal/*.cpp)
 
 add_library(${PROJECT_LIB_NAME} SHARED ${SRC_FILES})
 add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})
 target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
+
+install(DIRECTORY ${PROJECT_INCLUDE_DIR}/libcql
+  DESTINATION include
+  FILES_MATCHING
+  PATTERN "*.hpp")
+
+INSTALL(TARGETS ${PROJECT_LIB_NAME}-static ${PROJECT_LIB_NAME}
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
 
 
 enable_testing()
