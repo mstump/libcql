@@ -19,13 +19,17 @@
 
 #include "libcql/cql_map.hpp"
 
-cql::cql_map_t::cql_map_t(column_t column) :
-    _column(column),
+cql::cql_map_t::cql_map_t() :
     _key_type(0),
     _value_type(0),
     _offset(0)
+{}
+
+void
+cql::cql_map_t::read(column_t column)
 {
-    cql::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
+    _column = column;
+    cql::vector_stream_t buffer(_column, sizeof(cql::cql_short_t));
     std::istream stream(&buffer);
 
     cql::decode_option(stream, _key_type, _key_class);

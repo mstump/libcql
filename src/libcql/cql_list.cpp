@@ -22,12 +22,16 @@
 
 #include "libcql/cql_list.hpp"
 
-cql::cql_list_t::cql_list_t(cql::cql_list_t::column_t column) :
-    _column(column),
+cql::cql_list_t::cql_list_t() :
     _type(-1),
     _offset(0)
+{}
+
+void
+cql::cql_list_t::read(column_t column)
 {
-    cql::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
+    _column = column;
+    cql::vector_stream_t buffer(_column, sizeof(cql::cql_short_t));
     std::istream stream(&buffer);
 
     cql::decode_option(stream, _type, _custom_class);

@@ -35,9 +35,12 @@ namespace cql {
     {
 
     public:
-        typedef std::vector<cql::cql_byte_t>& column_t;
+        typedef std::vector<cql::cql_byte_t> column_t;
 
-        cql_map_t(column_t column);
+        cql_map_t();
+
+        void
+        read(column_t column);
 
         std::string
         str() const;

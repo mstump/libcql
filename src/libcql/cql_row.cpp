@@ -375,3 +375,117 @@ cql::cql_row_t::get_string(const std::string& keyspace,
     }
     return false;
 }
+
+bool
+cql::cql_row_t::get_list(int i,
+                         cql::cql_list_t& output) const
+{
+    if (i > _row.size() || i < 0)
+        return false;
+
+    const column_t& r = _row[i];
+    output.read(r);
+    return true;
+}
+
+bool
+cql::cql_row_t::get_list(const std::string& column,
+                         cql::cql_list_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        return get_list(i, output);
+    }
+    return false;
+}
+
+bool
+cql::cql_row_t::get_list(const std::string& keyspace,
+                         const std::string& table,
+                         const std::string& column,
+                         cql::cql_list_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        return get_list(i, output);
+    }
+    return false;
+}
+
+bool
+cql::cql_row_t::get_set(int i,
+                        cql::cql_set_t& output) const
+{
+    if (i > _row.size() || i < 0)
+        return false;
+
+    const column_t& r = _row[i];
+    output.read(r);
+    return true;
+}
+
+bool
+cql::cql_row_t::get_set(const std::string& column,
+                        cql::cql_set_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        return get_set(i, output);
+    }
+    return false;
+}
+
+bool
+cql::cql_row_t::get_set(const std::string& keyspace,
+                        const std::string& table,
+                        const std::string& column,
+                        cql::cql_set_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        return get_set(i, output);
+    }
+    return false;
+}
+
+bool
+cql::cql_row_t::get_map(int i,
+                        cql::cql_map_t& output) const
+{
+    if (i > _row.size() || i < 0)
+        return false;
+
+    const column_t& r = _row[i];
+    output.read(r);
+    return true;
+}
+
+bool
+cql::cql_row_t::get_map(const std::string& column,
+                        cql::cql_map_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(column, i))
+    {
+        return get_map(i, output);
+    }
+    return false;
+}
+
+bool
+cql::cql_row_t::get_map(const std::string& keyspace,
+                        const std::string& table,
+                        const std::string& column,
+                        cql::cql_map_t& output) const
+{
+    int i = 0;
+    if (_metadata.get_index(keyspace, table, column, i))
+    {
+        return get_map(i, output);
+    }
+    return false;
+}
