@@ -25,6 +25,8 @@
 #include <boost/noncopyable.hpp>
 
 #include "libcql/cql.hpp"
+#include "libcql/cql_vector_stream.hpp"
+#include "libcql/cql_serialization.hpp"
 
 namespace cql {
 
@@ -63,6 +65,24 @@ namespace cql {
 
         void
         get_list(std::list<std::string>& output) const;
+
+        template<typename T, typename DecodeFunction>
+        void
+        decode_list(std::list<T>& output,
+                    DecodeFunction decoder)
+        {
+            cql::vector_stream_t buffer(_column, _offset);
+            std::istream stream(&buffer);
+
+            cql::cql_short_t count = 0;
+            cql::decode_short(stream, count);
+
+            for (int i = 0; i < count; ++i) {
+                T elem;
+                decoder(stream, elem);
+                output.push_back(elem);
+            }
+        }
 
     private:
         column_t         _column;

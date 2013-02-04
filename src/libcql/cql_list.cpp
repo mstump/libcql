@@ -18,41 +18,16 @@
 */
 
 #include <boost/function.hpp>
-
-#include "libcql/cql.hpp"
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/cql_serialization.hpp"
-#include "libcql/internal/cql_util.hpp"
 
 #include "libcql/cql_list.hpp"
-
-template<typename T, typename DecodeFunction>
-void
-decode_list(cql::cql_list_t::column_t column,
-            int offset,
-            std::list<T>& output,
-            DecodeFunction decoder)
-{
-    cql::internal::vector_stream_t buffer(column, offset);
-    std::istream stream(&buffer);
-
-    cql::cql_short_t count = 0;
-    cql::decode_short(stream, count);
-
-    for (int i = 0; i < count; ++i) {
-        T elem;
-        decoder(stream, elem);
-        output.push_back(elem);
-    }
-}
-
 
 cql::cql_list_t::cql_list_t(cql::cql_list_t::column_t column) :
     _column(column),
     _type(-1),
     _offset(0)
 {
-    cql::internal::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
+    cql::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
     std::istream stream(&buffer);
 
     cql::decode_option(stream, _type, _custom_class);
@@ -80,47 +55,37 @@ cql::cql_list_t::custom_class() const
 void
 cql::cql_list_t::get_list(std::list<bool>& output) const
 {
-    decode_list(_column, _offset, output, &cql::decode_bool);
+    // (std::istream& (&) (std::istream&, bool&))
+    decode_list(output, (std::istream& (&) (std::istream&, bool&)) &cql::decode_bool);
+    // decode_list(output, &cql::decode_bool);
 }
 
 void
 cql::cql_list_t::get_list(std::list<cql::cql_int_t>& output) const
 {
-    decode_list(_column,
-                _offset,
-                output,
-                (std::istream& (&) (std::istream&, int&)) &cql::decode_int);
+    decode_list(output, (std::istream& (&) (std::istream&, int&)) &cql::decode_int);
 }
 
 void
 cql::cql_list_t::get_list(std::list<float>& output) const
 {
-    decode_list(_column,
-                _offset,
-                output,
-                (std::istream& (&) (std::istream&, float&)) &cql::decode_float);
+    decode_list(output, (std::istream& (&) (std::istream&, float&)) &cql::decode_float);
 }
 
 void
 cql::cql_list_t::get_list(std::list<double>& output) const
 {
-    decode_list(_column,
-                _offset,
-                output,
-                (std::istream& (&) (std::istream&, double&)) &cql::decode_double);
+    decode_list(output, (std::istream& (&) (std::istream&, double&)) &cql::decode_double);
 }
 
 void
 cql::cql_list_t::get_list(std::list<cql::cql_bigint_t>& output) const
 {
-    decode_list(_column,
-                _offset,
-                output,
-                (std::istream& (&) (std::istream&, cql::cql_bigint_t&)) &cql::decode_bigint);
+    decode_list(output, (std::istream& (&) (std::istream&, cql::cql_bigint_t&)) &cql::decode_bigint);
 }
 
 void
 cql::cql_list_t::get_list(std::list<std::string>& output) const
 {
-    decode_list(_column, _offset, output, &cql::decode_string);
+    decode_list(output, (std::istream& (&) (std::istream&, std::string&)) &cql::decode_string);
 }

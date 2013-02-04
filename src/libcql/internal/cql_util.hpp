@@ -80,22 +80,6 @@ namespace cql {
             }
         }
 
-        struct vector_stream_t : std::streambuf
-        {
-            vector_stream_t(std::vector<cql::cql_byte_t>& vec)
-            {
-                char* start = reinterpret_cast<char*>(&vec[0]);
-                this->setg(start, start, start + vec.size());
-            }
-
-            vector_stream_t(std::vector<cql::cql_byte_t>& vec,
-                            size_t offset)
-            {
-                char* start = reinterpret_cast<char*>(&vec[0]);
-                this->setg(start, start + offset, start + vec.size());
-            }
-        };
-
     } // namespace internal
 } // namespace cql
 

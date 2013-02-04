@@ -90,6 +90,12 @@ cql::decode_bool(std::istream& input,
     return input;
 }
 
+bool
+cql::decode_bool(const std::vector<cql::cql_byte_t>& input)
+{
+    return input[0];
+}
+
 std::ostream&
 cql::encode_short(std::ostream& output,
                   const cql::cql_short_t value)
@@ -277,6 +283,12 @@ cql::decode_string(std::istream& input,
     input.read(&buffer[0], len);
     value.assign(buffer.begin(), buffer.end());
     return input;
+}
+
+std::string
+cql::decode_string(const std::vector<cql::cql_byte_t>& input)
+{
+    return std::string(input.begin(), input.end());
 }
 
 std::ostream&

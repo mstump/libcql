@@ -45,6 +45,8 @@ namespace cql {
     decode_bool(std::istream& input,
                 bool& value);
 
+    bool
+    decode_bool(const std::vector<cql::cql_byte_t>& input);
 
     std::ostream&
     encode_short(std::ostream& output,
@@ -141,6 +143,9 @@ namespace cql {
     std::istream&
     decode_string(std::istream& input,
                   std::string& value);
+
+    std::string
+    decode_string(const std::vector<cql::cql_byte_t>& input);
 
     std::ostream&
     encode_bytes(std::ostream& output,

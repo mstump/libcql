@@ -18,41 +18,16 @@
 */
 
 #include <boost/function.hpp>
-
-#include "libcql/cql.hpp"
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/cql_serialization.hpp"
-#include "libcql/internal/cql_util.hpp"
 
 #include "libcql/cql_set.hpp"
-
-template<typename T, typename DecodeFunction>
-void
-decode_set(cql::cql_set_t::column_t column,
-           int offset,
-           std::set<T>& output,
-           DecodeFunction decoder)
-{
-    cql::internal::vector_stream_t buffer(column, offset);
-    std::istream stream(&buffer);
-
-    cql::cql_short_t count = 0;
-    cql::decode_short(stream, count);
-
-    for (int i = 0; i < count; ++i) {
-        T elem;
-        decoder(stream, elem);
-        output.insert(elem);
-    }
-}
-
 
 cql::cql_set_t::cql_set_t(cql::cql_set_t::column_t column) :
     _column(column),
     _type(-1),
     _offset(0)
 {
-    cql::internal::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
+    cql::vector_stream_t buffer(column, sizeof(cql::cql_short_t));
     std::istream stream(&buffer);
 
     cql::decode_option(stream, _type, _custom_class);
@@ -80,47 +55,35 @@ cql::cql_set_t::custom_class() const
 void
 cql::cql_set_t::get_set(std::set<bool>& output) const
 {
-    decode_set(_column, _offset, output, &cql::decode_bool);
+    decode_set(output, (std::istream& (&) (std::istream&, bool&)) &cql::decode_bool);
 }
 
 void
 cql::cql_set_t::get_set(std::set<cql::cql_int_t>& output) const
 {
-    decode_set(_column,
-               _offset,
-               output,
-               (std::istream& (&) (std::istream&, int&)) &cql::decode_int);
+    decode_set(output, (std::istream& (&) (std::istream&, int&)) &cql::decode_int);
 }
 
 void
 cql::cql_set_t::get_set(std::set<float>& output) const
 {
-    decode_set(_column,
-               _offset,
-               output,
-               (std::istream& (&) (std::istream&, float&)) &cql::decode_float);
+    decode_set(output, (std::istream& (&) (std::istream&, float&)) &cql::decode_float);
 }
 
 void
 cql::cql_set_t::get_set(std::set<double>& output) const
 {
-    decode_set(_column,
-               _offset,
-               output,
-               (std::istream& (&) (std::istream&, double&)) &cql::decode_double);
+    decode_set(output, (std::istream& (&) (std::istream&, double&)) &cql::decode_double);
 }
 
 void
 cql::cql_set_t::get_set(std::set<cql::cql_bigint_t>& output) const
 {
-    decode_set(_column,
-               _offset,
-               output,
-               (std::istream& (&) (std::istream&, cql::cql_bigint_t&)) &cql::decode_bigint);
+    decode_set(output, (std::istream& (&) (std::istream&, cql::cql_bigint_t&)) &cql::decode_bigint);
 }
 
 void
 cql::cql_set_t::get_set(std::set<std::string>& output) const
 {
-    decode_set(_column, _offset, output, &cql::decode_string);
+    decode_set(output, (std::istream& (&) (std::istream&, std::string&)) &cql::decode_string);
 }
