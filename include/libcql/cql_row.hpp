@@ -57,9 +57,6 @@ namespace cql {
         const column_t&
         operator[](size_type n) const;
 
-        const column_t&
-        at(size_type n) const;
-
         const_iterator
         begin() const;
 

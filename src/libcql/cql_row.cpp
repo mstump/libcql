@@ -74,12 +74,6 @@ cql::cql_row_t::operator[](size_type n) const
     return _row[n];
 }
 
-const cql::cql_row_t::column_t&
-cql::cql_row_t::at(size_type n) const
-{
-    return _row.at(n);
-}
-
 cql::cql_row_t::const_iterator
 cql::cql_row_t::begin() const
 {
