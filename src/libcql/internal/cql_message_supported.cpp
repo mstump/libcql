@@ -20,7 +20,7 @@
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/internal/cql_message_supported.hpp"
 
@@ -80,7 +80,7 @@ std::istream&
 cql::cql_message_supported_t::read(std::istream& input)
 {
     std::map<std::string, std::list<std::string> > supported;
-    cql::internal::decode_string_multimap(input, supported);
+    cql::decode_string_multimap(input, supported);
 
     if (supported.find(CQL_VERSION) != supported.end())
         _versions = supported[CQL_VERSION];
@@ -102,6 +102,6 @@ cql::cql_message_supported_t::write(std::ostream& output) const
     if (!_compressions.empty())
         supported.insert(std::pair<std::string, std::list<std::string> >(CQL_COMPRESSION, _compressions));
 
-    cql::internal::encode_string_multimap(output, supported);
+    cql::encode_string_multimap(output, supported);
     return output;
 }

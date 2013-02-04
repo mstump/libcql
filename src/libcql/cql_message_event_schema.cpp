@@ -18,7 +18,7 @@
 */
 
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/cql_message_event_schema.hpp"
 
@@ -59,9 +59,9 @@ std::istream&
 cql::cql_message_event_schema_t::read(std::istream& input)
 {
     std::string change;
-    cql::internal::decode_string(input, change);
-    cql::internal::decode_string(input, _keyspace);
-    cql::internal::decode_string(input, _column_family);
+    cql::decode_string(input, change);
+    cql::decode_string(input, _keyspace);
+    cql::decode_string(input, _column_family);
 
     if (change == CQL_EVENT_SCHEMA_CHANGE_CREATED) {
         _change = CQL_EVENT_SCHEMA_CREATED;

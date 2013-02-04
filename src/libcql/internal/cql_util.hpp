@@ -92,7 +92,7 @@ namespace cql {
                             size_t offset)
             {
                 char* start = reinterpret_cast<char*>(&vec[0]);
-                this->setg(start + offset, start + offset, start + vec.size() - offset);
+                this->setg(start, start + offset, start + vec.size());
             }
         };
 

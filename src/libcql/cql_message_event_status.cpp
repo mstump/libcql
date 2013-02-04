@@ -18,7 +18,7 @@
 */
 
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/cql_message_event_status.hpp"
 
@@ -59,8 +59,8 @@ std::istream&
 cql::cql_message_event_status_t::read(std::istream& input)
 {
     std::string direction;
-    cql::internal::decode_string(input, direction);
-    cql::internal::decode_inet(input, _ip, _port);
+    cql::decode_string(input, direction);
+    cql::decode_inet(input, _ip, _port);
 
     if (direction == CQL_EVENT_STATUS_CHANGE_UP) {
         _direction = CQL_EVENT_STATUS_UP;

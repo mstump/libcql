@@ -22,7 +22,7 @@
 #include <memory>
 #include <sstream>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"
 
 #include "libcql/cql_message_execute.hpp"
@@ -80,7 +80,7 @@ void
 cql::cql_message_execute_t::push_back(const cql::cql_short_t val)
 {
     std::auto_ptr<param_t> p(new param_t);
-    cql::internal::encode_short(*p, val);
+    cql::encode_short(*p, val);
     _params.push_back(p);
 }
 
@@ -88,7 +88,7 @@ void
 cql::cql_message_execute_t::push_back(const cql::cql_int_t val)
 {
     std::auto_ptr<param_t> p(new param_t);
-    cql::internal::encode_int(*p, val);
+    cql::encode_int(*p, val);
     _params.push_back(p);
 }
 
@@ -96,7 +96,7 @@ void
 cql::cql_message_execute_t::push_back(const cql::cql_bigint_t val)
 {
     std::auto_ptr<param_t> p(new param_t);
-    cql::internal::encode_bigint(*p, val);
+    cql::encode_bigint(*p, val);
     _params.push_back(p);
 }
 
@@ -104,7 +104,7 @@ void
 cql::cql_message_execute_t::push_back(const float val)
 {
     std::auto_ptr<param_t> p(new param_t);
-    cql::internal::encode_float(*p, val);
+    cql::encode_float(*p, val);
     _params.push_back(p);
 }
 
@@ -112,7 +112,7 @@ void
 cql::cql_message_execute_t::push_back(const double val)
 {
     std::auto_ptr<param_t> p(new param_t);
-    cql::internal::encode_double(*p, val);
+    cql::encode_double(*p, val);
     _params.push_back(p);
 }
 
@@ -120,7 +120,7 @@ void
 cql::cql_message_execute_t::push_back(const bool val)
 {
     std::auto_ptr<param_t> p(new param_t);
-    cql::internal::encode_bool(*p, val);
+    cql::encode_bool(*p, val);
     _params.push_back(p);
 }
 
@@ -178,29 +178,29 @@ cql::cql_message_execute_t::read(std::istream& input)
 {
     _params.clear();
     cql::cql_short_t count = 0;
-    cql::internal::decode_short_bytes(input, _query_id);
-    cql::internal::decode_short(input, count);
+    cql::decode_short_bytes(input, _query_id);
+    cql::decode_short(input, count);
 
     for (int i = 0; i < count; ++i) {
         std::auto_ptr<param_t> p(new param_t);
-        cql::internal::decode_bytes(input, *p);
+        cql::decode_bytes(input, *p);
         _params.push_back(p);
     }
 
-    cql::internal::decode_short(input, _consistency);
+    cql::decode_short(input, _consistency);
     return input;
 }
 
 std::ostream&
 cql::cql_message_execute_t::write(std::ostream& output) const
 {
-    cql::internal::encode_short_bytes(output, _query_id);
-    cql::internal::encode_short(output, _params.size());
+    cql::encode_short_bytes(output, _query_id);
+    cql::encode_short(output, _params.size());
 
     BOOST_FOREACH(const param_t& p, _params) {
-        cql::internal::encode_bytes(output, p);
+        cql::encode_bytes(output, p);
     }
 
-    cql::internal::encode_short(output, _consistency);
+    cql::encode_short(output, _consistency);
     return output;
 }

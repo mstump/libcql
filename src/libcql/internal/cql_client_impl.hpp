@@ -53,7 +53,7 @@
 #include "libcql/internal/cql_message_register.hpp"
 #include "libcql/internal/cql_message_startup.hpp"
 #include "libcql/internal/cql_message_supported.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 namespace cql {
     namespace internal {

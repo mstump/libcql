@@ -1,7 +1,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/internal/cql_message_error.hpp"
 
@@ -65,7 +65,7 @@ cql::cql_message_error_t::read(std::istream& input)
 {
     input.read(reinterpret_cast<char*>(&_code), sizeof(_code));
     _code = ntohl(_code);
-    cql::internal::decode_string(input, _message);
+    cql::decode_string(input, _message);
     return input;
 }
 
@@ -74,6 +74,6 @@ cql::cql_message_error_t::write(std::ostream& output) const
 {
     cql::cql_int_t code = htonl(_code);
     output.write(reinterpret_cast<char*>(&code), sizeof(code));
-    cql::internal::encode_string(output, _message);
+    cql::encode_string(output, _message);
     return output;
 }

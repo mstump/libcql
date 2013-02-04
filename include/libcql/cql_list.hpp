@@ -43,6 +43,9 @@ namespace cql {
         cql::cql_short_t
         member_type() const;
 
+        const std::string&
+        custom_class() const;
+
         void
         get_list(std::list<bool>& output) const;
 
@@ -62,8 +65,10 @@ namespace cql {
         get_list(std::list<std::string>& output) const;
 
     private:
-        column_t _column;
+        column_t         _column;
         cql::cql_short_t _type;
+        std::string      _custom_class;
+        int              _offset;
     };
 
 } // namespace cql

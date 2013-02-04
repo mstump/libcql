@@ -20,7 +20,7 @@
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/internal/cql_message_register.hpp"
 
@@ -62,13 +62,13 @@ cql::cql_message_register_t::str() const
 std::istream&
 cql::cql_message_register_t::read(std::istream& input)
 {
-    cql::internal::decode_string_list(input, _events);
+    cql::decode_string_list(input, _events);
     return input;
 }
 
 std::ostream&
 cql::cql_message_register_t::write(std::ostream& output) const
 {
-    cql::internal::encode_string_list(output, _events);
+    cql::encode_string_list(output, _events);
     return output;
 }

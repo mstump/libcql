@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <sstream>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"
 
 #include "libcql/cql_message_prepare.hpp"
@@ -69,13 +69,13 @@ cql::cql_message_prepare_t::str() const
 std::istream&
 cql::cql_message_prepare_t::read(std::istream& input)
 {
-    cql::internal::decode_long_string(input, _query);
+    cql::decode_long_string(input, _query);
     return input;
 }
 
 std::ostream&
 cql::cql_message_prepare_t::write(std::ostream& output) const
 {
-    cql::internal::encode_long_string(output, _query);
+    cql::encode_long_string(output, _query);
     return output;
 }

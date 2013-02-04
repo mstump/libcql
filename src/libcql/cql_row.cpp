@@ -22,7 +22,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/cql_row.hpp"
 
@@ -44,7 +44,7 @@ cql::cql_row_t::cql_row_t(const cql::cql_result_metadata_t& metadata,
     for (int i = 0; i < _metadata.column_count(); ++i)
     {
         std::auto_ptr<cql::cql_row_t::column_t> c( new cql::cql_row_t::column_t() );
-        cql::internal::decode_bytes(input, *c);
+        cql::decode_bytes(input, *c);
         _row.push_back(c);
     }
 }
@@ -189,7 +189,7 @@ cql::cql_row_t::get_int(int i,
     if (i > _row.size() || i < 0)
         return false;
 
-    output = cql::internal::decode_int(_row[i]);
+    output = cql::decode_int(_row[i]);
     return true;
 }
 
@@ -200,7 +200,7 @@ cql::cql_row_t::get_int(const std::string& column,
     int i = 0;
     if (_metadata.get_index(column, i))
     {
-        output = cql::internal::decode_int(_row[i]);
+        output = cql::decode_int(_row[i]);
         return true;
     }
     return false;
@@ -215,7 +215,7 @@ cql::cql_row_t::get_int(const std::string& keyspace,
     int i = 0;
     if (_metadata.get_index(keyspace, table, column, i))
     {
-        output = cql::internal::decode_int(_row[i]);
+        output = cql::decode_int(_row[i]);
         return true;
     }
     return false;
@@ -228,7 +228,7 @@ cql::cql_row_t::get_float(int i,
     if (i > _row.size() || i < 0)
         return false;
 
-    output = cql::internal::decode_float(_row[i]);
+    output = cql::decode_float(_row[i]);
     return true;
 }
 
@@ -239,7 +239,7 @@ cql::cql_row_t::get_float(const std::string& column,
     int i = 0;
     if (_metadata.get_index(column, i))
     {
-        output = cql::internal::decode_float(_row[i]);
+        output = cql::decode_float(_row[i]);
         return true;
     }
     return false;
@@ -254,7 +254,7 @@ cql::cql_row_t::get_float(const std::string& keyspace,
     int i = 0;
     if (_metadata.get_index(keyspace, table, column, i))
     {
-        output = cql::internal::decode_float(_row[i]);
+        output = cql::decode_float(_row[i]);
         return true;
     }
     return false;
@@ -267,7 +267,7 @@ cql::cql_row_t::get_double(int i,
     if (i > _row.size() || i < 0)
         return false;
 
-    output = cql::internal::decode_double(_row[i]);
+    output = cql::decode_double(_row[i]);
     return true;
 }
 
@@ -278,7 +278,7 @@ cql::cql_row_t::get_double(const std::string& column,
     int i = 0;
     if (_metadata.get_index(column, i))
     {
-        output = cql::internal::decode_double(_row[i]);
+        output = cql::decode_double(_row[i]);
         return true;
     }
     return false;
@@ -293,7 +293,7 @@ cql::cql_row_t::get_double(const std::string& keyspace,
     int i = 0;
     if (_metadata.get_index(keyspace, table, column, i))
     {
-        output = cql::internal::decode_double(_row[i]);
+        output = cql::decode_double(_row[i]);
         return true;
     }
     return false;
@@ -306,7 +306,7 @@ cql::cql_row_t::get_bigint(int i,
     if (i > _row.size() || i < 0)
         return false;
 
-    output = cql::internal::decode_bigint(_row[i]);
+    output = cql::decode_bigint(_row[i]);
     return true;
 }
 
@@ -317,7 +317,7 @@ cql::cql_row_t::get_bigint(const std::string& column,
     int i = 0;
     if (_metadata.get_index(column, i))
     {
-        output = cql::internal::decode_bigint(_row[i]);
+        output = cql::decode_bigint(_row[i]);
         return true;
     }
     return false;
@@ -332,7 +332,7 @@ cql::cql_row_t::get_bigint(const std::string& keyspace,
     int i = 0;
     if (_metadata.get_index(keyspace, table, column, i))
     {
-        output = cql::internal::decode_bigint(_row[i]);
+        output = cql::decode_bigint(_row[i]);
         return true;
     }
     return false;

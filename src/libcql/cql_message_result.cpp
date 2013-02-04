@@ -22,7 +22,7 @@
 #include <sstream>
 #include <boost/foreach.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"
 
 #include "libcql/cql_message_result.hpp"
@@ -105,13 +105,13 @@ cql::cql_message_result_t::read(std::istream& input)
     _keyspace_name.clear();
     _row_count = 0;
 
-    cql::internal::decode_int(input, _result_type);
+    cql::decode_int(input, _result_type);
 
     switch(_result_type) {
 
     case CQL_RESULT_ROWS:
         _metadata.read(input);
-        cql::internal::decode_int(input, _row_count);
+        cql::decode_int(input, _row_count);
         for (int i = 0; i < _row_count; ++i)
         {
             _rows.push_back(new cql_row_t(_metadata, input));
@@ -120,11 +120,11 @@ cql::cql_message_result_t::read(std::istream& input)
         break;
 
     case CQL_RESULT_SET_KEYSPACE:
-        cql::internal::decode_string(input, _keyspace_name);
+        cql::decode_string(input, _keyspace_name);
         break;
 
     case CQL_RESULT_PREPARED:
-        cql::internal::decode_short_bytes(input, _query_id);
+        cql::decode_short_bytes(input, _query_id);
         _metadata.read(input);
         break;
 

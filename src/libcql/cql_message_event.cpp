@@ -18,7 +18,7 @@
 */
 
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/cql_message_event.hpp"
 #include "libcql/cql_message_event_schema.hpp"
@@ -29,7 +29,7 @@ cql::cql_message_event_t*
 cql::read_cql_event(std::istream& input)
 {
     std::string name;
-    cql::internal::decode_string(input, name);
+    cql::decode_string(input, name);
 
     if (name == CQL_EVENT_TOPOLOGY_CHANGE) {
         std::auto_ptr<cql::cql_message_event_topology_t> e(new cql::cql_message_event_topology_t());

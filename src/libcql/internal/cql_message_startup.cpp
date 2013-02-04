@@ -21,7 +21,7 @@
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/internal/cql_message_startup.hpp"
 
@@ -80,7 +80,7 @@ std::istream&
 cql::cql_message_startup_t::read(std::istream& input)
 {
     std::map<std::string, std::string> startup;
-    cql::internal::decode_string_map(input, startup);
+    cql::decode_string_map(input, startup);
 
     if (startup.find(CQL_VERSION) != startup.end())
         _version = startup[CQL_VERSION];
@@ -102,6 +102,6 @@ cql::cql_message_startup_t::write(std::ostream& output) const
     if (!_compression.empty())
         startup.insert(std::pair<std::string, std::string>(CQL_COMPRESSION, _compression));
 
-    cql::internal::encode_string_map(output, startup);
+    cql::encode_string_map(output, startup);
     return output;
 }

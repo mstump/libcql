@@ -23,7 +23,7 @@
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 
 #include "libcql/cql_result_metadata.hpp"
 
@@ -57,30 +57,30 @@ cql::cql_result_metadata_t::str() const
 std::istream&
 cql::cql_result_metadata_t::read(std::istream& input)
 {
-    cql::internal::decode_int(input, _flags);
-    cql::internal::decode_int(input, _column_count);
+    cql::decode_int(input, _flags);
+    cql::decode_int(input, _column_count);
 
     std::string keyspace_name;
     std::string table_name;
 
     if (_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
     {
-        cql::internal::decode_string(input, keyspace_name);
-        cql::internal::decode_string(input, table_name);
+        cql::decode_string(input, keyspace_name);
+        cql::decode_string(input, table_name);
     }
 
     for (int i = 0; i < _column_count; ++i)
     {
         if (! _flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
         {
-            cql::internal::decode_string(input, keyspace_name);
-            cql::internal::decode_string(input, table_name);
+            cql::decode_string(input, keyspace_name);
+            cql::decode_string(input, table_name);
         }
         std::string column_name;
-        cql::internal::decode_string(input, column_name);
+        cql::decode_string(input, column_name);
 
         std::auto_ptr<option_t> option(new option_t);
-        cql::internal::decode_option(input, option->id, option->value);
+        cql::decode_option(input, option->id, option->value);
 
         column_name_t name(keyspace_name, table_name, column_name);
         _column_name_idx.insert(column_name_idx_t::value_type(name, i));

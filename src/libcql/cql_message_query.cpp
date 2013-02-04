@@ -20,7 +20,7 @@
 #include <iomanip>
 #include <sstream>
 #include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_serialization.hpp"
+#include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"
 
 #include "libcql/cql_message_query.hpp"
@@ -83,7 +83,7 @@ cql::cql_message_query_t::str() const
 std::istream&
 cql::cql_message_query_t::read(std::istream& input)
 {
-    cql::internal::decode_long_string(input, _query);
+    cql::decode_long_string(input, _query);
     input.read(reinterpret_cast<char*>(&_consistency), sizeof(_consistency));
     _consistency = ntohs(_consistency);
     return input;
@@ -92,7 +92,7 @@ cql::cql_message_query_t::read(std::istream& input)
 std::ostream&
 cql::cql_message_query_t::write(std::ostream& output) const
 {
-    cql::internal::encode_long_string(output, _query);
-    cql::internal::encode_short(output, _consistency);
+    cql::encode_long_string(output, _query);
+    cql::encode_short(output, _consistency);
     return output;
 }
