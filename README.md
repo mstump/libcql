@@ -6,16 +6,15 @@ Implementation of the [Cassandra binary protocol](https://github.com/apache/cass
 ### Current Functionality
 - Completely asynchronous
 - Exception safe
-- Minimal memory copy
 - SSL support
 - Ad-hoc queries
 - Prepared statements
 - Authentication
-- Connection pool with auto-reconnect.
+- Connection pool with auto-reconnect
+- Cassandra 1.2 native collections
 
 ### TODO
 - Synchronous API
 - Docs
-- Cassandra 1.2 native collections
 - Integration tests
 - More unit tests
