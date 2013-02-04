@@ -6,7 +6,6 @@ Implementation of the [Cassandra binary protocol](https://github.com/apache/cass
 ### Current Functionality
 - Completely asynchronous
 - Exception safe
-- Minimal memory copy
 - SSL support
 - Ad-hoc queries
 - Prepared statements
