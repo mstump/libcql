@@ -62,12 +62,27 @@ namespace cql {
         virtual
         ~cql_client_t(){};
 
+
+        /**
+           Connect to the server at the specified address and port.
+
+           @param callback Callback function which will be called when connection is complete and ready for use.
+           @param errback Errback which will be called for transport errors encountered at any point in the lifecycle of the client.
+         */
         virtual void
         connect(const std::string& server,
                 unsigned int port,
                 cql_connection_callback_t callback,
                 cql_connection_errback_t errback) = 0;
 
+        /**
+           Connect to the server at the specified address and port.
+
+           @param callback Callback function which will be called when connection is complete and ready for use.
+           @param errback Errback which will be called for transport errors encountered at any point in the lifecycle of the client.
+           @param event_callback Callback function which will be called when events from the server are received.
+           @param events List of events to register and listen for.
+         */
         virtual void
         connect(const std::string& server,
                 unsigned int port,
@@ -76,6 +91,15 @@ namespace cql {
                 cql_event_callback_t event_callback,
                 const std::list<std::string>& events) = 0;
 
+        /**
+           Connect to the server at the specified address and port.
+
+           @param callback Callback function which will be called when connection is complete and ready for use.
+           @param errback Errback which will be called for transport errors encountered at any point in the lifecycle of the client.
+           @param event_callback Callback function which will be called when events from the server are received.
+           @param events List of events to register and listen for.
+           @param credentials Credentials to use if prompted for authentication.
+         */
         virtual void
         connect(const std::string& server,
                 unsigned int port,
@@ -85,49 +109,108 @@ namespace cql {
                 const std::list<std::string>& events,
                 cql_credentials_t credentials) = 0;
 
+        /**
+           Perform an ad-hoc query using the specified string and consistency.
+
+           @param query The query string.
+           @param consistency The desired consistency.
+           @param callback Called for successful query results.
+           @param errback Called for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
+           @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
+         */
         virtual cql::cql_stream_id_t
         query(const std::string& query,
               cql_int_t consistency,
               cql_message_callback_t callback,
               cql_message_errback_t errback) = 0;
 
+        /**
+           Prepare a CQL statement.
+
+           When the callback is triggered it will be passed a cql_message_result_t which contains the ID of the prepared statement. This ID is used when composing execution messages.
+
+           @param query The query string.
+           @param callback Called for successful query results.
+           @param errback Called for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
+           @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
+         */
         virtual cql::cql_stream_id_t
         prepare(const cql::cql_message_prepare_t& message,
                 cql_message_callback_t callback,
                 cql_message_errback_t errback) = 0;
 
+        /**
+           Execute a prepared CQL statement.
+
+           @param message The execute message
+           @param callback Called for successful query results
+           @param errback Called for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
+           @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
+         */
         virtual cql::cql_stream_id_t
         execute(const cql::cql_message_execute_t& message,
                 cql_message_callback_t callback,
                 cql_message_errback_t errback) = 0;
 
+        /**
+           If the connection errback is triggered, this function is used to determine whether the underlying transport is still valid or if a reconnect is neccessary.
+         */
         virtual bool
         defunct() const = 0;
 
+        /**
+           Is the connection ready for queries.
+         */
         virtual bool
         ready() const = 0;
 
+        /**
+           Force the connection to close.
+         */
         virtual void
         close() = 0;
 
+        /**
+           Force the connection to close.
+
+           @param err Output parameter for any error encountered while attempting to close the connection.
+         */
         virtual void
         close(cql_error_t& err) = 0;
 
+        /**
+           Server address.
+         */
         virtual const std::string&
         server() const = 0;
 
+        /**
+           Server port.
+         */
         virtual unsigned int
         port() const = 0;
 
+        /**
+           List of registered events.
+         */
         virtual const std::list<std::string>&
         events() const = 0;
 
+        /**
+           The callback triggered for registered events.
+         */
         virtual cql_event_callback_t
         event_callback() const = 0;
 
+        /**
+           The credentials used if prompted for authentication
+         */
         virtual const cql_credentials_t&
         credentials() const = 0;
 
+        /**
+           Force reconnect
+        */
         virtual void
         reconnect() = 0;
     };
