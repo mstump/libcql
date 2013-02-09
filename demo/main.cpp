@@ -136,7 +136,7 @@ public:
     cql::cql_client_t*
     operator()()
     {
-        return cql::create_cql_client_t(_io_service, _log_callback);
+        return cql::cql_client_factory_t::create_cql_client_t(_io_service, _log_callback);
     }
 
 private:
@@ -160,7 +160,7 @@ public:
     cql::cql_client_t*
     operator()()
     {
-        return cql::create_cql_client_t(_io_service, _ssl_ctx, _log_callback);
+        return cql::cql_client_factory_t::create_cql_client_t(_io_service, _ssl_ctx, _log_callback);
     }
 
 private:

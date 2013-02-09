@@ -29,7 +29,7 @@ typedef cql::internal::cql_client_impl_t<cql::cql_socket_t> client_t;
 typedef cql::internal::cql_client_impl_t<cql::cql_socket_ssl_t> client_ssl_t;
 
 cql::cql_client_t*
-cql::create_cql_client_t(boost::asio::io_service& io_service)
+cql::cql_client_factory_t::create_cql_client_t(boost::asio::io_service& io_service)
 {
     std::auto_ptr<client_t> client(
         new client_t(io_service,
@@ -38,8 +38,8 @@ cql::create_cql_client_t(boost::asio::io_service& io_service)
 }
 
 cql::cql_client_t*
-cql::create_cql_client_t(boost::asio::io_service& io_service,
-                         boost::asio::ssl::context& context)
+cql::cql_client_factory_t::create_cql_client_t(boost::asio::io_service& io_service,
+                                               boost::asio::ssl::context& context)
 {
     std::auto_ptr<client_ssl_t> client(
         new client_ssl_t(io_service,
@@ -48,8 +48,8 @@ cql::create_cql_client_t(boost::asio::io_service& io_service,
 }
 
 cql::cql_client_t*
-cql::create_cql_client_t(boost::asio::io_service& io_service,
-                         cql::cql_client_t::cql_log_callback_t log_callback)
+cql::cql_client_factory_t::create_cql_client_t(boost::asio::io_service& io_service,
+                                               cql::cql_client_t::cql_log_callback_t log_callback)
 {
     std::auto_ptr<client_t> client(
         new client_t(io_service,
@@ -59,9 +59,9 @@ cql::create_cql_client_t(boost::asio::io_service& io_service,
 }
 
 cql::cql_client_t*
-cql::create_cql_client_t(boost::asio::io_service& io_service,
-                         boost::asio::ssl::context& context,
-                         cql::cql_client_t::cql_log_callback_t log_callback)
+cql::cql_client_factory_t::create_cql_client_t(boost::asio::io_service& io_service,
+                                               boost::asio::ssl::context& context,
+                                               cql::cql_client_t::cql_log_callback_t log_callback)
 {
     std::auto_ptr<client_ssl_t> client(
         new client_ssl_t(io_service,
