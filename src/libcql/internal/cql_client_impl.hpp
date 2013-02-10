@@ -71,6 +71,8 @@ namespace cql {
                 _port(0),
                 _resolver(io_service),
                 _transport(transport),
+                _receive_buffer(CQL_FRAME_MAX_SIZE),
+                _request_buffer(CQL_FRAME_MAX_SIZE),
                 _connect_callback(0),
                 _connect_errback(0),
                 _log_callback(0),
@@ -87,6 +89,8 @@ namespace cql {
                 _port(0),
                 _resolver(io_service),
                 _transport(transport),
+                _receive_buffer(CQL_FRAME_MAX_SIZE),
+                _request_buffer(CQL_FRAME_MAX_SIZE),
                 _connect_callback(0),
                 _connect_errback(0),
                 _log_callback(log_callback),
@@ -355,6 +359,7 @@ namespace cql {
             write_message(const cql::cql_message_t& data,
                           write_callback_t callback)
             {
+                _request_buffer.consume(_request_buffer.size());
                 log(CQL_LOG_DEBUG, "sending message: " + data.str());
                 std::ostream request_stream(&_request_buffer);
                 cql::internal::cql_header_t header(CQL_VERSION_1_REQUEST, CQL_FLAG_NOFLAG, get_new_stream(), data.opcode(), data.size());
@@ -395,6 +400,7 @@ namespace cql {
             void
             header_read()
             {
+                _receive_buffer.consume(_receive_buffer.size());
                 boost::asio::async_read(*_transport,
                                         _receive_buffer,
                                         boost::asio::transfer_exactly(sizeof(cql::internal::cql_header_t)),
@@ -420,6 +426,7 @@ namespace cql {
             void
             body_read(const cql::internal::cql_header_t& header)
             {
+                _receive_buffer.consume(_receive_buffer.size());
                 boost::asio::async_read(*_transport,
                                         _receive_buffer,
                                         boost::asio::transfer_exactly(header.length()),
@@ -616,7 +623,7 @@ namespace cql {
 
             std::string                          _server;
             unsigned int                         _port;
-            cql::cql_stream_id_t                      _stream_counter;
+            cql::cql_stream_id_t                 _stream_counter;
             boost::asio::ip::tcp::resolver       _resolver;
             std::auto_ptr<cql_transport_t>       _transport;
             boost::asio::streambuf               _receive_buffer;
