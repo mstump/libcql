@@ -36,11 +36,9 @@ namespace cql {
 
     // Forward declarations
     class cql_error_t;
-    class cql_message_t;
-    class cql_message_event_t;
-    class cql_message_result_t;
-    class cql_message_prepare_t;
-    class cql_message_execute_t;
+    class cql_event_t;
+    class cql_result_t;
+    class cql_execute_t;
 
     class cql_client_t :
         boost::noncopyable
@@ -52,9 +50,9 @@ namespace cql {
 
         typedef boost::function<void(cql_client_t&)> cql_connection_callback_t;
         typedef boost::function<void(cql_client_t&, const cql_error_t&)> cql_connection_errback_t;
-        typedef boost::function<void(cql_client_t&, const cql_message_event_t&)> cql_event_callback_t;
+        typedef boost::function<void(cql_client_t&, cql_event_t*)> cql_event_callback_t;
 
-        typedef boost::function<void(cql_client_t&, const cql::cql_stream_id_t, const cql::cql_message_result_t&)> cql_message_callback_t;
+        typedef boost::function<void(cql_client_t&, const cql::cql_stream_id_t, cql::cql_result_t*)> cql_message_callback_t;
         typedef boost::function<void(cql_client_t&, const cql::cql_stream_id_t, const cql_error_t&)> cql_message_errback_t;
 
         typedef std::map<std::string, std::string> cql_credentials_t;
@@ -135,7 +133,7 @@ namespace cql {
            @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
          */
         virtual cql::cql_stream_id_t
-        prepare(const cql::cql_message_prepare_t& message,
+        prepare(const std::string& query,
                 cql_message_callback_t callback,
                 cql_message_errback_t errback) = 0;
 
@@ -148,7 +146,7 @@ namespace cql {
            @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
          */
         virtual cql::cql_stream_id_t
-        execute(const cql::cql_message_execute_t& message,
+        execute(cql::cql_execute_t* message,
                 cql_message_callback_t callback,
                 cql_message_errback_t errback) = 0;
 
@@ -169,14 +167,6 @@ namespace cql {
          */
         virtual void
         close() = 0;
-
-        /**
-           Force the connection to close.
-
-           @param err Output parameter for any error encountered while attempting to close the connection.
-         */
-        virtual void
-        close(cql_error_t& err) = 0;
 
         /**
            Server address.

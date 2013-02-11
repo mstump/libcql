@@ -17,35 +17,43 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_ERROR_H_
-#define CQL_ERROR_H_
+#ifndef CQL_EVENT_H_
+#define CQL_EVENT_H_
 
-#include <string>
 #include "libcql/cql.hpp"
 
 namespace cql {
 
-    struct cql_error_t
-    {
-        bool        cassandra;
-        bool        transport;
-        bool        library;
-        int         code;
-        std::string message;
+    class cql_event_t {
+    public:
+        virtual cql_event_enum
+        event_type() const = 0;
 
-        cql_error_t() :
-            cassandra(false),
-            transport(false),
-            library(false),
-            code(0)
-        {}
+        virtual cql_event_topology_enum
+        topology_change() const = 0;
 
-        inline bool
-        is_err()
-        {
-            return cassandra || transport || library;
-        }
+        virtual cql_event_status_enum
+        status_change() const = 0;
+
+        virtual cql_event_schema_enum
+        schema_change() const = 0;
+
+        virtual const std::string&
+        keyspace() const = 0;
+
+        virtual const std::string&
+        column_family() const = 0;
+
+        virtual const std::string&
+        ip() const = 0;
+
+        virtual cql_int_t
+        port() const = 0;
+
+        virtual
+        ~cql_event_t(){};
     };
+
 } // namespace cql
 
-#endif // CQL_ERROR_H_
+#endif // CQL_EVENT_H_

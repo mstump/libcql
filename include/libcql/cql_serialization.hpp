@@ -63,32 +63,29 @@ namespace cql {
     cql::cql_short_t
     decode_short(const std::vector<cql::cql_byte_t>& input);
 
+    cql::cql_byte_t*
+    decode_short(cql::cql_byte_t*,
+                 cql::cql_short_t& value);
+
     std::ostream&
     encode_int(std::ostream& output,
-               const cql_int_t value);
+               const cql::cql_int_t value);
 
     void
     encode_int(std::vector<cql::cql_byte_t>& output,
-               const cql_int_t value);
+               const cql::cql_int_t value);
 
     std::istream&
     decode_int(std::istream& input,
-               cql_int_t& value);
+               cql::cql_int_t& value);
+
+    cql::cql_byte_t*
+    decode_int(cql::cql_byte_t* input,
+               cql::cql_int_t& output);
 
     cql_int_t
     decode_int(const std::vector<cql::cql_byte_t>& input);
 
-    std::ostream&
-    encode_double(std::ostream& output,
-                  const double value);
-
-    void
-    encode_double(std::vector<cql::cql_byte_t>& output,
-                  const double value);
-
-    std::istream&
-    decode_double(std::istream& input,
-                  double& value);
 
     std::ostream&
     encode_float(std::ostream& output,
@@ -105,10 +102,13 @@ namespace cql {
     float
     decode_float(const std::vector<cql::cql_byte_t>& input);
 
+    cql::cql_byte_t*
+    decode_float(cql::cql_byte_t* input,
+                 float& output);
+
     std::ostream&
     encode_double(std::ostream& output,
                   const double value);
-
     void
     encode_double(std::vector<cql::cql_byte_t>& output,
                   const double value);
@@ -119,6 +119,15 @@ namespace cql {
 
     double
     decode_double(const std::vector<cql::cql_byte_t>& input);
+
+
+    std::istream&
+    decode_double(std::istream& input,
+                  double& value);
+
+    cql::cql_byte_t*
+    decode_double(cql::cql_byte_t* input,
+                  double& output);
 
     std::ostream&
     encode_bigint(std::ostream& output,
@@ -135,6 +144,9 @@ namespace cql {
     cql::cql_bigint_t
     decode_bigint(const std::vector<cql::cql_byte_t>& input);
 
+    cql::cql_byte_t*
+    decode_bigint(cql::cql_byte_t* input,
+                  cql::cql_bigint_t& output);
 
     std::ostream&
     encode_string(std::ostream& output,
@@ -146,6 +158,10 @@ namespace cql {
 
     std::string
     decode_string(const std::vector<cql::cql_byte_t>& input);
+
+    cql::cql_byte_t*
+    decode_string(cql::cql_byte_t* input,
+                  std::string& value);
 
     std::ostream&
     encode_bytes(std::ostream& output,
@@ -161,6 +177,10 @@ namespace cql {
 
     std::istream&
     decode_short_bytes(std::istream& input,
+                       std::vector<cql::cql_byte_t>& value);
+
+    cql::cql_byte_t*
+    decode_short_bytes(cql::cql_byte_t* input,
                        std::vector<cql::cql_byte_t>& value);
 
     std::ostream&
@@ -205,6 +225,11 @@ namespace cql {
                   cql::cql_short_t& id,
                   std::string& value);
 
+    cql::cql_byte_t*
+    decode_option(cql::cql_byte_t* input,
+                  cql::cql_short_t& id,
+                  std::string& value);
+
     std::ostream&
     encode_inet(std::ostream& output,
                 const std::string& ip,
@@ -214,14 +239,6 @@ namespace cql {
     decode_inet(std::istream& input,
                 std::string& ip,
                 cql_int_t& port);
-
-    std::ostream&
-    encode_inet(std::ostream& output,
-                const cql::cql_inet_t& inet);
-
-    std::istream&
-    decode_inet(std::istream& input,
-                cql::cql_inet_t& inet);
 
 } // namespace cql
 

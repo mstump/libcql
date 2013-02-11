@@ -18,15 +18,15 @@
 */
 
 #include <memory>
-#include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_client_impl.hpp"
+#include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_socket.hpp"
 #include "libcql/internal/cql_socket_ssl.hpp"
 
 #include "libcql/cql_client_factory.hpp"
 
-typedef cql::internal::cql_client_impl_t<cql::cql_socket_t> client_t;
-typedef cql::internal::cql_client_impl_t<cql::cql_socket_ssl_t> client_ssl_t;
+typedef cql::cql_client_impl_t<cql::cql_socket_t> client_t;
+typedef cql::cql_client_impl_t<cql::cql_socket_ssl_t> client_ssl_t;
 
 cql::cql_client_t*
 cql::cql_client_factory_t::create_cql_client_t(boost::asio::io_service& io_service)

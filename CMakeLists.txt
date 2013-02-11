@@ -52,7 +52,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 include_directories(${INCLUDES} ${PROJECT_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src)
-file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/libcql/*.cpp ${PROJECT_SOURCE_DIR}/src/libcql/internal/*.cpp)
+file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/libcql/internal/*.cpp ${PROJECT_SOURCE_DIR}/src/libcql/*.cpp)
 
 add_library(${PROJECT_LIB_NAME} SHARED ${SRC_FILES})
 add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})

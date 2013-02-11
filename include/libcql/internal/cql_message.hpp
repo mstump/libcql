@@ -17,35 +17,44 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_ERROR_H_
-#define CQL_ERROR_H_
+#ifndef CQL_MESSAGE_H_
+#define CQL_MESSAGE_H_
 
 #include <string>
+#include <vector>
+#include <boost/shared_ptr.hpp>
 #include "libcql/cql.hpp"
 
 namespace cql {
+    class cql_error_t;
 
-    struct cql_error_t
-    {
-        bool        cassandra;
-        bool        transport;
-        bool        library;
-        int         code;
-        std::string message;
+    typedef boost::shared_ptr<std::vector<cql::cql_byte_t> > cql_message_buffer_t;
 
-        cql_error_t() :
-            cassandra(false),
-            transport(false),
-            library(false),
-            code(0)
-        {}
+    class cql_message_t {
+    public:
 
-        inline bool
-        is_err()
-        {
-            return cassandra || transport || library;
-        }
+        virtual cql::cql_opcode_enum
+        opcode() const = 0;
+
+        virtual cql_int_t
+        size() const = 0;
+
+        virtual std::string
+        str() const = 0;
+
+        virtual bool
+        consume(cql::cql_error_t* err) = 0;
+
+        virtual bool
+        prepare(cql::cql_error_t* err) = 0;
+
+        virtual cql_message_buffer_t
+        buffer() = 0;
+
+        virtual
+        ~cql_message_t(){};
     };
+
 } // namespace cql
 
-#endif // CQL_ERROR_H_
+#endif // CQL_MESSAGE_H_
