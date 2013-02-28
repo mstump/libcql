@@ -289,6 +289,7 @@ cql::cql_result_metadata_t::get_index(const std::string& keyspace,
     column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
     if(it != _column_name_idx.end()) {
         output = it->second;
+        return true;
     }
     return false;
 }

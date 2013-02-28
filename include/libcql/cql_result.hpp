@@ -139,12 +139,12 @@ namespace cql {
         virtual bool
         get_data(int i,
                  cql::cql_byte_t** output,
-                 size_t& size) const = 0;
+                 cql::cql_int_t& size) const = 0;
 
         virtual bool
         get_data(const std::string& column,
                  cql::cql_byte_t** output,
-                 size_t& size) const = 0;
+                 cql::cql_int_t& size) const = 0;
 
         // virtual bool
         // get_list(int i,

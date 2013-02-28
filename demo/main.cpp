@@ -55,7 +55,7 @@ select_callback(cql::cql_client_t& client,
     while (result->next()) {
         for (int i = 0; i < result->column_count(); ++i) {
             cql::cql_byte_t* data = NULL;
-            size_t size = 0;
+            cql::cql_int_t size = 0;
             result->get_data(i, &data, size);
             std::cout.write(reinterpret_cast<char*>(data), size);
             std::cout << " | ";
@@ -73,7 +73,7 @@ execute_callback(cql::cql_client_t& client,
     while (result->next()) {
         for (int i = 0; i < result->column_count(); ++i) {
             cql::cql_byte_t* data = NULL;
-            size_t size = 0;
+            cql::cql_int_t size = 0;
             if (result->get_data(i, &data, size)) {
                 std::cout.write(reinterpret_cast<char*>(data), size);
                 std::cout << " | ";

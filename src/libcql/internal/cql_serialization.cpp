@@ -22,35 +22,51 @@
 #include <boost/detail/endian.hpp>
 #include "libcql/internal/cql_defines.hpp"
 
-
 #include "libcql/cql_serialization.hpp"
 
 inline double
-swap_double(double source)
-{
-#if defined _WIN32
-    return byteswap_uint64(source);
+swap_double(double source) {
+#ifdef _WIN32
+    uint64_t bytes = *reinterpret_cast<uint64_t*>(&source);
+    uint64_t swapped = byteswap_uint64(bytes);
+    return *reinterpret_cast<double*>(&swapped);
 #else
-    return __builtin_bswap64(source);
+    uint64_t bytes = *reinterpret_cast<uint64_t*>(&source);
+    uint64_t swapped = __builtin_bswap64(bytes);
+    return *reinterpret_cast<double*>(&swapped);
 #endif
 }
 
-inline double
-ntohd(double source)
-{
-#if defined(BOOST_LITTLE_ENDIAN)
-    return swap_double(source);
-#elif defined(BOOST_BIG_ENDIAN)
-    return source;
+inline float
+swap_float(float source) {
+#ifdef _WIN32
+    uint32_t bytes = *reinterpret_cast<uint32_t*>(&source);
+    uint32_t swapped = byteswap_uint32(bytes);
+    return *reinterpret_cast<float*>(&swapped);
 #else
-#error "unable to determine system endianness"
+    uint32_t bytes = *reinterpret_cast<uint32_t*>(&source);
+    uint32_t swapped = __builtin_bswap32(bytes);
+    return *reinterpret_cast<float*>(&swapped);
 #endif
 }
 
-inline double
-htond(double source)
-{
-    return ntohd(source);
+// stolen from http://stackoverflow.com/a/4311985/67707
+template <class builtin>
+builtin ntoh(const builtin input) {
+    if ((int)ntohs(1) != 1) {
+        union {
+            char buffer[sizeof(builtin)];
+            builtin data;
+        } in, out;
+
+        in.data = input;
+        for (int i = 0 ; i < sizeof(builtin); i++) {
+            out.buffer[i] = in.buffer[sizeof(builtin) - i - 1];
+        }
+
+        return out.data;
+    }
+    return input;
 }
 
 std::ostream&
@@ -181,7 +197,7 @@ std::ostream&
 cql::encode_float(std::ostream& output,
                   const float value)
 {
-    cql::cql_int_t l = htonl(value);
+    cql::cql_int_t l = swap_float(value);
     output.write(reinterpret_cast<char*>(&l), sizeof(l));
     return output;
 }
@@ -190,7 +206,7 @@ void
 cql::encode_float(std::vector<cql::cql_byte_t>& output,
                   const float value)
 {
-    cql::cql_int_t l = htonl(value);
+    cql::cql_int_t l = swap_float(value);
     output.resize(sizeof(l));
     output.assign(&l, &l + sizeof(l));
 }
@@ -200,21 +216,21 @@ cql::decode_float(std::istream& input,
                   float& value)
 {
     input.read(reinterpret_cast<char*>(&value), sizeof(value));
-    value = ntohl(value);
+    value = swap_float(value);
     return input;
 }
 
 float
 cql::decode_float(const std::vector<cql::cql_byte_t>& input)
 {
-    return ntohl(*(reinterpret_cast<const float*>(&input[0])));
+    return swap_float(*(reinterpret_cast<const float*>(&input[0])));
 }
 
 cql::cql_byte_t*
 cql::decode_float(cql::cql_byte_t* input,
                   float& output)
 {
-    output = ntohl(*(reinterpret_cast<const float*>(input)));
+    output = swap_float(*(reinterpret_cast<const float*>(input)));
     return input + sizeof(float);
 }
 
@@ -222,7 +238,7 @@ std::ostream&
 cql::encode_double(std::ostream& output,
                    const double value)
 {
-    double d = htond(value);
+    double d = swap_double(value);
     output.write(reinterpret_cast<char*>(&d), sizeof(d));
     return output;
 }
@@ -231,7 +247,7 @@ void
 cql::encode_double(std::vector<cql::cql_byte_t>& output,
                    const double value)
 {
-    double d = ntohd(value);
+    double d = swap_double(value);
     output.resize(sizeof(d));
     output.assign(&d, &d + sizeof(d));
 }
@@ -241,21 +257,21 @@ cql::decode_double(std::istream& input,
                    double& value)
 {
     input.read(reinterpret_cast<char*>(&value), sizeof(value));
-    value = ntohd(value);
+    value = swap_double(value);
     return input;
 }
 
 double
 cql::decode_double(const std::vector<cql::cql_byte_t>& input)
 {
-    return ntohd(*(reinterpret_cast<const double*>(&input[0])));
+    return swap_double(*(reinterpret_cast<const double*>(&input[0])));
 }
 
 cql::cql_byte_t*
 cql::decode_double(cql::cql_byte_t* input,
                    double& output)
 {
-    output = ntohl(*(reinterpret_cast<const double*>(input)));
+    output = swap_double(*(reinterpret_cast<const double*>(input)));
     return input + sizeof(double);
 }
 
@@ -263,7 +279,7 @@ std::ostream&
 cql::encode_bigint(std::ostream& output,
                    const cql::cql_bigint_t value)
 {
-    cql::cql_bigint_t d = htond(value);
+    cql::cql_bigint_t d = ntoh<cql::cql_bigint_t>(value);
     output.write(reinterpret_cast<char*>(&d), sizeof(d));
     return output;
 }
@@ -272,7 +288,7 @@ void
 cql::encode_bigint(std::vector<cql::cql_byte_t>& output,
                    const cql::cql_bigint_t value)
 {
-    double d = ntohd(value);
+    double d = ntoh<cql::cql_bigint_t>(value);
     output.resize(sizeof(d));
     output.assign(&d, &d + sizeof(d));
 }
@@ -282,21 +298,21 @@ cql::decode_bigint(std::istream& input,
                    cql::cql_bigint_t& value)
 {
     input.read(reinterpret_cast<char*>(&value), sizeof(value));
-    value = ntohd(value);
+    value = ntoh<cql::cql_bigint_t>(value);
     return input;
 }
 
 cql::cql_bigint_t
 cql::decode_bigint(const std::vector<cql::cql_byte_t>& input)
 {
-    return ntohd(*(reinterpret_cast<const cql::cql_bigint_t*>(&input[0])));
+    return ntoh<cql::cql_bigint_t>(*(reinterpret_cast<const cql::cql_bigint_t*>(&input[0])));
 }
 
 cql::cql_byte_t*
 cql::decode_bigint(cql::cql_byte_t* input,
                    cql::cql_bigint_t& output)
 {
-    output = ntohl(*(reinterpret_cast<const cql::cql_bigint_t*>(input)));
+    output = ntoh<cql::cql_bigint_t>(*(reinterpret_cast<const cql::cql_bigint_t*>(input)));
     return input + sizeof(cql::cql_bigint_t);
 }
 
@@ -304,8 +320,7 @@ std::ostream&
 cql::encode_string(std::ostream& output,
                    const std::string& value)
 {
-    cql::cql_short_t len = htons(value.size());
-    output.write(reinterpret_cast<char*>(&len), sizeof(len));
+    cql::encode_short(output, value.size());
     output.write(reinterpret_cast<const char*>(value.c_str()), value.size());
     return output;
 }

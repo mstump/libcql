@@ -380,7 +380,8 @@ cql::cql_message_result_impl_t::get_double(int i,
     bool empty = false;
     if (is_null(i, empty)) {
         if (!empty) {
-            cql::decode_double(_row[i] + sizeof(cql_int_t), output);
+            cql_byte_t* p = _row[i] + sizeof(cql_int_t);
+            cql::decode_double(p, output);
             return true;
         }
     }
@@ -451,13 +452,13 @@ cql::cql_message_result_impl_t::get_string(const std::string& column,
 bool
 cql::cql_message_result_impl_t::get_data(int i,
                                          cql::cql_byte_t** output,
-                                         size_t& size) const
+                                         cql::cql_int_t& size) const
 {
     bool empty = false;
     if (is_null(i, empty)) {
         if (!empty) {
             cql_byte_t* pos = _row[i];
-            *output = cql::decode_int(pos, reinterpret_cast<int&>(size));
+            *output = cql::decode_int(pos, size);
             return true;
         }
     }
@@ -467,7 +468,7 @@ cql::cql_message_result_impl_t::get_data(int i,
 bool
 cql::cql_message_result_impl_t::get_data(const std::string& column,
                                          cql::cql_byte_t** output,
-                                         size_t& size) const
+                                         cql::cql_int_t& size) const
 {
     int i = 0;
     if (_metadata.get_index(column, i)) {
