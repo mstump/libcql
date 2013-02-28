@@ -40,7 +40,7 @@ namespace cql {
 
         cql_message_result_impl_t();
 
-        cql_int_t
+        cql::cql_result_type_enum
         result_type() const;
 
         cql::cql_opcode_enum
@@ -72,6 +72,9 @@ namespace cql {
 
         cql_message_buffer_t
         buffer();
+
+        const cql_result_metadata_t&
+        get_metadata();
 
         bool
         exists(const std::string& column) const;
@@ -195,7 +198,7 @@ namespace cql {
         cql_int_t                     _row_count;
         cql_int_t                     _column_count;
         std::vector<cql::cql_byte_t>  _query_id;
-        cql_int_t                     _result_type;
+        cql::cql_result_type_enum     _result_type;
         std::string                   _keyspace_name;
         std::string                   _table_name;
         cql::cql_result_metadata_t    _metadata;

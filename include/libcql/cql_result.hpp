@@ -36,7 +36,7 @@ namespace cql {
         virtual
         ~cql_result_t() {};
 
-        virtual cql_int_t
+        virtual cql::cql_result_type_enum
         result_type() const = 0;
 
         virtual cql::cql_opcode_enum

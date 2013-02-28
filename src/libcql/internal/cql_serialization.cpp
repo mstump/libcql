@@ -442,8 +442,7 @@ cql::decode_string_list(std::istream& input,
     len = ntohs(len);
 
     list.clear();
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
         std::string s;
         cql::decode_string(input, s);
         list.push_back(s);
@@ -460,8 +459,7 @@ cql::encode_string_map(std::ostream& output,
     output.write(reinterpret_cast<char*>(&len), sizeof(len));
 
     std::map<std::string, std::string>::const_iterator it = map.begin();
-    for (; it != map.end(); it++)
-    {
+    for (; it != map.end(); it++) {
         cql::encode_string(output, (*it).first);
         cql::encode_string(output, (*it).second);
     }
@@ -478,8 +476,7 @@ cql::decode_string_map(std::istream& input,
     len = ntohs(len);
 
     map.clear();
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
         std::string key;
         std::string value;
         cql::decode_string(input, key);
@@ -498,8 +495,7 @@ cql::encode_string_multimap(std::ostream& output,
     output.write(reinterpret_cast<char*>(&len), sizeof(len));
 
     std::map<std::string, std::list<std::string> >::const_iterator it = map.begin();
-    for (; it != map.end(); it++)
-    {
+    for (; it != map.end(); it++) {
         cql::encode_string(output, (*it).first);
         cql::encode_string_list(output, (*it).second);
     }
@@ -516,8 +512,7 @@ cql::decode_string_multimap(std::istream& input,
     len = ntohs(len);
 
     map.clear();
-    for (int i = 0; i < len; i++)
-    {
+    for (int i = 0; i < len; i++) {
         std::string key;
         cql::decode_string(input, key);
 
@@ -536,8 +531,9 @@ cql::encode_option(std::ostream& output,
                    const std::string& value)
 {
     cql::encode_short(output, id);
-    if (id == CQL_COLUMN_TYPE_CUSTOM)
+    if (id == CQL_COLUMN_TYPE_CUSTOM) {
         cql::encode_string(output, value);
+    }
     return output;
 }
 
@@ -547,8 +543,9 @@ cql::decode_option(std::istream& input,
                    std::string& value)
 {
     cql::decode_short(input, id);
-    if (id == CQL_COLUMN_TYPE_CUSTOM)
+    if (id == CQL_COLUMN_TYPE_CUSTOM) {
         cql::decode_string(input, value);
+    }
     return input;
 }
 

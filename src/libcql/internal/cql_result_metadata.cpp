@@ -38,7 +38,9 @@ struct column_name_to_str
 };
 
 
-cql::cql_result_metadata_t::cql_result_metadata_t()
+cql::cql_result_metadata_t::cql_result_metadata_t() :
+    _flags(0),
+    _column_count(0)
 {}
 
 std::string
@@ -60,31 +62,46 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
     input = cql::decode_int(input, _flags);
     input = cql::decode_int(input, _column_count);
 
-    std::string keyspace_name;
-    std::string table_name;
-
-    if (_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
-    {
-        input = cql::decode_string(input, keyspace_name);
-        input = cql::decode_string(input, table_name);
+    if (_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC) {
+        input = cql::decode_string(input, _global_keyspace_name);
+        input = cql::decode_string(input, _global_table_name);
     }
 
-    for (int i = 0; i < _column_count; ++i)
-    {
-        if (! _flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)
-        {
+    for (int i = 0; i < _column_count; ++i) {
+        std::string keyspace_name;
+        std::string table_name;
+
+        if (!(_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)) {
             input = cql::decode_string(input, keyspace_name);
             input = cql::decode_string(input, table_name);
+        }
+        else {
+            keyspace_name = _global_keyspace_name;
+            table_name = _global_table_name;
         }
         std::string column_name;
         input = cql::decode_string(input, column_name);
 
-        std::auto_ptr<option_t> option(new option_t);
-        input = cql::decode_option(input, option->id, option->value);
+        std::auto_ptr<option_t> column_type(new option_t);
+        input = cql::decode_option(input, column_type->id, column_type->value);
+
+        if (column_type->id == 0x20 || column_type->id == 0x22) {
+            // it's a native set or list. Read and discard the tailing option
+            option_t sequence_sub_type;
+            input = cql::decode_option(input, sequence_sub_type.id, sequence_sub_type.value);
+        }
+
+        if (column_type->id == 0x21) {
+            // it's a native map. Read and discard the tailing options
+            option_t key_sub_type;
+            option_t val_sub_type;
+            input = cql::decode_option(input, key_sub_type.id, key_sub_type.value);
+            input = cql::decode_option(input, val_sub_type.id, val_sub_type.value);
+        }
 
         column_name_t name(keyspace_name, table_name, column_name);
         _column_name_idx.insert(column_name_idx_t::value_type(name, i));
-        _columns.push_back(option);
+        _columns.push_back(column_type);
     }
     return input;
 }
@@ -116,13 +133,13 @@ cql::cql_result_metadata_t::column_count(cql::cql_int_t v)
 bool
 cql::cql_result_metadata_t::has_global_keyspace() const
 {
-    return !_global_keyspace_name.empty();
+    return _flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC;
 }
 
 bool
 cql::cql_result_metadata_t::has_global_table() const
 {
-    return !_global_table_name.empty();
+    return _flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC;
 }
 
 const std::string&

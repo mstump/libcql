@@ -64,7 +64,7 @@ cql::cql_message_result_impl_t::cql_message_result_impl_t() :
     _row_pos(0),
     _row_count(0),
     _column_count(0),
-    _result_type(0),
+    _result_type(cql::CQL_RESULT_VOID),
     _query_id(0)
 {}
 
@@ -74,7 +74,7 @@ cql::cql_message_result_impl_t::cql_message_result_impl_t(size_t size) :
     _row_pos(0),
     _row_count(0),
     _column_count(0),
-    _result_type(0),
+    _result_type(cql::CQL_RESULT_VOID),
     _query_id(0)
 {}
 
@@ -84,7 +84,13 @@ cql::cql_message_result_impl_t::buffer()
     return _buffer;
 }
 
-cql::cql_int_t
+const cql::cql_result_metadata_t&
+cql::cql_message_result_impl_t::get_metadata()
+{
+    return _metadata;
+}
+
+cql::cql_result_type_enum
 cql::cql_message_result_impl_t::result_type() const
 {
     return _result_type;
@@ -127,7 +133,32 @@ cql::cql_message_result_impl_t::consume(cql::cql_error_t* err)
     _row_count = 0;
     _row_pos = 0;
     _pos = &((*_buffer)[0]);
-    _pos = cql::decode_int(_pos, _result_type);
+
+    cql::cql_int_t result_type = 0;
+    _pos = cql::decode_int(_pos, result_type);
+
+    switch (result_type) {
+
+    case 0x0001:
+        _result_type = cql::CQL_RESULT_VOID;
+        break;
+
+    case 0x0002:
+        _result_type = cql::CQL_RESULT_ROWS;
+        break;
+
+    case 0x0003:
+        _result_type = cql::CQL_RESULT_SET_KEYSPACE;
+        break;
+
+    case 0x0004:
+        _result_type = cql::CQL_RESULT_PREPARED;
+        break;
+
+    case 0x0005:
+        _result_type = cql::CQL_RESULT_SCHEMA_CHANGE;
+        break;
+    }
 
     switch(_result_type) {
 
@@ -150,6 +181,9 @@ cql::cql_message_result_impl_t::consume(cql::cql_error_t* err)
 
     case CQL_RESULT_VOID:
         _row_pos = _row_count;
+        break;
+
+    case CQL_RESULT_SCHEMA_CHANGE:
         break;
     }
 
