@@ -201,7 +201,7 @@ main(int argc,
         std::list<std::string> events;
         events.push_back("SCHEMA_CHANGE");
 
-        pool->add_client("localhost", 9042, NULL, events);
+        pool->add_client("localhost", 9042, &event_callback, events);
         io_service.run();
     }
     catch (std::exception& e)
