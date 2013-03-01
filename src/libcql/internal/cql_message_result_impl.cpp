@@ -428,12 +428,11 @@ bool
 cql::cql_message_result_impl_t::get_string(int i,
                                            std::string& output) const
 {
-    bool empty = false;
-    if (is_null(i, empty)) {
-        if (!empty) {
-            cql::decode_string(_row[i] + sizeof(cql_int_t), output);
-            return true;
-        }
+    cql_byte_t* data = 0;
+    cql_int_t size = 0;
+    if (get_data(i, &data, size)) {
+        output.assign(data, data + size);
+        return true;
     }
     return false;
 }

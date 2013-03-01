@@ -210,6 +210,50 @@ TEST(cql_message_result_cpp, column_type)
     EXPECT_EQ(cql::CQL_COLUMN_TYPE_SET, t);
 }
 
+TEST(cql_message_result_cpp, next)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+}
+
+TEST(cql_message_result_cpp, next_next)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+    EXPECT_EQ(false, m.next());
+}
+
+TEST(cql_message_result_cpp, deserialize_string_name)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+
+    std::string val;
+    EXPECT_EQ(true, m.get_string("text", val));
+    EXPECT_EQ("text", val);
+}
+
+TEST(cql_message_result_cpp, deserialize_string_index)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+
+    std::string val;
+    EXPECT_EQ(true, m.get_string(11, val));
+    EXPECT_EQ("text", val);
+}
 
 TEST(cql_message_result_cpp, deserialize_int_name)
 {
