@@ -3,7 +3,7 @@
 #include "libcql/cql_error.hpp"
 #include "libcql/internal/cql_util.hpp"
 #include "libcql/internal/cql_defines.hpp"
-#include "../src/libcql/internal/cql_serialization.cpp"
+#include "../src/libcql/cql_serialization.cpp"
 
 
 TEST(cql_serialization_cpp, decode_double_ptr)
