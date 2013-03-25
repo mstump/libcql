@@ -31,6 +31,7 @@
 
 #include "libcql/internal/cql_message_result_impl.hpp"
 
+
 std::string
 result_type_string(cql::cql_short_t t)
 {
@@ -278,8 +279,9 @@ bool
 cql::cql_message_result_impl_t::is_null(int i,
                                         bool& output) const
 {
-    if (i > _column_count || i < 0)
+    if (i > _column_count || i < 0) {
         return false;
+    }
 
     output = (*reinterpret_cast<cql::cql_int_t*>(_row[i]) == 0);
     return true;
@@ -302,12 +304,9 @@ bool
 cql::cql_message_result_impl_t::get_bool(int i,
                                          bool& output) const
 {
-    bool empty = false;
-    if (is_null(i, empty)) {
-        if (!empty) {
-            output = *(_row[i] + sizeof(cql_int_t)) != 0x00;
-            return true;
-        }
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_BOOLEAN)) {
+        output = *(_row[i] + sizeof(cql_int_t)) != 0x00;
+        return true;
     }
     return false;
 }
@@ -327,12 +326,9 @@ bool
 cql::cql_message_result_impl_t::get_int(int i,
                                         cql::cql_int_t& output) const
 {
-    bool empty = false;
-    if (is_null(i, empty)) {
-        if (!empty) {
-            cql::decode_int(_row[i] + sizeof(cql_int_t), output);
-            return true;
-        }
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_INT)) {
+        cql::decode_int(_row[i] + sizeof(cql_int_t), output);
+        return true;
     }
     return false;
 }
@@ -352,12 +348,9 @@ bool
 cql::cql_message_result_impl_t::get_float(int i,
                                           float& output) const
 {
-    bool empty = false;
-    if (is_null(i, empty)) {
-        if (!empty) {
-            cql::decode_float(_row[i] + sizeof(cql_int_t), output);
-            return true;
-        }
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_FLOAT)) {
+        cql::decode_float(_row[i] + sizeof(cql_int_t), output);
+        return true;
     }
     return false;
 }
@@ -377,13 +370,10 @@ bool
 cql::cql_message_result_impl_t::get_double(int i,
                                            double& output) const
 {
-    bool empty = false;
-    if (is_null(i, empty)) {
-        if (!empty) {
-            cql_byte_t* p = _row[i] + sizeof(cql_int_t);
-            cql::decode_double(p, output);
-            return true;
-        }
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_DOUBLE)) {
+        cql_byte_t* p = _row[i] + sizeof(cql_int_t);
+        cql::decode_double(p, output);
+        return true;
     }
     return false;
 }
@@ -403,12 +393,9 @@ bool
 cql::cql_message_result_impl_t::get_bigint(int i,
                                            cql::cql_bigint_t& output) const
 {
-    bool empty = false;
-    if (is_null(i, empty)) {
-        if (!empty) {
-            cql::decode_bigint(_row[i] + sizeof(cql_int_t), output);
-            return true;
-        }
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_BIGINT)) {
+        cql::decode_bigint(_row[i] + sizeof(cql_int_t), output);
+        return true;
     }
     return false;
 }
@@ -476,41 +463,57 @@ cql::cql_message_result_impl_t::get_data(const std::string& column,
     return false;
 }
 
-// bool
-// cql::cql_message_result_impl_t::get_list(int i,
-//                                          cql::cql_list_t& output) const
-// {
-//     return false;
-// }
+bool
+cql::cql_message_result_impl_t::get_list(int i,
+                                         cql::cql_list_t** output) const
+{
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_LIST)) {
+        cql::cql_column_type_enum member_type;
+        std::string member_class;
+        _metadata.collection_primary_type(i, member_type);
+        _metadata.collection_primary_class(i, member_class);
+        *output = new cql::cql_list_impl_t(_row[i] + sizeof(cql_int_t), member_type, member_class);
+        return true;
+    }
+    return false;
+}
 
-// bool
-// cql::cql_message_result_impl_t::get_list(const std::string& column,
-//                                          cql::cql_list_t& output) const
-// {
-//     int i = 0;
-//     if (_metadata.get_index(column, i)) {
-//         return get_list(i, output);
-//     }
-//     return false;
-// }
+bool
+cql::cql_message_result_impl_t::get_list(const std::string& column,
+                                         cql::cql_list_t** output) const
+{
+    int i = 0;
+    if (_metadata.get_index(column, i)) {
+        return get_list(i, output);
+    }
+    return false;
+}
 
-// bool
-// cql::cql_message_result_impl_t::get_set(int i,
-//                                         cql::cql_set_t& output) const
-// {
-//     return false;
-// }
+bool
+cql::cql_message_result_impl_t::get_set(int i,
+                                         cql::cql_set_t** output) const
+{
+    if (is_valid(i, cql::CQL_COLUMN_TYPE_SET)) {
+        cql::cql_column_type_enum member_type;
+        std::string member_class;
+        _metadata.collection_primary_type(i, member_type);
+        _metadata.collection_primary_class(i, member_class);
+        *output = new cql::cql_set_impl_t(_row[i] + sizeof(cql_int_t), member_type, member_class);
+        return true;
+    }
+    return false;
+}
 
-// bool
-// cql::cql_message_result_impl_t::get_set(const std::string& column,
-//                                         cql::cql_set_t& output) const
-// {
-//     int i = 0;
-//     if (_metadata.get_index(column, i)) {
-//         return get_set(i, output);
-//     }
-//     return false;
-// }
+bool
+cql::cql_message_result_impl_t::get_set(const std::string& column,
+                                         cql::cql_set_t** output) const
+{
+    int i = 0;
+    if (_metadata.get_index(column, i)) {
+        return get_set(i, output);
+    }
+    return false;
+}
 
 // bool
 // cql::cql_message_result_impl_t::get_map(int i,

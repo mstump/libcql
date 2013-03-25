@@ -17,83 +17,75 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_SET_H_
-#define CQL_SET_H_
+#ifndef CQL_SET_IMPL_H_
+#define CQL_SET_IMPL_H_
 
-#include <set>
 #include <vector>
 #include <boost/noncopyable.hpp>
 
 #include "libcql/cql.hpp"
-#include "libcql/cql_vector_stream.hpp"
-#include "libcql/cql_serialization.hpp"
+#include "libcql/cql_set.hpp"
+
 
 namespace cql {
 
     class cql_set_impl_t :
-        boost::noncopyable
+        public cql_set_t
     {
 
     public:
-        typedef std::vector<cql::cql_byte_t> column_t;
-
-        cql_set_impl_t();
-
-        void
-        read(column_t column);
+        cql_set_impl_t(cql::cql_byte_t*          start,
+                       cql::cql_column_type_enum element_type,
+                       std::string&              custom_class);
 
         std::string
         str() const;
 
-        cql::cql_short_t
-        member_type() const;
+        cql::cql_column_type_enum
+        element_type() const;
 
         const std::string&
         custom_class() const;
 
-        void
-        get_set(std::set<bool>& output) const;
+        bool
+        get_bool(int i,
+                 bool& output) const;
 
-        void
-        get_set(std::set<cql_int_t>& output) const;
+        bool
+        get_int(int i,
+                cql_int_t& output) const;
 
-        void
-        get_set(std::set<float>& output) const;
+        bool
+        get_float(int i,
+                  float& output) const;
 
-        void
-        get_set(std::set<double>& output) const;
+        bool
+        get_double(int i,
+                   double& output) const;
 
-        void
-        get_set(std::set<cql::cql_bigint_t>& output) const;
+        bool
+        get_bigint(int i,
+                   cql::cql_bigint_t& output) const;
 
-        void
-        get_set(std::set<std::string>& output) const;
+        bool
+        get_string(int i,
+                   std::string& output) const;
 
-        template<typename T, typename DecodeFunction>
-        void
-        decode_set(std::set<T>& output,
-                   DecodeFunction decoder)
-        {
-            cql::vector_stream_t buffer(_column, _offset);
-            std::istream stream(&buffer);
+        bool
+        get_data(int i,
+                 cql::cql_byte_t** output,
+                 cql::cql_short_t& size) const;
 
-            cql::cql_short_t count = 0;
-            cql::decode_short(stream, count);
-
-            for (int i = 0; i < count; ++i) {
-                T elem;
-                decoder(stream, elem);
-                output.insert(elem);
-            }
-        }
+        size_t
+        size() const;
 
     private:
-        column_t         _column;
-        cql::cql_short_t _type;
-        std::string      _custom_class;
-        int              _offset;
+        cql::cql_byte_t*              _start;
+        std::vector<cql::cql_byte_t*> _elements;
+        cql::cql_column_type_enum     _element_type;
+        std::string                   _custom_class;
     };
 
 } // namespace cql
 
-#endif // CQL_SET_H_
+#endif // CQL_SET_IMPL_H_

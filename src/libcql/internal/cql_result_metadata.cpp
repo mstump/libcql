@@ -82,26 +82,23 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
         std::string column_name;
         input = cql::decode_string(input, column_name);
 
-        std::auto_ptr<option_t> column_type(new option_t);
-        input = cql::decode_option(input, column_type->id, column_type->value);
+        option_t option;
+        input = cql::decode_option(input, option.primary_type, option.primary_class);
 
-        if (column_type->id == 0x20 || column_type->id == 0x22) {
-            // it's a native set or list. Read and discard the tailing option
-            option_t sequence_sub_type;
-            input = cql::decode_option(input, sequence_sub_type.id, sequence_sub_type.value);
+        if (option.primary_type == cql::CQL_COLUMN_TYPE_SET || option.primary_type == cql::CQL_COLUMN_TYPE_LIST) {
+            // it's a native set or list. Read the option which tells us the collecion member type
+            input = cql::decode_option(input, option.collection_primary_type, option.collection_primary_class);
         }
 
-        if (column_type->id == 0x21) {
-            // it's a native map. Read and discard the tailing options
-            option_t key_sub_type;
-            option_t val_sub_type;
-            input = cql::decode_option(input, key_sub_type.id, key_sub_type.value);
-            input = cql::decode_option(input, val_sub_type.id, val_sub_type.value);
+        if (option.primary_type == cql::CQL_COLUMN_TYPE_MAP) {
+            // it's a native map. Read the options which tells us the collecion key and values types
+            input = cql::decode_option(input, option.collection_primary_type, option.collection_primary_class);
+            input = cql::decode_option(input, option.collection_secondary_type, option.collection_secondary_class);
         }
 
         column_name_t name(keyspace_name, table_name, column_name);
         _column_name_idx.insert(column_name_idx_t::value_type(name, i));
-        _columns.push_back(column_type);
+        _columns.push_back(option);
     }
     return input;
 }
@@ -174,7 +171,7 @@ cql::cql_result_metadata_t::column_class(int i,
         return false;
     }
 
-    output = _columns[i].value;
+    output = _columns[i].primary_class;
     return true;
 }
 
@@ -197,7 +194,7 @@ cql::cql_result_metadata_t::column_class(const std::string& keyspace,
 {
     column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
     if(it != _column_name_idx.end()) {
-        output = _columns[it->second].value;
+        output = _columns[it->second].primary_class;
         return true;
     }
 
@@ -212,7 +209,7 @@ cql::cql_result_metadata_t::column_type(int i,
         return false;
     }
 
-    int val = _columns[i].id;
+    int val = _columns[i].primary_type;
     if (val >= 0 && val <= 0x0022) {
         output = static_cast<cql_column_type_enum>(val);
     }
@@ -291,5 +288,157 @@ cql::cql_result_metadata_t::get_index(const std::string& keyspace,
         output = it->second;
         return true;
     }
+    return false;
+}
+
+bool
+cql::cql_result_metadata_t::collection_primary_class(int i,
+                                                     std::string& output) const
+{
+    if (i > _column_count || i < 0) {
+        return false;
+    }
+
+    output = _columns[i].collection_primary_class;
+    return true;
+}
+
+bool
+cql::cql_result_metadata_t::collection_primary_class(const std::string& column,
+                                                     std::string& output) const
+{
+    if (_global_keyspace_name.empty() || _global_table_name.empty()) {
+        return false;
+    }
+
+    return collection_primary_class(_global_keyspace_name, _global_table_name, column, output);
+}
+
+bool
+cql::cql_result_metadata_t::collection_primary_class(const std::string& keyspace,
+                                                     const std::string& table,
+                                                     const std::string& column,
+                                                     std::string& output) const
+{
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end()) {
+        output = _columns[it->second].collection_primary_class;
+        return true;
+    }
+
+    return false;
+}
+
+bool
+cql::cql_result_metadata_t::collection_primary_type(int i,
+                                                    cql::cql_column_type_enum& output) const
+{
+    if (i > _column_count || i < 0) {
+        return false;
+    }
+
+    output = _columns[i].collection_primary_type;
+    return true;
+}
+
+bool
+cql::cql_result_metadata_t::collection_primary_type(const std::string& column,
+                                                    cql::cql_column_type_enum& output) const
+{
+    if (_global_keyspace_name.empty() || _global_table_name.empty()) {
+        return false;
+    }
+
+    return collection_primary_type(_global_keyspace_name, _global_table_name, column, output);
+}
+
+bool
+cql::cql_result_metadata_t::collection_primary_type(const std::string& keyspace,
+                                                    const std::string& table,
+                                                    const std::string& column,
+                                                    cql::cql_column_type_enum& output) const
+{
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end()) {
+        output = _columns[it->second].collection_primary_type;
+        return true;
+    }
+
+    return false;
+}
+
+bool
+cql::cql_result_metadata_t::collection_secondary_class(int i,
+                                                       std::string& output) const
+{
+    if (i > _column_count || i < 0) {
+        return false;
+    }
+
+    output = _columns[i].collection_secondary_class;
+    return true;
+}
+
+bool
+cql::cql_result_metadata_t::collection_secondary_class(const std::string& column,
+                                                       std::string& output) const
+{
+    if (_global_keyspace_name.empty() || _global_table_name.empty()) {
+        return false;
+    }
+
+    return collection_secondary_class(_global_keyspace_name, _global_table_name, column, output);
+}
+
+bool
+cql::cql_result_metadata_t::collection_secondary_class(const std::string& keyspace,
+                                                       const std::string& table,
+                                                       const std::string& column,
+                                                       std::string& output) const
+{
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end()) {
+        output = _columns[it->second].collection_secondary_class;
+        return true;
+    }
+
+    return false;
+}
+
+bool
+cql::cql_result_metadata_t::collection_secondary_type(int i,
+                                                      cql::cql_column_type_enum& output) const
+{
+    if (i > _column_count || i < 0) {
+        return false;
+    }
+
+    output = _columns[i].collection_secondary_type;
+    return true;
+}
+
+bool
+cql::cql_result_metadata_t::collection_secondary_type(const std::string& column,
+                                                      cql::cql_column_type_enum& output) const
+{
+    if (_global_keyspace_name.empty() || _global_table_name.empty()) {
+        return false;
+    }
+
+    return collection_secondary_type(_global_keyspace_name, _global_table_name, column, output);
+}
+
+bool
+cql::cql_result_metadata_t::collection_secondary_type(const std::string& keyspace,
+                                                      const std::string& table,
+                                                      const std::string& column,
+                                                      cql::cql_column_type_enum& output) const
+{
+    column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
+    if(it != _column_name_idx.end()) {
+        output = _columns[it->second].collection_secondary_type;
+        return true;
+    }
+
     return false;
 }

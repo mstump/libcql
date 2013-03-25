@@ -165,21 +165,41 @@ namespace cql {
                  cql::cql_byte_t** output,
                  cql::cql_int_t& size) const;
 
-        // bool
-        // get_list(int i,
-        //          cql::cql_list_impl_t& output) const;
+        bool
+        get_list(int i,
+                 cql::cql_list_t** output) const;
 
-        // bool
-        // get_list(const std::string& column,
-        //          cql::cql_list_impl_t& output) const;
+        bool
+        get_list(const std::string& column,
+                 cql::cql_list_t** output) const;
 
-        // bool
-        // get_set(int i,
-        //         cql::cql_set_impl_t& output) const;
+        bool
+        get_set(int i,
+                 cql::cql_set_t** output) const;
 
-        // bool
-        // get_set(const std::string& column,
-        //         cql::cql_set_impl_t& output) const;
+        bool
+        get_set(const std::string& column,
+                 cql::cql_set_t** output) const;
+
+        inline bool
+        is_valid(int i,
+                 cql::cql_column_type_enum column_type) const
+        {
+            if (i > _column_count || i < 0) {
+                return false;
+            }
+
+            cql::cql_column_type_enum t = cql::CQL_COLUMN_TYPE_UNKNOWN;
+            if (!_metadata.column_type(i, t)) {
+                return false;
+            }
+
+            if (column_type != t) {
+                return false;
+            }
+
+            return (*reinterpret_cast<cql::cql_int_t*>(_row[i]) != 0);
+        }
 
         // bool
         // get_map(int i,

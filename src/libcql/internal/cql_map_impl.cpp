@@ -20,8 +20,8 @@
 #include "libcql/internal/cql_map_impl.hpp"
 
 cql::cql_map_impl_t::cql_map_impl_t() :
-    _key_type(0),
-    _value_type(0),
+    _key_type(cql::CQL_COLUMN_TYPE_UNKNOWN),
+    _value_type(cql::CQL_COLUMN_TYPE_UNKNOWN),
     _offset(0)
 {}
 

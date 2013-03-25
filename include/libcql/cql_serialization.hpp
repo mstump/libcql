@@ -217,17 +217,17 @@ namespace cql {
 
     std::ostream&
     encode_option(std::ostream& output,
-                  cql::cql_short_t id,
+                  cql::cql_column_type_enum& id,
                   const std::string& value);
 
     std::istream&
     decode_option(std::istream& input,
-                  cql::cql_short_t& id,
+                  cql::cql_column_type_enum& id,
                   std::string& value);
 
     cql::cql_byte_t*
     decode_option(cql::cql_byte_t* input,
-                  cql::cql_short_t& id,
+                  cql::cql_column_type_enum& id,
                   std::string& value);
 
     std::ostream&

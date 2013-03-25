@@ -25,9 +25,9 @@
 
 namespace cql {
 
-    class cql_list_impl_t;
-    class cql_map_impl_t;
-    class cql_set_impl_t;
+    class cql_list_t;
+    class cql_map_t;
+    class cql_set_t;
 
     class cql_result_t
     {
@@ -146,21 +146,21 @@ namespace cql {
                  cql::cql_byte_t** output,
                  cql::cql_int_t& size) const = 0;
 
-        // virtual bool
-        // get_list(int i,
-        //          cql::cql_list_impl_t& output) const = 0;
+        virtual bool
+        get_list(int i,
+                 cql::cql_list_t** output) const = 0;
 
-        // virtual bool
-        // get_list(const std::string& column,
-        //          cql::cql_list_impl_t& output) const = 0;
+        virtual bool
+        get_list(const std::string& column,
+                 cql::cql_list_t** output) const = 0;
 
-        // virtual bool
-        // get_set(int i,
-        //         cql::cql_set_impl_t& output) const = 0;
+        virtual bool
+        get_set(int i,
+                 cql::cql_set_t** output) const = 0;
 
-        // virtual bool
-        // get_set(const std::string& column,
-        //         cql::cql_set_impl_t& output) const = 0;
+        virtual bool
+        get_set(const std::string& column,
+                 cql::cql_set_t** output) const = 0;
 
         // virtual bool
         // get_map(int i,

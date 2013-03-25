@@ -1,6 +1,8 @@
 #include "gtest/gtest.h"
 #include "libcql/cql.hpp"
 #include "libcql/cql_error.hpp"
+#include "libcql/cql_list.hpp"
+#include "libcql/cql_set.hpp"
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_message_result_impl.hpp"
 
@@ -172,6 +174,9 @@ TEST(cql_message_result_cpp, column_index_by_name)
 
     m.get_index("a_set", index);
     EXPECT_EQ(3, index);
+
+    m.get_index("bigint", index);
+    EXPECT_EQ(4, index);
 
     m.get_index("varint", index);
     EXPECT_EQ(16, index);
@@ -386,4 +391,52 @@ TEST(cql_message_result_cpp, deserialize_data_14)
     EXPECT_EQ(true, m.get_data(14, &data, size));
     EXPECT_EQ(16, size);
     EXPECT_STREQ(test_str, reinterpret_cast<const char*>(data));
+}
+
+TEST(cql_message_result_cpp, deserialize_list)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+
+    cql::cql_list_t* list = NULL;
+
+    EXPECT_EQ(true, m.get_list(1, &list));
+    EXPECT_EQ(3, list->size());
+
+    bool value = false;
+    EXPECT_EQ(true, list->get_bool(0, value));
+    EXPECT_EQ(true, value);
+
+    EXPECT_EQ(true, list->get_bool(1, value));
+    EXPECT_EQ(true, value);
+
+    EXPECT_EQ(true, list->get_bool(2, value));
+    EXPECT_EQ(false, value);
+}
+
+TEST(cql_message_result_cpp, deserialize_set)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+
+    cql::cql_set_t* set = NULL;
+
+    EXPECT_EQ(true, m.get_set(3, &set));
+    EXPECT_EQ(3, set->size());
+
+    cql::cql_int_t value = -1;
+    EXPECT_EQ(true, set->get_int(0, value));
+    EXPECT_EQ(1, value);
+
+    EXPECT_EQ(true, set->get_int(1, value));
+    EXPECT_EQ(2, value);
+
+    EXPECT_EQ(true, set->get_int(2, value));
+    EXPECT_EQ(3, value);
 }

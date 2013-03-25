@@ -83,12 +83,12 @@ namespace cql {
         }
 
     private:
-        column_t         _column;
-        cql::cql_short_t _key_type;
-        cql::cql_short_t _value_type;
-        std::string      _key_class;
-        std::string      _value_class;
-        int              _offset;
+        column_t                  _column;
+        cql::cql_column_type_enum _key_type;
+        cql::cql_column_type_enum _value_type;
+        std::string               _key_class;
+        std::string               _value_class;
+        int                       _offset;
     };
 
 } // namespace cql

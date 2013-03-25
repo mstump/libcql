@@ -539,13 +539,61 @@ cql::decode_string_multimap(std::istream& input,
     return input;
 }
 
+inline cql::cql_column_type_enum
+short_to_column_type(cql::cql_short_t input)
+{
+    switch (input) {
+    case 0x0000:
+        return cql::CQL_COLUMN_TYPE_CUSTOM;
+    case 0x0001:
+        return cql::CQL_COLUMN_TYPE_ASCII;
+    case 0x0002:
+        return cql::CQL_COLUMN_TYPE_BIGINT;
+    case 0x0003:
+        return cql::CQL_COLUMN_TYPE_BLOB;
+    case 0x0004:
+        return cql::CQL_COLUMN_TYPE_BOOLEAN;
+    case 0x0005:
+        return cql::CQL_COLUMN_TYPE_COUNTER;
+    case 0x0006:
+        return cql::CQL_COLUMN_TYPE_DECIMAL;
+    case 0x0007:
+        return cql::CQL_COLUMN_TYPE_DOUBLE;
+    case 0x0008:
+        return cql::CQL_COLUMN_TYPE_FLOAT;
+    case 0x0009:
+        return cql::CQL_COLUMN_TYPE_INT;
+    case 0x000A:
+        return cql::CQL_COLUMN_TYPE_TEXT;
+    case 0x000B:
+        return cql::CQL_COLUMN_TYPE_TIMESTAMP;
+    case 0x000C:
+        return cql::CQL_COLUMN_TYPE_UUID;
+    case 0x000D:
+        return cql::CQL_COLUMN_TYPE_VARCHAR;
+    case 0x000E:
+        return cql::CQL_COLUMN_TYPE_VARINT;
+    case 0x000F:
+        return cql::CQL_COLUMN_TYPE_TIMEUUID;
+    case 0x0010:
+        return cql::CQL_COLUMN_TYPE_INET;
+    case 0x0020:
+        return cql::CQL_COLUMN_TYPE_LIST;
+    case 0x0021:
+        return cql::CQL_COLUMN_TYPE_MAP;
+    case 0x0022:
+        return cql::CQL_COLUMN_TYPE_SET;
+    default:
+        return cql::CQL_COLUMN_TYPE_UNKNOWN;
+    }
+}
 
 std::ostream&
 cql::encode_option(std::ostream& output,
-                   cql::cql_short_t id,
+                   cql::cql_column_type_enum& id,
                    const std::string& value)
 {
-    cql::encode_short(output, id);
+    cql::encode_short(output, reinterpret_cast<cql::cql_short_t&>(id));
     if (id == CQL_COLUMN_TYPE_CUSTOM) {
         cql::encode_string(output, value);
     }
@@ -554,10 +602,13 @@ cql::encode_option(std::ostream& output,
 
 std::istream&
 cql::decode_option(std::istream& input,
-                   cql::cql_short_t& id,
+                   cql::cql_column_type_enum& id,
                    std::string& value)
 {
-    cql::decode_short(input, id);
+    cql::cql_short_t t = 0xFFFF;
+    cql::decode_short(input, t);
+    id = short_to_column_type(t);
+
     if (id == CQL_COLUMN_TYPE_CUSTOM) {
         cql::decode_string(input, value);
     }
@@ -566,11 +617,14 @@ cql::decode_option(std::istream& input,
 
 cql::cql_byte_t*
 cql::decode_option(cql::cql_byte_t* input,
-                   cql::cql_short_t& id,
+                   cql::cql_column_type_enum& id,
                    std::string& value)
 {
-    input = cql::decode_short(input, id);
-    if (id == CQL_COLUMN_TYPE_CUSTOM) {
+    cql::cql_short_t t = 0xFFFF;
+    input = cql::decode_short(input, t);
+    id = short_to_column_type(t);
+
+    if (id == cql::CQL_COLUMN_TYPE_CUSTOM) {
         input = cql::decode_string(input, value);
     }
     return input;

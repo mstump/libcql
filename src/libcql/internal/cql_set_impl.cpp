@@ -18,25 +18,113 @@
 */
 
 #include <boost/function.hpp>
+#include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_defines.hpp"
-
 #include "libcql/internal/cql_set_impl.hpp"
 
-cql::cql_set_impl_t::cql_set_impl_t() :
-    _column(),
-    _type(-1),
-    _offset(0)
-{}
-
-void
-cql::cql_set_impl_t::read(column_t column)
+cql::cql_set_impl_t::cql_set_impl_t(cql::cql_byte_t*          start,
+                                    cql::cql_column_type_enum element_type,
+                                    std::string&              custom_class) :
+    _start(start),
+    _element_type(element_type),
+    _custom_class(custom_class)
 {
-    _column = column;
-    cql::vector_stream_t buffer(_column, sizeof(cql::cql_short_t));
-    std::istream stream(&buffer);
+    cql::cql_short_t count = 0;
+    cql::cql_byte_t* _pos = cql::decode_short(_start, count);
+    _elements.reserve(count);
 
-    cql::decode_option(stream, _type, _custom_class);
-    _offset = stream.tellg();
+    for (int i = 0; i < count; ++i) {
+        _elements.push_back(_pos);
+        cql::cql_short_t len = 0;
+        _pos = cql::decode_short(_pos, len);
+        _pos += len;
+    }
+}
+
+bool
+cql::cql_set_impl_t::get_bool(int i,
+                              bool& output) const
+{
+    if (i < 0 || i > _elements.size()) {
+        return false;
+    }
+
+    output = *(_elements[i] + sizeof(cql_short_t)) != 0x00;
+    return true;
+}
+
+bool
+cql::cql_set_impl_t::get_int(int i,
+                             cql_int_t& output) const
+{
+    if (i < 0 || i > _elements.size()) {
+        return false;
+    }
+
+    cql::decode_int(_elements[i] + sizeof(cql_short_t), output);
+    return true;
+}
+
+bool
+cql::cql_set_impl_t::get_float(int i,
+                               float& output) const
+{
+    if (i < 0 || i > _elements.size()) {
+        return false;
+    }
+
+    cql::decode_float(_elements[i] + sizeof(cql_short_t), output);
+    return true;
+}
+
+bool
+cql::cql_set_impl_t::get_double(int i,
+                                double& output) const
+{
+    if (i < 0 || i > _elements.size()) {
+        return false;
+    }
+
+    cql::decode_double(_elements[i] + sizeof(cql_short_t), output);
+    return true;
+}
+
+bool
+cql::cql_set_impl_t::get_bigint(int i,
+                                cql::cql_bigint_t& output) const
+{
+    if (i < 0 || i > _elements.size()) {
+        return false;
+    }
+
+    cql::decode_bigint(_elements[i] + sizeof(cql_short_t), output);
+    return true;
+}
+
+bool
+cql::cql_set_impl_t::get_string(int i,
+                                std::string& output) const
+{
+    cql_byte_t* data = 0;
+    cql_short_t size = 0;
+    if (get_data(i, &data, size)) {
+        output.assign(data, data + size);
+        return true;
+    }
+    return false;
+}
+
+bool
+cql::cql_set_impl_t::get_data(int i,
+                              cql::cql_byte_t** output,
+                              cql::cql_short_t& size) const
+{
+    if (i < 0 || i > _elements.size()) {
+        return false;
+    }
+
+    *output = cql::decode_short(_elements[i], size);
+    return true;
 }
 
 std::string
@@ -45,10 +133,10 @@ cql::cql_set_impl_t::str() const
     return "set";
 }
 
-cql::cql_short_t
-cql::cql_set_impl_t::member_type() const
+cql::cql_column_type_enum
+cql::cql_set_impl_t::element_type() const
 {
-    return _type;
+    return _element_type;
 }
 
 const std::string&
@@ -57,38 +145,8 @@ cql::cql_set_impl_t::custom_class() const
     return _custom_class;
 }
 
-void
-cql::cql_set_impl_t::get_set(std::set<bool>& output) const
+size_t
+cql::cql_set_impl_t::size() const
 {
-    decode_set(output, (std::istream& (&) (std::istream&, bool&)) &cql::decode_bool);
-}
-
-void
-cql::cql_set_impl_t::get_set(std::set<cql::cql_int_t>& output) const
-{
-    decode_set(output, (std::istream& (&) (std::istream&, int&)) &cql::decode_int);
-}
-
-void
-cql::cql_set_impl_t::get_set(std::set<float>& output) const
-{
-    decode_set(output, (std::istream& (&) (std::istream&, float&)) &cql::decode_float);
-}
-
-void
-cql::cql_set_impl_t::get_set(std::set<double>& output) const
-{
-    decode_set(output, (std::istream& (&) (std::istream&, double&)) &cql::decode_double);
-}
-
-void
-cql::cql_set_impl_t::get_set(std::set<cql::cql_bigint_t>& output) const
-{
-    decode_set(output, (std::istream& (&) (std::istream&, cql::cql_bigint_t&)) &cql::decode_bigint);
-}
-
-void
-cql::cql_set_impl_t::get_set(std::set<std::string>& output) const
-{
-    decode_set(output, (std::istream& (&) (std::istream&, std::string&)) &cql::decode_string);
+    return _elements.size();
 }

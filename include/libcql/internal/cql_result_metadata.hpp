@@ -21,8 +21,8 @@
 #define CQL_RESULT_METADATA_H_
 
 #include <string>
+#include <vector>
 #include <boost/noncopyable.hpp>
-#include <boost/ptr_container/ptr_vector.hpp>
 #include <boost/unordered_map.hpp>
 
 #include "libcql/cql.hpp"
@@ -120,11 +120,98 @@ namespace cql {
                   const std::string& column,
                   int& output) const;
 
+        bool
+        collection_primary_class(int i,
+                                 std::string& output) const;
+
+        bool
+        collection_primary_class(const std::string& column,
+                                 std::string& output) const;
+
+        bool
+        collection_primary_class(const std::string& keyspace,
+                                 const std::string& table,
+                                 const std::string& column,
+                                 std::string& output) const;
+
+        bool
+        collection_primary_type(int i,
+                                cql::cql_column_type_enum& output) const;
+
+        bool
+        collection_primary_type(const std::string& column,
+                                cql::cql_column_type_enum& output) const;
+
+        bool
+        collection_primary_type(const std::string& keyspace,
+                                const std::string& table,
+                                const std::string& column,
+                                cql::cql_column_type_enum& output) const;
+
+        bool
+        collection_secondary_class(int i,
+                                   std::string& output) const;
+
+        bool
+        collection_secondary_class(const std::string& column,
+                                   std::string& output) const;
+
+        bool
+        collection_secondary_class(const std::string& keyspace,
+                                   const std::string& table,
+                                   const std::string& column,
+                                   std::string& output) const;
+
+        bool
+        collection_secondary_type(int i,
+                                  cql::cql_column_type_enum& output) const;
+
+        bool
+        collection_secondary_type(const std::string& column,
+                                  cql::cql_column_type_enum& output) const;
+
+        bool
+        collection_secondary_type(const std::string& keyspace,
+                                  const std::string& table,
+                                  const std::string& column,
+                                  cql::cql_column_type_enum& output) const;
+
     private:
 
         struct option_t {
-            cql::cql_short_t id;
-            std::string value;
+            cql::cql_column_type_enum primary_type;
+            cql::cql_column_type_enum collection_primary_type;
+            cql::cql_column_type_enum collection_secondary_type;
+            std::string primary_class;
+            std::string collection_primary_class;
+            std::string collection_secondary_class;
+
+            option_t() :
+                primary_type(CQL_COLUMN_TYPE_UNKNOWN),
+                collection_primary_type(CQL_COLUMN_TYPE_UNKNOWN),
+                collection_secondary_type(CQL_COLUMN_TYPE_UNKNOWN)
+            {}
+
+            option_t(cql::cql_column_type_enum primary_type) :
+                primary_type(primary_type),
+                collection_primary_type(CQL_COLUMN_TYPE_UNKNOWN),
+                collection_secondary_type(CQL_COLUMN_TYPE_UNKNOWN)
+            {}
+
+            option_t(cql::cql_column_type_enum primary_type,
+                     cql::cql_column_type_enum collection_primary_type) :
+                primary_type(primary_type),
+                collection_primary_type(collection_primary_type),
+                collection_secondary_type(CQL_COLUMN_TYPE_UNKNOWN)
+            {}
+
+            option_t(cql::cql_column_type_enum primary_type,
+                     cql::cql_column_type_enum collection_primary_type,
+                     cql::cql_column_type_enum collection_secondary_type) :
+                primary_type(primary_type),
+                collection_primary_type(collection_primary_type),
+                collection_secondary_type(collection_secondary_type)
+            {}
         };
 
         struct column_name_hash
@@ -163,7 +250,7 @@ namespace cql {
         std::string                 _global_keyspace_name;
         std::string                 _global_table_name;
         column_name_idx_t           _column_name_idx;
-        boost::ptr_vector<option_t> _columns;
+        std::vector<option_t>       _columns;
     };
 
 } // namespace cql
