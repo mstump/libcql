@@ -20,76 +20,111 @@
 #ifndef CQL_MAP_IMPL_H_
 #define CQL_MAP_IMPL_H_
 
-#include <map>
 #include <vector>
-#include <boost/noncopyable.hpp>
-
 #include "libcql/cql.hpp"
-#include "libcql/cql_vector_stream.hpp"
-#include "libcql/cql_serialization.hpp"
+#include "libcql/cql_map.hpp"
+
 
 namespace cql {
 
     class cql_map_impl_t :
-        boost::noncopyable
+        public cql_map_t
     {
 
     public:
-        typedef std::vector<cql::cql_byte_t> column_t;
 
-        cql_map_impl_t();
+        cql_map_impl_t(cql::cql_byte_t*          start,
+                       cql::cql_column_type_enum key_type,
+                       cql::cql_column_type_enum value_type,
+                       std::string&              key_custom_class,
+                       std::string&              value_custom_class);
 
-        void
-        read(column_t column);
+        bool
+        get_key_bool(int i,
+                     bool& output) const;
+
+        bool
+        get_key_int(int i,
+                    cql_int_t& output) const;
+
+        bool
+        get_key_float(int i,
+                      float& output) const;
+
+        bool
+        get_key_double(int i,
+                       double& output) const;
+
+        bool
+        get_key_bigint(int i,
+                       cql::cql_bigint_t& output) const;
+
+        bool
+        get_key_string(int i,
+                       std::string& output) const;
+
+        bool
+        get_key_data(int i,
+                     cql::cql_byte_t** output,
+                     cql::cql_short_t& size) const;
+
+        bool
+        get_value_bool(int i,
+                       bool& output) const;
+
+        bool
+        get_value_int(int i,
+                      cql_int_t& output) const;
+
+        bool
+        get_value_float(int i,
+                        float& output) const;
+
+        bool
+        get_value_double(int i,
+                         double& output) const;
+
+        bool
+        get_value_bigint(int i,
+                         cql::cql_bigint_t& output) const;
+
+        bool
+        get_value_string(int i,
+                         std::string& output) const;
+
+        bool
+        get_value_data(int i,
+                       cql::cql_byte_t** output,
+                       cql::cql_short_t& size) const;
 
         std::string
         str() const;
 
-        cql::cql_short_t
+        cql::cql_column_type_enum
         key_type() const;
 
         const std::string&
-        key_class() const;
+        key_custom_class() const;
 
-        cql::cql_short_t
+        cql::cql_column_type_enum
         value_type() const;
 
         const std::string&
-        value_class() const;
+        value_custom_class() const;
 
-        void
-        get_map(std::map<std::string, std::string>& output) const;
-
-        template<typename KeyT, typename ValueT, typename KeyDecodeFunction, typename ValueDecodeFunction>
-        void
-        decode_map(std::map<KeyT, ValueT>& output,
-                   KeyDecodeFunction key_decoder,
-                   ValueDecodeFunction value_decoder)
-        {
-            cql::vector_stream_t buffer(_column, _offset);
-            std::istream stream(&buffer);
-
-            cql::cql_short_t count = 0;
-            cql::decode_short(stream, count);
-
-            for (int i = 0; i < count; ++i) {
-                KeyT key;
-                ValueT value;
-
-                key_decoder(stream, key);
-                value_decoder(stream, key);
-                output[key] = value;
-            }
-        }
+        size_t
+        size() const;
 
     private:
-        column_t                  _column;
-        cql::cql_column_type_enum _key_type;
-        cql::cql_column_type_enum _value_type;
-        std::string               _key_class;
-        std::string               _value_class;
-        int                       _offset;
+        cql::cql_byte_t*              _start;
+        std::vector<cql::cql_byte_t*> _keys;
+        std::vector<cql::cql_byte_t*> _values;
+        cql::cql_column_type_enum     _key_type;
+        cql::cql_column_type_enum     _value_type;
+        std::string                   _key_custom_class;
+        std::string                   _value_custom_class;
     };
+
 
 } // namespace cql
 

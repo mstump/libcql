@@ -3,6 +3,7 @@
 #include "libcql/cql_error.hpp"
 #include "libcql/cql_list.hpp"
 #include "libcql/cql_set.hpp"
+#include "libcql/cql_map.hpp"
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_message_result_impl.hpp"
 
@@ -415,6 +416,8 @@ TEST(cql_message_result_cpp, deserialize_list)
 
     EXPECT_EQ(true, list->get_bool(2, value));
     EXPECT_EQ(false, value);
+
+    EXPECT_EQ(cql::CQL_COLUMN_TYPE_BOOLEAN, list->element_type());
 }
 
 TEST(cql_message_result_cpp, deserialize_set)
@@ -439,4 +442,37 @@ TEST(cql_message_result_cpp, deserialize_set)
 
     EXPECT_EQ(true, set->get_int(2, value));
     EXPECT_EQ(3, value);
+
+    EXPECT_EQ(cql::CQL_COLUMN_TYPE_INT, set->element_type());
+}
+
+TEST(cql_message_result_cpp, deserialize_map)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+
+    cql::cql_map_t* map = NULL;
+
+    EXPECT_EQ(true, m.get_map(2, &map));
+    EXPECT_EQ(2, map->size());
+
+    std::string key;
+    EXPECT_EQ(true, map->get_key_string(0, key));
+    EXPECT_EQ("a", key);
+
+    EXPECT_EQ(true, map->get_key_string(1, key));
+    EXPECT_EQ("b", key);
+
+    cql::cql_int_t value = -1;
+    EXPECT_EQ(true, map->get_value_int(0, value));
+    EXPECT_EQ(1, value);
+
+    EXPECT_EQ(true, map->get_value_int(1, value));
+    EXPECT_EQ(2, value);
+
+    EXPECT_EQ(cql::CQL_COLUMN_TYPE_VARCHAR, map->key_type());
+    EXPECT_EQ(cql::CQL_COLUMN_TYPE_INT, map->value_type());
 }

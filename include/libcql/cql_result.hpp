@@ -156,19 +156,20 @@ namespace cql {
 
         virtual bool
         get_set(int i,
-                 cql::cql_set_t** output) const = 0;
+                cql::cql_set_t** output) const = 0;
 
         virtual bool
         get_set(const std::string& column,
-                 cql::cql_set_t** output) const = 0;
+                cql::cql_set_t** output) const = 0;
 
-        // virtual bool
-        // get_map(int i,
-        //         cql::cql_map_impl_t& output) const = 0;
+        virtual bool
+        get_map(int i,
+                cql::cql_map_t** output) const = 0;
 
-        // virtual bool
-        // get_map(const std::string& column,
-        //         cql::cql_map_impl_t& output) const = 0;
+        virtual bool
+        get_map(const std::string& column,
+                cql::cql_map_t** output) const = 0;
+
 
     };
 

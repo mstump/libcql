@@ -21,8 +21,6 @@
 #define CQL_LIST_IMPL_H_
 
 #include <vector>
-#include <boost/noncopyable.hpp>
-
 #include "libcql/cql.hpp"
 #include "libcql/cql_list.hpp"
 

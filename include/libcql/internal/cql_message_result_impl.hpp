@@ -175,11 +175,19 @@ namespace cql {
 
         bool
         get_set(int i,
-                 cql::cql_set_t** output) const;
+                cql::cql_set_t** output) const;
 
         bool
         get_set(const std::string& column,
-                 cql::cql_set_t** output) const;
+                cql::cql_set_t** output) const;
+
+        bool
+        get_map(int i,
+                cql::cql_map_t** output) const;
+
+        bool
+        get_map(const std::string& column,
+                cql::cql_map_t** output) const;
 
         inline bool
         is_valid(int i,
@@ -200,14 +208,6 @@ namespace cql {
 
             return (*reinterpret_cast<cql::cql_int_t*>(_row[i]) != 0);
         }
-
-        // bool
-        // get_map(int i,
-        //         cql::cql_map_impl_t& output) const;
-
-        // bool
-        // get_map(const std::string& column,
-        //         cql::cql_map_impl_t& output) const;
 
 
     private:
