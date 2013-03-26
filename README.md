@@ -28,7 +28,7 @@ In addition to the sample code below there is a fully functional [demo](https://
 
 
 ### Instantiate a client and connect to Cassandra
-```
+```c++
 #include <boost/asio.hpp>
 #include <libcql/cql.hpp>
 #include <libcql/cql_error.hpp>
@@ -59,7 +59,6 @@ connect_callback(cql::cql_client_t& client)
 {
     // Called after a successfull connection, or
     // if using SSL it's called after a successfull handshake.
-    // Lets perform an ad-hoc query.
 
     // perform a query
     client.query("use system;",
@@ -90,7 +89,7 @@ message_errback(cql::cql_client_t& client,
 
 
 ### Connect to the Cassandra cluster using a connection pool
-```
+```c++
 #include <boost/asio.hpp>
 #include <libcql/cql.hpp>
 #include <libcql/cql_error.hpp>
