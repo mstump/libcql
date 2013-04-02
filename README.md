@@ -17,18 +17,29 @@ A high performance implementation of the [Cassandra binary protocol](https://git
 - Event registration and notification
 
 ### TODO
+- Compression
 - More docs
 - Packaging for Linux and OSX
 - Integration tests
 - Query tracing
 
+## Building
+The library should build on OSX and Linux. The build-chain is CMake, so it should be fairly straight forward to get libcql to build on other systems, but no attempt has been made to do so.
+
+The library has two dependencies [Boost::Asio](http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio.html) and [OpenSSL](http://www.openssl.org/). It's required that Boost::Asio be installed prior to build. If OpenSSL isn't present (OSX 10.8) libcql will automaticly download, build, and staticly link the library.
+
+```
+git clone https://github.com/mstump/libcql
+cd libcql
+cmake . && make && make install
+```
 
 ## Examples
 In addition to the sample code below there is a fully functional [demo](https://github.com/mstump/libcql/blob/master/demo/main.cpp) which exploits most of the functionality of the library.
 
 
 ### Instantiate a client and connect to Cassandra
-```
+```c++
 #include <boost/asio.hpp>
 #include <libcql/cql.hpp>
 #include <libcql/cql_error.hpp>
@@ -59,7 +70,6 @@ connect_callback(cql::cql_client_t& client)
 {
     // Called after a successfull connection, or
     // if using SSL it's called after a successfull handshake.
-    // Lets perform an ad-hoc query.
 
     // perform a query
     client.query("use system;",
@@ -90,7 +100,7 @@ message_errback(cql::cql_client_t& client,
 
 
 ### Connect to the Cassandra cluster using a connection pool
-```
+```c++
 #include <boost/asio.hpp>
 #include <libcql/cql.hpp>
 #include <libcql/cql_error.hpp>
