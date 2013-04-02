@@ -2,12 +2,20 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
 set(PROJECT_NAME_STR cql)
 project(${PROJECT_NAME_STR} C CXX)
 
-set(EXT_PREFIX ${PROJECT_SOURCE_DIR}/ext)
-set(CMAKE_MODULE_PATH ${EXT_PREFIX})
+#-------------------
+# The version number
+#-------------------
+
+set (libcql_VERSION_MAJOR 0)
+set (libcql_VERSION_MINOR 5)
+set (libcql_VERSION_STRING ${libcql_VERSION_MAJOR}.${libcql_VERSION_MINOR})
 
 #-------------------
 # setup deps
 #-------------------
+
+set(EXT_PREFIX ${PROJECT_SOURCE_DIR}/ext)
+set(CMAKE_MODULE_PATH ${EXT_PREFIX})
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   include(openssl)
@@ -58,17 +66,42 @@ add_library(${PROJECT_LIB_NAME} SHARED ${SRC_FILES})
 add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})
 target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
 
-install(DIRECTORY ${PROJECT_INCLUDE_DIR}/libcql
-  DESTINATION include
-  FILES_MATCHING
-  PATTERN "*.hpp")
+
+#-------------------
+# install target
+#-------------------
+
+FILE(GLOB INSTALL_HEADERS "${PROJECT_INCLUDE_DIR}/libcql/*.hpp")
+INSTALL(FILES ${INSTALL_HEADERS} DESTINATION include/libcql-${libcql_VERSION_STRING}/libcql)
 
 INSTALL(TARGETS ${PROJECT_LIB_NAME}-static ${PROJECT_LIB_NAME}
-  RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+  RUNTIME DESTINATION bin/libcql-${libcql_VERSION_STRING}
+  LIBRARY DESTINATION lib/libcql-${libcql_VERSION_STRING}
+  ARCHIVE DESTINATION lib/libcql-${libcql_VERSION_STRING})
 
+
+#-------------------
+# uninstall target
+#-------------------
+
+configure_file(
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake_uninstall.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake"
+    IMMEDIATE @ONLY)
+
+add_custom_target(uninstall
+    COMMAND ${CMAKE_COMMAND} -P ${CMAKE_CURRENT_BINARY_DIR}/cmake_uninstall.cmake)
+
+
+#-------------------
+# unit tests
+#-------------------
 
 enable_testing()
-add_subdirectory(demo)
 add_subdirectory(test/unit_tests)
+
+#-------------------
+# the demo program
+#-------------------
+
+add_subdirectory(demo)

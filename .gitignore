@@ -17,6 +17,7 @@ CMakeFiles
 CMakeCache.txt
 Makefile
 cmake_install.cmake
+cmake_uninstall.cmake
 CTestTestfile.cmake
 install_manifest.txt
 
