@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
 set(PROJECT_NAME_STR cql)
 project(${PROJECT_NAME_STR} C CXX)
 
@@ -26,7 +26,9 @@ endif()
 include(gtest)
 
 # Find Boost
-set(Boost_USE_STATIC_LIBS ON)
+if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
+  set(Boost_USE_STATIC_LIBS ON)
+endif()
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
 find_package(Boost 1.49.0 COMPONENTS system)
