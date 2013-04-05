@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 set(PROJECT_NAME_STR cql)
 project(${PROJECT_NAME_STR} C CXX)
 
@@ -18,9 +18,9 @@ set(EXT_PREFIX ${PROJECT_SOURCE_DIR}/ext)
 set(CMAKE_MODULE_PATH ${EXT_PREFIX})
 
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  include(openssl)
+  include(OpenSSL)
 else()
-  find_package(openssl)
+  find_package(OpenSSL)
 endif()
 
 include(gtest)
@@ -29,7 +29,7 @@ include(gtest)
 set(Boost_USE_STATIC_LIBS ON)
 set(Boost_USE_MULTITHREADED ON)
 set(Boost_USE_STATIC_RUNTIME ON)
-find_package(Boost 1.49.0 COMPONENTS system)
+find_package(Boost 1.46.0 COMPONENTS system)
 
 add_custom_target (AppDependencies ALL
   DEPENDS ${APP_DEPENDENCIES}
