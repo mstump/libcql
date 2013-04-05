@@ -4,7 +4,7 @@
 
 if(NOT gtest_NAME)
 
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.10)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 
 include(ExternalProject)
 

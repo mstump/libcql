@@ -231,8 +231,8 @@ TEST(cql_message_result_cpp, next_next)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    EXPECT_EQ(true, m.next());
-    EXPECT_EQ(false, m.next());
+    EXPECT_TRUE(m.next());
+    EXPECT_FALSE(m.next());
 }
 
 TEST(cql_message_result_cpp, deserialize_string_name)
@@ -354,7 +354,7 @@ TEST(cql_message_result_cpp, deserialize_data_0)
 
     EXPECT_EQ(true, m.get_data(0, &data, size));
     EXPECT_EQ(5, size);
-    EXPECT_STREQ(test_str, reinterpret_cast<const char*>(data));
+    EXPECT_TRUE(memcmp(test_str, reinterpret_cast<const char*>(data), sizeof(test_str)) == 0);
 }
 
 TEST(cql_message_result_cpp, deserialize_data_10)
@@ -415,7 +415,7 @@ TEST(cql_message_result_cpp, deserialize_list)
     EXPECT_EQ(true, value);
 
     EXPECT_EQ(true, list->get_bool(2, value));
-    EXPECT_EQ(false, value);
+    EXPECT_FALSE(value);
 
     EXPECT_EQ(cql::CQL_COLUMN_TYPE_BOOLEAN, list->element_type());
 }

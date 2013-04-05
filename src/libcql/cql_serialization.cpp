@@ -18,6 +18,7 @@
 */
 
 #include <vector>
+#include <arpa/inet.h>
 #include <boost/foreach.hpp>
 #include <boost/detail/endian.hpp>
 #include "libcql/internal/cql_defines.hpp"
@@ -60,7 +61,7 @@ builtin ntoh(const builtin input) {
         } in, out;
 
         in.data = input;
-        for (int i = 0 ; i < sizeof(builtin); i++) {
+        for (size_t i = 0 ; i < sizeof(builtin); i++) {
             out.buffer[i] = in.buffer[sizeof(builtin) - i - 1];
         }
 

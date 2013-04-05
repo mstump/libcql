@@ -258,7 +258,7 @@ cql::cql_message_result_impl_t::get_index(const std::string& column,
 bool
 cql::cql_message_result_impl_t::next()
 {
-    if (_row_pos >= _row_count) {
+    if (_row_pos >= (unsigned) _row_count) {
         return false;
     }
     _row.clear();
