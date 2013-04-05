@@ -37,10 +37,10 @@
 namespace cql {
 
     // Forward declarations
-    class cql_error_t;
     class cql_event_t;
     class cql_result_t;
     class cql_execute_t;
+    struct cql_error_t;
 
     class cql_client_pool_impl_t :
         public cql_client_pool_t,
@@ -62,6 +62,9 @@ namespace cql {
                                cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback,
                                cql::cql_client_pool_t::cql_log_callback_t     log_callback,
                                size_t                                         reconnect_limit);
+
+        virtual
+        ~cql_client_pool_impl_t(){};
 
         void
         add_client(const std::string& server,

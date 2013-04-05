@@ -77,6 +77,8 @@ namespace cql {
             _port(0),
             _resolver(io_service),
             _transport(transport),
+            _stream_counter(0),
+            _request_buffer(0),
             _connect_callback(0),
             _connect_errback(0),
             _log_callback(0),
@@ -84,8 +86,7 @@ namespace cql {
             _event_callback(0),
             _defunct(false),
             _ready(false),
-            _closing(false),
-            _request_buffer(0)
+            _closing(false)
         {}
 
         cql_client_impl_t(boost::asio::io_service& io_service,
@@ -94,6 +95,8 @@ namespace cql {
             _port(0),
             _resolver(io_service),
             _transport(transport),
+            _stream_counter(0),
+            _request_buffer(0),
             _connect_callback(0),
             _connect_errback(0),
             _log_callback(log_callback),
@@ -101,8 +104,7 @@ namespace cql {
             _event_callback(0),
             _defunct(false),
             _ready(false),
-            _closing(false),
-            _request_buffer(0)
+            _closing(false)
         {}
 
         void

@@ -35,10 +35,10 @@
 namespace cql {
 
     // Forward declarations
-    class cql_error_t;
     class cql_event_t;
     class cql_result_t;
     class cql_execute_t;
+    struct cql_error_t;
 
     class cql_client_t :
         boost::noncopyable

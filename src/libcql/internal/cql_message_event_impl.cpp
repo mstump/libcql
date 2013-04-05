@@ -26,20 +26,20 @@
 
 cql::cql_message_event_impl_t::cql_message_event_impl_t() :
     _buffer(new std::vector<cql_byte_t>(0)),
-    _port(0),
     _event_type(CQL_EVENT_TYPE_UNKOWN),
     _topology_change(CQL_EVENT_TOPOLOGY_UNKNOWN),
+    _schema_change(CQL_EVENT_SCHEMA_UNKNOWN),
     _status_change(CQL_EVENT_STATUS_UNKNOWN),
-    _schema_change(CQL_EVENT_SCHEMA_UNKNOWN)
+    _port(0)
 {}
 
 cql::cql_message_event_impl_t::cql_message_event_impl_t(size_t size) :
     _buffer(new std::vector<cql_byte_t>(size)),
-    _port(0),
     _event_type(CQL_EVENT_TYPE_UNKOWN),
     _topology_change(CQL_EVENT_TOPOLOGY_UNKNOWN),
+    _schema_change(CQL_EVENT_SCHEMA_UNKNOWN),
     _status_change(CQL_EVENT_STATUS_UNKNOWN),
-    _schema_change(CQL_EVENT_SCHEMA_UNKNOWN)
+    _port(0)
 {}
 
 cql::cql_message_buffer_t

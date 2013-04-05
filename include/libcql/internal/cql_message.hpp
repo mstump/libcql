@@ -26,7 +26,7 @@
 #include "libcql/cql.hpp"
 
 namespace cql {
-    class cql_error_t;
+    struct cql_error_t;
 
     typedef boost::shared_ptr<std::vector<cql::cql_byte_t> > cql_message_buffer_t;
 

@@ -47,10 +47,7 @@ set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} )
 #-------------------
 # libcql static and shared
 #-------------------
-
-if(CMAKE_COMPILER_IS_GNUCXX)
-  add_definitions(-Wall -ansi -Wno-deprecated -pthread)
-endif()
+add_definitions(-Wall -Werror -ansi -Wno-deprecated -pthread)
 
 set(PROJECT_LIB_NAME ${PROJECT_NAME_STR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin/")

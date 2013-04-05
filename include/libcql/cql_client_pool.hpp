@@ -32,10 +32,10 @@ namespace cql {
 
     // Forward declarations
     class cql_client_t;
-    class cql_error_t;
     class cql_event_t;
     class cql_result_t;
     class cql_execute_t;
+    struct cql_error_t;
 
     class cql_client_pool_t
     {
@@ -47,6 +47,8 @@ namespace cql {
         typedef boost::function<void(cql_client_pool_t*, cql::cql_client_t&, const cql::cql_error_t&)> cql_connection_errback_t;
         typedef boost::function<void(const cql::cql_short_t, const std::string&)>                      cql_log_callback_t;
 
+        virtual
+        ~cql_client_pool_t(){};
 
         virtual void
         add_client(const std::string& server,

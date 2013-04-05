@@ -31,7 +31,6 @@
 
 #include "libcql/internal/cql_message_result_impl.hpp"
 
-
 std::string
 result_type_string(cql::cql_short_t t)
 {
@@ -65,8 +64,8 @@ cql::cql_message_result_impl_t::cql_message_result_impl_t() :
     _row_pos(0),
     _row_count(0),
     _column_count(0),
-    _result_type(cql::CQL_RESULT_VOID),
-    _query_id(0)
+    _query_id(0),
+    _result_type(cql::CQL_RESULT_VOID)
 {}
 
 cql::cql_message_result_impl_t::cql_message_result_impl_t(size_t size) :
@@ -75,8 +74,8 @@ cql::cql_message_result_impl_t::cql_message_result_impl_t(size_t size) :
     _row_pos(0),
     _row_count(0),
     _column_count(0),
-    _result_type(cql::CQL_RESULT_VOID),
-    _query_id(0)
+    _query_id(0),
+    _result_type(cql::CQL_RESULT_VOID)
 {}
 
 cql::cql_message_buffer_t

@@ -25,7 +25,7 @@
 
 namespace cql {
 
-    class cql_error_t;
+    struct cql_error_t;
 
     class cql_header_impl_t {
 
