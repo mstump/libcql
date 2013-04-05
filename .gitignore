@@ -15,10 +15,13 @@
 # cmake output
 CMakeFiles
 CMakeCache.txt
+CTestTestfile.cmake
 Makefile
 cmake_install.cmake
 cmake_uninstall.cmake
-CTestTestfile.cmake
+libcql-config-version.cmake
+libcql-config.cmake
+libcql-targets.cmake
 install_manifest.txt
 
 # build files
