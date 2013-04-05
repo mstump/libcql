@@ -97,29 +97,29 @@ namespace cql {
     };
 
     enum cql_event_enum {
-        CQL_EVENT_TYPE_UNKOWN,
-        CQL_EVENT_TYPE_TOPOLOGY,
-        CQL_EVENT_TYPE_STATUS,
-        CQL_EVENT_TYPE_SCHEMA
+        CQL_EVENT_TYPE_UNKOWN   = 0x00,
+        CQL_EVENT_TYPE_TOPOLOGY = 0x01,
+        CQL_EVENT_TYPE_STATUS   = 0x02,
+        CQL_EVENT_TYPE_SCHEMA   = 0x03
     };
 
     enum cql_event_schema_enum {
-        CQL_EVENT_SCHEMA_UNKNOWN,
-        CQL_EVENT_SCHEMA_CREATED,
-        CQL_EVENT_SCHEMA_DROPPED,
-        CQL_EVENT_SCHEMA_UPDATED
+        CQL_EVENT_SCHEMA_UNKNOWN = 0x00,
+        CQL_EVENT_SCHEMA_CREATED = 0x01,
+        CQL_EVENT_SCHEMA_DROPPED = 0x02,
+        CQL_EVENT_SCHEMA_UPDATED = 0x03
     };
 
     enum cql_event_status_enum {
-        CQL_EVENT_STATUS_UNKNOWN,
-        CQL_EVENT_STATUS_UP,
-        CQL_EVENT_STATUS_DOWN
+        CQL_EVENT_STATUS_UNKNOWN = 0x00,
+        CQL_EVENT_STATUS_UP      = 0x01,
+        CQL_EVENT_STATUS_DOWN    = 0x02
     };
 
     enum cql_event_topology_enum {
-        CQL_EVENT_TOPOLOGY_UNKNOWN,
-        CQL_EVENT_TOPOLOGY_ADD_NODE,
-        CQL_EVENT_TOPOLOGY_REMOVE_NODE
+        CQL_EVENT_TOPOLOGY_UNKNOWN     = 0x00,
+        CQL_EVENT_TOPOLOGY_ADD_NODE    = 0x01,
+        CQL_EVENT_TOPOLOGY_REMOVE_NODE = 0x02,
     };
 
 } // namespace cql
