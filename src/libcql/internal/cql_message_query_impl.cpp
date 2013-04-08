@@ -19,6 +19,7 @@
 
 #include <iomanip>
 #include <sstream>
+#include <arpa/inet.h>
 #include "libcql/cql_vector_stream.hpp"
 #include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"

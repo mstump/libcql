@@ -41,31 +41,31 @@ namespace cql {
         custom_class() const = 0;
 
         virtual bool
-        get_bool(int i,
+        get_bool(size_t i,
                  bool& output) const = 0;
 
         virtual bool
-        get_int(int i,
+        get_int(size_t i,
                 cql_int_t& output) const = 0;
 
         virtual bool
-        get_float(int i,
+        get_float(size_t i,
                   float& output) const = 0;
 
         virtual bool
-        get_double(int i,
+        get_double(size_t i,
                    double& output) const = 0;
 
         virtual bool
-        get_bigint(int i,
+        get_bigint(size_t i,
                    cql::cql_bigint_t& output) const = 0;
 
         virtual bool
-        get_string(int i,
+        get_string(size_t i,
                    std::string& output) const = 0;
 
         virtual bool
-        get_data(int i,
+        get_data(size_t i,
                  cql::cql_byte_t** output,
                  cql::cql_short_t& size) const = 0;
 

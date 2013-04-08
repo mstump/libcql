@@ -51,7 +51,7 @@ cql::cql_map_impl_t::cql_map_impl_t(cql::cql_byte_t*          start,
 }
 
 bool
-cql::cql_map_impl_t::get_key_bool(int i,
+cql::cql_map_impl_t::get_key_bool(size_t i,
                                   bool& output) const
 {
     if (i < 0 || i > _keys.size()) {
@@ -63,7 +63,7 @@ cql::cql_map_impl_t::get_key_bool(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_key_int(int i,
+cql::cql_map_impl_t::get_key_int(size_t i,
                                  cql_int_t& output) const
 {
     if (i < 0 || i > _keys.size()) {
@@ -75,7 +75,7 @@ cql::cql_map_impl_t::get_key_int(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_key_float(int i,
+cql::cql_map_impl_t::get_key_float(size_t i,
                                    float& output) const
 {
     if (i < 0 || i > _keys.size()) {
@@ -87,7 +87,7 @@ cql::cql_map_impl_t::get_key_float(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_key_double(int i,
+cql::cql_map_impl_t::get_key_double(size_t i,
                                     double& output) const
 {
     if (i < 0 || i > _keys.size()) {
@@ -99,7 +99,7 @@ cql::cql_map_impl_t::get_key_double(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_key_bigint(int i,
+cql::cql_map_impl_t::get_key_bigint(size_t i,
                                     cql::cql_bigint_t& output) const
 {
     if (i < 0 || i > _keys.size()) {
@@ -111,7 +111,7 @@ cql::cql_map_impl_t::get_key_bigint(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_key_string(int i,
+cql::cql_map_impl_t::get_key_string(size_t i,
                                     std::string& output) const
 {
     cql_byte_t* data = 0;
@@ -124,7 +124,7 @@ cql::cql_map_impl_t::get_key_string(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_key_data(int i,
+cql::cql_map_impl_t::get_key_data(size_t i,
                                   cql::cql_byte_t** output,
                                   cql::cql_short_t& size) const
 {
@@ -137,7 +137,7 @@ cql::cql_map_impl_t::get_key_data(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_bool(int i,
+cql::cql_map_impl_t::get_value_bool(size_t i,
                                   bool& output) const
 {
     if (i < 0 || i > _values.size()) {
@@ -149,7 +149,7 @@ cql::cql_map_impl_t::get_value_bool(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_int(int i,
+cql::cql_map_impl_t::get_value_int(size_t i,
                                  cql_int_t& output) const
 {
     if (i < 0 || i > _values.size()) {
@@ -161,7 +161,7 @@ cql::cql_map_impl_t::get_value_int(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_float(int i,
+cql::cql_map_impl_t::get_value_float(size_t i,
                                    float& output) const
 {
     if (i < 0 || i > _values.size()) {
@@ -173,7 +173,7 @@ cql::cql_map_impl_t::get_value_float(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_double(int i,
+cql::cql_map_impl_t::get_value_double(size_t i,
                                     double& output) const
 {
     if (i < 0 || i > _values.size()) {
@@ -185,7 +185,7 @@ cql::cql_map_impl_t::get_value_double(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_bigint(int i,
+cql::cql_map_impl_t::get_value_bigint(size_t i,
                                     cql::cql_bigint_t& output) const
 {
     if (i < 0 || i > _values.size()) {
@@ -197,7 +197,7 @@ cql::cql_map_impl_t::get_value_bigint(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_string(int i,
+cql::cql_map_impl_t::get_value_string(size_t i,
                                     std::string& output) const
 {
     cql_byte_t* data = 0;
@@ -210,7 +210,7 @@ cql::cql_map_impl_t::get_value_string(int i,
 }
 
 bool
-cql::cql_map_impl_t::get_value_data(int i,
+cql::cql_map_impl_t::get_value_data(size_t i,
                                   cql::cql_byte_t** output,
                                   cql::cql_short_t& size) const
 {

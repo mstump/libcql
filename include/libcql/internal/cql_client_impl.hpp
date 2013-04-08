@@ -20,6 +20,11 @@
 #ifndef CQL_CLIENT_IMPL_H_
 #define CQL_CLIENT_IMPL_H_
 
+// Required to use stdint.h
+#ifndef __STDC_LIMIT_MACROS
+#define __STDC_LIMIT_MACROS
+#endif
+
 #include <iomanip>
 #include <iostream>
 #include <istream>
@@ -28,6 +33,7 @@
 #include <string>
 
 #include <boost/asio.hpp>
+#include <boost/asio/connect.hpp>
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -61,7 +67,6 @@ namespace cql {
 
     template <typename cql_transport_t>
     class cql_client_impl_t :
-        boost::noncopyable,
         public cql::cql_client_t
     {
 

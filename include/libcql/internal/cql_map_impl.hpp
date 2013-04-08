@@ -40,60 +40,60 @@ namespace cql {
                        std::string&              value_custom_class);
 
         bool
-        get_key_bool(int i,
+        get_key_bool(size_t i,
                      bool& output) const;
 
         bool
-        get_key_int(int i,
+        get_key_int(size_t i,
                     cql_int_t& output) const;
 
         bool
-        get_key_float(int i,
+        get_key_float(size_t i,
                       float& output) const;
 
         bool
-        get_key_double(int i,
+        get_key_double(size_t i,
                        double& output) const;
 
         bool
-        get_key_bigint(int i,
+        get_key_bigint(size_t i,
                        cql::cql_bigint_t& output) const;
 
         bool
-        get_key_string(int i,
+        get_key_string(size_t i,
                        std::string& output) const;
 
         bool
-        get_key_data(int i,
+        get_key_data(size_t i,
                      cql::cql_byte_t** output,
                      cql::cql_short_t& size) const;
 
         bool
-        get_value_bool(int i,
+        get_value_bool(size_t i,
                        bool& output) const;
 
         bool
-        get_value_int(int i,
+        get_value_int(size_t i,
                       cql_int_t& output) const;
 
         bool
-        get_value_float(int i,
+        get_value_float(size_t i,
                         float& output) const;
 
         bool
-        get_value_double(int i,
+        get_value_double(size_t i,
                          double& output) const;
 
         bool
-        get_value_bigint(int i,
+        get_value_bigint(size_t i,
                          cql::cql_bigint_t& output) const;
 
         bool
-        get_value_string(int i,
+        get_value_string(size_t i,
                          std::string& output) const;
 
         bool
-        get_value_data(int i,
+        get_value_data(size_t i,
                        cql::cql_byte_t** output,
                        cql::cql_short_t& size) const;
 

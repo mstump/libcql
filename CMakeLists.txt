@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.9)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
 set(PROJECT_NAME_STR cql)
 project(${PROJECT_NAME_STR} C CXX)
 
@@ -13,35 +13,47 @@ set (libcql_VERSION_STRING ${libcql_VERSION_MAJOR}.${libcql_VERSION_MINOR})
 #-------------------
 # setup deps
 #-------------------
-
 set(EXT_PREFIX ${PROJECT_SOURCE_DIR}/ext)
 set(CMAKE_MODULE_PATH ${EXT_PREFIX})
 
-if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
-  include(openssl)
-else()
-  find_package(openssl)
-endif()
-
-include(gtest)
-
-# Find Boost
+# OS specific lib stuff
 if (${CMAKE_SYSTEM_NAME} MATCHES "Darwin")
   set(Boost_USE_STATIC_LIBS ON)
+  set(Boost_USE_STATIC_RUNTIME ON)
+
+  include(OpenSSL)
+  include(ZLib)
+  set(LIBS ${LIBS} ${openssl_STATIC_LIBRARIES} )
+  set(LIBS ${LIBS} ${zlib_STATIC_LIBRARIES} )
+else()
+  set(Boost_USE_STATIC_LIBS OFF)
+  set(Boost_USE_STATIC_RUNTIME OFF)
+
+  find_package(OpenSSL)
+  if (${OPENSSL_FOUND})
+    set(LIBS ${LIBS} ${OPENSSL_LIBRARIES} )
+  else()
+    message(FATAL_ERROR "couldn't find OpenSSL")
+  endif()
 endif()
+
+# Boost
 set(Boost_USE_MULTITHREADED ON)
-set(Boost_USE_STATIC_RUNTIME ON)
-find_package(Boost 1.49.0 COMPONENTS system)
+find_package(Boost 1.47.0 COMPONENTS system)
+set(LIBS ${LIBS} ${Boost_LIBRARIES} )
+
+# Threading
+find_package(Threads)
+set(LIBS ${LIBS} ${CMAKE_THREAD_LIBS_INIT} )
+
+# google test
+include(gtest)
 
 add_custom_target (AppDependencies ALL
   DEPENDS ${APP_DEPENDENCIES}
   COMMENT "Installing any missing dependencies.")
 
-# Build up the lib and include pathes
-set(LIBS ${LIBS} ${Boost_LIBRARIES} )
-set(LIBS ${LIBS} ${zlib_STATIC_LIBRARIES} )
-set(LIBS ${LIBS} ${openssl_STATIC_LIBRARIES} )
-
+# Build up the include pathes
 set(INCLUDES ${INCLUDES} ${openssl_INCLUDE_DIRS} )
 set(INCLUDES ${INCLUDES} ${zlib_INCLUDE_DIRS} )
 set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} )
@@ -49,8 +61,6 @@ set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} )
 #-------------------
 # libcql static and shared
 #-------------------
-add_definitions(-Wall -Werror -ansi -Wno-deprecated -pthread)
-
 set(PROJECT_LIB_NAME ${PROJECT_NAME_STR})
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin/")
 set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
@@ -63,8 +73,16 @@ file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/libcql/internal/*.cpp ${PROJECT_SO
 
 add_library(${PROJECT_LIB_NAME} SHARED ${SRC_FILES})
 add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})
-target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
 
+set_property(
+  TARGET ${PROJECT_LIB_NAME}
+  APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread")
+
+set_property(
+  TARGET ${PROJECT_LIB_NAME}-static
+  APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread")
+
+target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
 
 #-------------------
 # install target

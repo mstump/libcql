@@ -42,7 +42,7 @@ cql::cql_set_impl_t::cql_set_impl_t(cql::cql_byte_t*          start,
 }
 
 bool
-cql::cql_set_impl_t::get_bool(int i,
+cql::cql_set_impl_t::get_bool(size_t i,
                               bool& output) const
 {
     if (i < 0 || i > _elements.size()) {
@@ -54,7 +54,7 @@ cql::cql_set_impl_t::get_bool(int i,
 }
 
 bool
-cql::cql_set_impl_t::get_int(int i,
+cql::cql_set_impl_t::get_int(size_t i,
                              cql_int_t& output) const
 {
     if (i < 0 || i > _elements.size()) {
@@ -66,7 +66,7 @@ cql::cql_set_impl_t::get_int(int i,
 }
 
 bool
-cql::cql_set_impl_t::get_float(int i,
+cql::cql_set_impl_t::get_float(size_t i,
                                float& output) const
 {
     if (i < 0 || i > _elements.size()) {
@@ -78,7 +78,7 @@ cql::cql_set_impl_t::get_float(int i,
 }
 
 bool
-cql::cql_set_impl_t::get_double(int i,
+cql::cql_set_impl_t::get_double(size_t i,
                                 double& output) const
 {
     if (i < 0 || i > _elements.size()) {
@@ -90,7 +90,7 @@ cql::cql_set_impl_t::get_double(int i,
 }
 
 bool
-cql::cql_set_impl_t::get_bigint(int i,
+cql::cql_set_impl_t::get_bigint(size_t i,
                                 cql::cql_bigint_t& output) const
 {
     if (i < 0 || i > _elements.size()) {
@@ -102,7 +102,7 @@ cql::cql_set_impl_t::get_bigint(int i,
 }
 
 bool
-cql::cql_set_impl_t::get_string(int i,
+cql::cql_set_impl_t::get_string(size_t i,
                                 std::string& output) const
 {
     cql_byte_t* data = 0;
@@ -115,7 +115,7 @@ cql::cql_set_impl_t::get_string(int i,
 }
 
 bool
-cql::cql_set_impl_t::get_data(int i,
+cql::cql_set_impl_t::get_data(size_t i,
                               cql::cql_byte_t** output,
                               cql::cql_short_t& size) const
 {

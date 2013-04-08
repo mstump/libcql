@@ -23,6 +23,7 @@
 #include <string>
 #include <vector>
 #include <boost/noncopyable.hpp>
+#include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 
 #include "libcql/cql.hpp"
