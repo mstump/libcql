@@ -45,7 +45,7 @@ bool
 cql::cql_set_impl_t::get_bool(size_t i,
                               bool& output) const
 {
-    if (i < 0 || i > _elements.size()) {
+    if (i > _elements.size()) {
         return false;
     }
 
@@ -57,7 +57,7 @@ bool
 cql::cql_set_impl_t::get_int(size_t i,
                              cql_int_t& output) const
 {
-    if (i < 0 || i > _elements.size()) {
+    if (i > _elements.size()) {
         return false;
     }
 
@@ -69,7 +69,7 @@ bool
 cql::cql_set_impl_t::get_float(size_t i,
                                float& output) const
 {
-    if (i < 0 || i > _elements.size()) {
+    if (i > _elements.size()) {
         return false;
     }
 
@@ -81,7 +81,7 @@ bool
 cql::cql_set_impl_t::get_double(size_t i,
                                 double& output) const
 {
-    if (i < 0 || i > _elements.size()) {
+    if (i > _elements.size()) {
         return false;
     }
 
@@ -93,7 +93,7 @@ bool
 cql::cql_set_impl_t::get_bigint(size_t i,
                                 cql::cql_bigint_t& output) const
 {
-    if (i < 0 || i > _elements.size()) {
+    if (i > _elements.size()) {
         return false;
     }
 
@@ -119,7 +119,7 @@ cql::cql_set_impl_t::get_data(size_t i,
                               cql::cql_byte_t** output,
                               cql::cql_short_t& size) const
 {
-    if (i < 0 || i > _elements.size()) {
+    if (i > _elements.size()) {
         return false;
     }
 
