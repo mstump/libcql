@@ -236,7 +236,7 @@ cql::cql_message_execute_impl_t::prepare(cql::cql_error_t* err)
 {
     size_t size = (3 * sizeof(cql_short_t)) + _query_id.size();
     BOOST_FOREACH(const param_t& p, _params) {
-        size += p.size() + sizeof(cql_short_t);
+        size += p.size() + sizeof(cql_int_t);
     }
     _buffer->resize(size);
 
