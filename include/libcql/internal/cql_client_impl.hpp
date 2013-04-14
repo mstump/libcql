@@ -31,6 +31,7 @@
 #include <ostream>
 #include <stdint.h>
 #include <string>
+#include <vector>
 
 #include <boost/asio.hpp>
 #include <boost/asio/connect.hpp>
@@ -381,13 +382,17 @@ namespace cql {
 
             log(CQL_LOG_DEBUG, "sending message: " + header.str() + " " + message->str());
 
-            boost::asio::async_write(*_transport, boost::asio::buffer(&(*header.buffer())[0], header.size()), callback);
+            std::vector<boost::asio::const_buffer> buf;
+            buf.push_back(boost::asio::buffer(&(*header.buffer())[0], header.size()));
             _request_buffer.push_back(header.buffer());
-
             if (header.length() != 0) {
-                boost::asio::async_write(*_transport, boost::asio::buffer(&(*message->buffer())[0], message->size()), callback);
+                buf.push_back(boost::asio::buffer(&(*message->buffer())[0], message->size()));
                 _request_buffer.push_back(message->buffer());
             }
+            else {
+                _request_buffer.push_back(cql_message_buffer_t());
+            }
+            boost::asio::async_write(*_transport, buf, callback);
 
             // we have to keep the buffers around until the write is complete
             return id;
@@ -400,6 +405,9 @@ namespace cql {
             if (!_request_buffer.empty()) {
                 // the write request is complete free the request buffers
                 _request_buffer.pop_front();
+                if (!_request_buffer.empty()) {
+                    _request_buffer.pop_front();
+                }
             }
             if (!err) {
                 log(CQL_LOG_DEBUG, "wrote to socket " + boost::lexical_cast<std::string>(num_bytes) + " bytes");
