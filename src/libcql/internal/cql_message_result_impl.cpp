@@ -267,7 +267,9 @@ cql::cql_message_result_impl_t::next()
         _row.push_back(_pos);
         cql::cql_int_t len = 0;
         _pos = cql::decode_int(_pos, len);
-        _pos += len;
+        if (len >= 0) {
+            _pos += len;
+        }
     }
 
     _row_pos++;
@@ -282,7 +284,8 @@ cql::cql_message_result_impl_t::is_null(int i,
         return false;
     }
 
-    output = (*reinterpret_cast<cql::cql_int_t*>(_row[i]) == 0);
+    cql::cql_int_t row_size = (*reinterpret_cast<cql::cql_int_t*>(_row[i]));
+    output = row_size <= 0;
     return true;
 }
 

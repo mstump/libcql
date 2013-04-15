@@ -76,11 +76,11 @@ add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})
 
 set_property(
   TARGET ${PROJECT_LIB_NAME}
-  APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread")
+  APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread -g")
 
 set_property(
   TARGET ${PROJECT_LIB_NAME}-static
-  APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread")
+  APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread -g")
 
 target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
 

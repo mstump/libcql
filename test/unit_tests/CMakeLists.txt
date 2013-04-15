@@ -1,4 +1,3 @@
-
 #-------------------
 # Test
 #-------------------
@@ -11,9 +10,9 @@ file(GLOB TEST_SRC_FILES *.cpp)
 add_executable(${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
 target_link_libraries(${PROJECT_TEST_NAME} ${gtest_STATIC_LIBRARIES} ${LIBS} ${PROJECT_LIB_NAME} ${zlib_LIBRARIES} ${OpenSSL_LIBRARIES} "pthread")
 
-# set_property(
-#   TARGET ${PROJECT_TEST_NAME}
-#   APPEND PROPERTY CMAKE_SHARED_LINKER_FLAGS)
+set_property(
+  TARGET ${PROJECT_TEST_NAME}
+  APPEND PROPERTY COMPILE_FLAGS "-g")
 
 add_dependencies(${PROJECT_TEST_NAME} gtest)
 

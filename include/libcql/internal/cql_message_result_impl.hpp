@@ -193,7 +193,8 @@ namespace cql {
         is_valid(int i,
                  cql::cql_column_type_enum column_type) const
         {
-            if (i > _column_count || i < 0) {
+            bool index_null = false;
+            if (!is_null(i, index_null) || index_null) {
                 return false;
             }
 

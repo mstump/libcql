@@ -31,6 +31,8 @@
 //     VALUES ('ascii', 9223372036854775807, 'DEADBEEF', true, 3.14345321, 3.14345321, 3.14, 314, 'text', 1240003134, '21c9b031-a3dc-4556-b42f-12c2867c7d4a',
 //     'afbfe1e0-80ff-11e2-9e96-0800200c9a66', 'varchar', 170141183460469231731687303715884105727, {1, 2, 3}, [true, true, false], {'a' : 1, 'b' : 2});
 
+// INSERT INTO test_cf (ascii, blob, text, varchar, varint, a_set, a_list, a_map) VALUES ('ascii', '', '', '', 0, {}, [], {});
+
 
 char TEST_MESSAGE_RESULT[] = { 0x00, 0x00, 0x00, 0x02, // result_type(int=2)
                                0x00, 0x00, 0x00, 0x01, // metadata flags(int=1)
@@ -54,8 +56,10 @@ char TEST_MESSAGE_RESULT[] = { 0x00, 0x00, 0x00, 0x02, // result_type(int=2)
                                0x00, 0x04, 0x75, 0x75, 0x69, 0x64, 0x00, 0x0c, // 14 'uuid' type=uuid
                                0x00, 0x07, 0x76, 0x61, 0x72, 0x63, 0x68, 0x61, 0x72, 0x00, 0x0d, // 15 'varchar' type=varchar
                                0x00, 0x06, 0x76, 0x61, 0x72, 0x69, 0x6e, 0x74, 0x00, 0x0e, // 16 'varint' type=varint
-                               0x00, 0x00, 0x00, 0x01, // row_count(int=1)
-                               0x00, 0x00, 0x00, 0x05, 0x61, 0x73, 0x63, 0x69, 0x69, // 0 ascii(ascii)
+                               0x00, 0x00, 0x00, 0x02, // row_count(int=1)
+
+                               // begin row 0
+                               0x00, 0x00, 0x00, 0x05, 0x61, 0x73, 0x63, 0x69, 0x69, // 0 ascii('ascii')
                                0x00, 0x00, 0x00, 0x0b, // 1 list(true, true, false)
                                0x00, 0x03, // list size of 3
                                0x00, 0x01, 0x01, // list item true
@@ -84,7 +88,31 @@ char TEST_MESSAGE_RESULT[] = { 0x00, 0x00, 0x00, 0x02, // result_type(int=2)
                                0x00, 0x00, 0x00, 0x10, 0xaf, 0xbf, 0xe1, 0xe0, 0x80, 0xff, 0x11, 0xe2, 0x9e, 0x96, 0x08, 0x00, 0x20, 0x0c, 0x9a, 0x66, // 13 timeuuid(afbfe1e0-80ff-11e2-9e96-0800200c9a66)
                                0x00, 0x00, 0x00, 0x10, 0x21, 0xc9, 0xb0, 0x31, 0xa3, 0xdc, 0x45, 0x56, 0xb4, 0x2f, 0x12, 0xc2, 0x86, 0x7c, 0x7d, 0x4a, // 14 uuid(21c9b031-a3dc-4556-b42f-12c2867c7d4a)
                                0x00, 0x00, 0x00, 0x07, 0x76, 0x61, 0x72, 0x63, 0x68, 0x61, 0x72, // 15 varchar('varchar')
-                               0x00, 0x00, 0x00, 0x10, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff }; // 16 varint(170141183460469231731687303715884105727)
+                               0x00, 0x00, 0x00, 0x10, 0x7f, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, 0xff, // 16 varint(170141183460469231731687303715884105727)
+
+                               // begin row 1 (mostly null)
+                               0x00, 0x00, 0x00, 0x06, 0x61, 0x73, 0x63, 0x69, 0x69, 0x32, // 0 ascii('ascii2')
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0x00, 0x00, 0x00, 0x00, // 5
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0x00, 0x00, 0x00, 0x00, // 11
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0xff, 0xff, 0xff, 0xff,
+                               0x00, 0x00, 0x00, 0x00, // 15
+                               0x00, 0x00, 0x00, 0x01, 0x00 };
+
+
+
+
+
 
 TEST(cql_message_result_cpp, opcode)
 {
@@ -141,7 +169,7 @@ TEST(cql_message_result_cpp, serialization_from_byte_row_count)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    EXPECT_EQ(1, m.row_count());
+    EXPECT_EQ(2, m.row_count());
 }
 
 TEST(cql_message_result_cpp, serialization_from_byte_column_count)
@@ -231,6 +259,7 @@ TEST(cql_message_result_cpp, next_next)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
+    EXPECT_TRUE(m.next());
     EXPECT_TRUE(m.next());
     EXPECT_FALSE(m.next());
 }
@@ -475,4 +504,40 @@ TEST(cql_message_result_cpp, deserialize_map)
 
     EXPECT_EQ(cql::CQL_COLUMN_TYPE_VARCHAR, map->key_type());
     EXPECT_EQ(cql::CQL_COLUMN_TYPE_INT, map->value_type());
+}
+
+TEST(cql_message_result_cpp, null_columns_map)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+    EXPECT_EQ(true, m.next());
+
+    bool is_null = false;
+    EXPECT_EQ(true, m.is_null(2, is_null));
+    EXPECT_EQ(true, is_null);
+
+    cql::cql_map_t* map = NULL;
+    EXPECT_EQ(false, m.get_map(2, &map));
+    EXPECT_EQ(NULL, map);
+}
+
+TEST(cql_message_result_cpp, null_columns_text)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    EXPECT_EQ(true, m.next());
+    EXPECT_EQ(true, m.next());
+
+    bool is_null = false;
+    EXPECT_EQ(true, m.is_null(11, is_null));
+    EXPECT_EQ(true, is_null);
+
+    std::string val;
+    EXPECT_EQ(false, m.get_string(11, val));
+    EXPECT_EQ(true, val.empty());
 }
