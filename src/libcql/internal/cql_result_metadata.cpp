@@ -19,9 +19,15 @@
 
 #include <sstream>
 #include <boost/algorithm/string/join.hpp>
+#include <boost/unordered/unordered_map.hpp>
+#if BOOST_VERION >= 104300
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#else
+#include <algorithm>
+#include <ext/functional>
+#endif
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/cql_serialization.hpp"
 
@@ -47,10 +53,14 @@ std::string
 cql::cql_result_metadata_t::str() const
 {
     std::list<std::string> columns;
+#if BOOST_VERSION >= 104300
     boost::copy(
         _column_name_idx | boost::adaptors::map_keys | boost::adaptors::transformed(column_name_to_str()),
         std::back_inserter(columns));
-
+#else
+    std::transform(_column_name_idx.begin(), _column_name_idx.end(), std::back_inserter(columns),
+        __gnu_cxx::compose1(column_name_to_str(), __gnu_cxx::select1st<column_name_idx_t::value_type>()));
+#endif
     std::stringstream output;
     output << "[" << boost::algorithm::join(columns, ", ") << "]";
     return output.str();

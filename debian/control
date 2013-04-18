@@ -1,0 +1,21 @@
+Source: libcql
+Section: devel
+Priority: extra
+Maintainer: A. Anonymous <a.anonymous@no.net>
+Build-Depends: debhelper (>= 5), cmake, make,
+	libssl-dev,
+	libboost-dev,
+	libboost-system-dev
+Standards-Version: 3.7.2
+
+Package: libcql0
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: LibCQL
+ LibCQL
+
+Package: libcql0-dev
+Architecture: any
+Depends: libcql0 (= ${binary:Version}), ${shlibs:Depends}, ${misc:Depends}
+Description: Dev files for libcql
+ Dev files for libcql

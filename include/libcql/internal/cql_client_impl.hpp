@@ -34,7 +34,9 @@
 #include <vector>
 
 #include <boost/asio.hpp>
+#if BOOST_VERSION >= 104800
 #include <boost/asio/connect.hpp>
+#endif
 #include <boost/asio/ssl.hpp>
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
@@ -282,8 +284,9 @@ namespace cql {
                 return _stream_counter++;
             }
             else {
+                cql::cql_stream_id_t tmp = _stream_counter;
                 _stream_counter = 0;
-                return _stream_counter;
+                return tmp;
             }
         }
 
@@ -305,11 +308,18 @@ namespace cql {
         {
             if (!err) {
                 log(CQL_LOG_DEBUG, "resolved remote host, attempting to connect");
+#if BOOST_VERSION >= 104800
                 boost::asio::async_connect(_transport->lowest_layer(),
                                            endpoint_iterator,
                                            boost::bind(&cql_client_impl_t::connect_handle,
                                                        this,
                                                        boost::asio::placeholders::error));
+#else
+                _transport->lowest_layer().async_connect(*endpoint_iterator,
+                                                         boost::bind(&cql_client_impl_t::connect_handle,
+                                                                     this,
+                                                                      boost::asio::placeholders::error));
+#endif
             }
             else {
                 log(CQL_LOG_CRITICAL, "error resolving remote host " + err.message());
@@ -423,7 +433,11 @@ namespace cql {
         {
             boost::asio::async_read(*_transport,
                                     boost::asio::buffer(&(*_response_header.buffer())[0], _response_header.size()),
+#if BOOST_VERSION >= 104800
                                     boost::asio::transfer_exactly(sizeof(cql::cql_header_impl_t)),
+#else
+                                    boost::asio::transfer_all(),
+#endif
                                     boost::bind(&cql_client_impl_t<cql_transport_t>::header_read_handle, this, boost::asio::placeholders::error));
         }
 
@@ -481,7 +495,11 @@ namespace cql {
 
             boost::asio::async_read(*_transport,
                                     boost::asio::buffer(&(*_response_message->buffer())[0], _response_message->size()),
+#if BOOST_VERSION >= 104800
                                     boost::asio::transfer_exactly(header.length()),
+#else
+                                    boost::asio::transfer_all(),
+#endif
                                     boost::bind(&cql_client_impl_t<cql_transport_t>::body_read_handle, this, header, boost::asio::placeholders::error));
         }
 

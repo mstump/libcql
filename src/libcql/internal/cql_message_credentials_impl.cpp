@@ -21,8 +21,13 @@
 #include <sstream>
 
 #include <boost/foreach.hpp>
+#if BOOST_VERION >= 104300
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/algorithm/copy.hpp>
+#else
+#include <algorithm>
+#include <ext/functional>
+#endif
 #include <boost/algorithm/string/join.hpp>
 
 #include "libcql/cql_vector_stream.hpp"
@@ -73,7 +78,11 @@ std::string
 cql::cql_message_credentials_impl_t::str() const
 {
     std::list<std::string> keys;
+#if BOOST_VERSION >= 104300
     boost::copy(_credentials | boost::adaptors::map_keys, std::back_inserter(keys));
+#else
+    std::transform(_credentials.begin(), _credentials.end(), std::back_inserter(keys), __gnu_cxx::select1st<credentials_map_t::value_type>());
+#endif
 
     std::stringstream output;
     output << "[" << boost::algorithm::join(keys, ", ") << "]";

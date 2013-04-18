@@ -7,7 +7,7 @@ set(PROJECT_TEST_NAME ${PROJECT_NAME_STR}_test)
 include_directories(${INCLUDES} ${PROJECT_SOURCE_DIR}/src/)
 
 file(GLOB TEST_SRC_FILES *.cpp)
-add_executable(${PROJECT_TEST_NAME} ${TEST_SRC_FILES})
+add_executable(${PROJECT_TEST_NAME} EXCLUDE_FROM_ALL ${TEST_SRC_FILES})
 target_link_libraries(${PROJECT_TEST_NAME} ${PROJECT_LIB_NAME} ${Boost_LIBRARIES} ${zlib_LIBRARIES} ${OpenSSL_LIBRARIES} "pthread")
 
 set_property(

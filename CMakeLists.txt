@@ -1,4 +1,4 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 2.8.7)
+CMAKE_MINIMUM_REQUIRED(VERSION 2.8.0)
 set(PROJECT_NAME_STR cql)
 project(${PROJECT_NAME_STR} C CXX)
 
@@ -71,6 +71,10 @@ file(GLOB SRC_FILES ${PROJECT_SOURCE_DIR}/src/libcql/internal/*.cpp ${PROJECT_SO
 add_library(${PROJECT_LIB_NAME} SHARED ${SRC_FILES})
 add_library(${PROJECT_LIB_NAME}-static STATIC ${SRC_FILES})
 
+target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
+SET_TARGET_PROPERTIES(${PROJECT_LIB_NAME}-static PROPERTIES OUTPUT_NAME ${PROJECT_LIB_NAME})
+SET_TARGET_PROPERTIES(${PROJECT_LIB_NAME} PROPERTIES VERSION ${libcql_VERSION_MAJOR}.${libcql_VERSION_MINOR} SOVERSION ${libcql_VERSION_MAJOR})
+
 set_property(
   TARGET ${PROJECT_LIB_NAME}
   APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread -g")
@@ -79,19 +83,17 @@ set_property(
   TARGET ${PROJECT_LIB_NAME}-static
   APPEND PROPERTY COMPILE_FLAGS "-Wall -Werror -ansi -Wno-deprecated -pthread -g")
 
-target_link_libraries(${PROJECT_LIB_NAME} ${LIBS})
-
 #-------------------
 # install target
 #-------------------
 
 FILE(GLOB INSTALL_HEADERS "${PROJECT_INCLUDE_DIR}/libcql/*.hpp")
-INSTALL(FILES ${INSTALL_HEADERS} DESTINATION include/libcql-${libcql_VERSION_STRING}/libcql)
+INSTALL(FILES ${INSTALL_HEADERS} DESTINATION include/libcql)
 
 INSTALL(TARGETS ${PROJECT_LIB_NAME}-static ${PROJECT_LIB_NAME}
-  RUNTIME DESTINATION bin/libcql-${libcql_VERSION_STRING}
-  LIBRARY DESTINATION lib/libcql-${libcql_VERSION_STRING}
-  ARCHIVE DESTINATION lib/libcql-${libcql_VERSION_STRING})
+  RUNTIME DESTINATION bin
+  LIBRARY DESTINATION lib
+  ARCHIVE DESTINATION lib)
 
 
 #-------------------
@@ -111,11 +113,11 @@ add_custom_target(uninstall
 # unit tests
 #-------------------
 
-enable_testing()
-add_subdirectory(test/unit_tests)
+#enable_testing()
+#add_subdirectory(test/unit_tests)
 
 #-------------------
 # the demo program
 #-------------------
 
-add_subdirectory(demo)
+add_subdirectory(demo EXCLUDE_FROM_ALL)

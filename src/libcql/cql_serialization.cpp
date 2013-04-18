@@ -32,9 +32,13 @@ swap_double(double source) {
     uint64_t swapped = byteswap_uint64(bytes);
     return *reinterpret_cast<double*>(&swapped);
 #else
-    uint64_t bytes = *reinterpret_cast<uint64_t*>(&source);
-    uint64_t swapped = __builtin_bswap64(bytes);
-    return *reinterpret_cast<double*>(&swapped);
+    union {
+	    uint64_t bytes;
+	    double src;
+    } q;
+    q.src = source;
+    q.bytes = __builtin_bswap64(q.bytes);
+    return q.src;
 #endif
 }
 
@@ -45,9 +49,13 @@ swap_float(float source) {
     uint32_t swapped = byteswap_uint32(bytes);
     return *reinterpret_cast<float*>(&swapped);
 #else
-    uint32_t bytes = *reinterpret_cast<uint32_t*>(&source);
-    uint32_t swapped = __builtin_bswap32(bytes);
-    return *reinterpret_cast<float*>(&swapped);
+    union {
+	    uint32_t bytes;
+	    float src;
+    } q;
+    q.src = source;
+    q.bytes = __builtin_bswap32(q.bytes);
+    return q.src;
 #endif
 }
 

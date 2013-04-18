@@ -267,7 +267,7 @@ cql::cql_message_result_impl_t::next()
         _row.push_back(_pos);
         cql::cql_int_t len = 0;
         _pos = cql::decode_int(_pos, len);
-        if (len >= 0) {
+        if (len > 0) {
             _pos += len;
         }
     }
