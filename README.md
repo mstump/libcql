@@ -15,24 +15,27 @@ A high performance implementation of the [Cassandra binary protocol](https://git
 - Connection pool with auto-reconnect
 - Cassandra 1.2 native collections
 - Event registration and notification
+- Packaging scripts for Debian/Ubuntu
 
 ### TODO
 - Compression
 - More docs
-- Packaging for Linux and OSX
+- Packaging for Redhat/Centos and OSX
 - Integration tests
 - Query tracing
 
 ## Building
-The library should build on OSX and Linux. The build-chain is CMake, so it should be fairly straight forward to get libcql to build on other systems, but no attempt has been made to do so.
+The library known to work on Ubuntu >= 10.04.4 LTS (Lucid Lynx), and OSX 10.8.3 with homebrew. The build-chain is CMake, so it should be fairly straight forward to get libcql to build on other systems, but no attempt has been made to do so.
 
 The library has two dependencies [Boost::Asio](http://www.boost.org/doc/libs/1_53_0/doc/html/boost_asio.html) and [OpenSSL](http://www.openssl.org/). It's required that Boost::Asio be installed prior to build. If OpenSSL isn't present (OSX 10.8) libcql will automaticly download, build, and staticly link the library.
 
 ```
 git clone https://github.com/mstump/libcql
 cd libcql
-cmake . && make && make install
+cmake . && make && make cql_demo && make test && make install
 ```
+
+Running ```make help``` will give you a list of available make targets
 
 ## Examples
 In addition to the sample code below there is a fully functional [demo](https://github.com/mstump/libcql/blob/master/demo/main.cpp) which exploits most of the functionality of the library.
