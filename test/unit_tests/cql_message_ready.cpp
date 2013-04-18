@@ -1,19 +1,23 @@
-#include "gtest/gtest.h"
+#include <boost/test/unit_test.hpp>
 #include "libcql/cql.hpp"
 #include "libcql/cql_error.hpp"
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_message_ready_impl.hpp"
 
-TEST(cql_message_ready_cpp, opcode)
+BOOST_AUTO_TEST_SUITE(cql_message_ready)
+
+BOOST_AUTO_TEST_CASE(opcode)
 {
 	cql::cql_message_ready_impl_t m;
-	EXPECT_EQ(cql::CQL_OPCODE_READY, m.opcode());
+	BOOST_CHECK_EQUAL(cql::CQL_OPCODE_READY, m.opcode());
 }
 
-TEST(cql_message_ready_cpp, zero_length_serialization)
+BOOST_AUTO_TEST_CASE(zero_length_serialization)
 {
 	cql::cql_message_ready_impl_t m;
     cql::cql_error_t err;
     m.prepare(&err);
-    EXPECT_EQ(0, m.size());
+    BOOST_CHECK_EQUAL(0, m.size());
 }
+
+BOOST_AUTO_TEST_SUITE_END()
