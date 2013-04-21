@@ -296,7 +296,7 @@ cql::cql_message_result_impl_t::is_null(const std::string& column,
     int i = 0;
     if (_metadata.get_index(column, i))
     {
-        output = (*reinterpret_cast<cql::cql_int_t*>(_row[i]) == 0);
+        output = (*reinterpret_cast<cql::cql_int_t*>(_row[i]) <= 0);
         return true;
     }
     return false;
