@@ -18,9 +18,10 @@
 */
 
 #include <sstream>
+#include <boost/version.hpp>
 #include <boost/algorithm/string/join.hpp>
 #include <boost/unordered/unordered_map.hpp>
-#if BOOST_VERION >= 104300
+#if BOOST_VERSION >= 104300
 #include <boost/range/adaptor/map.hpp>
 #include <boost/range/adaptor/transformed.hpp>
 #include <boost/range/algorithm/copy.hpp>

@@ -32,7 +32,7 @@ The library has two dependencies [Boost::Asio](http://www.boost.org/doc/libs/1_5
 ```
 git clone https://github.com/mstump/libcql
 cd libcql
-cmake . && make && make cql_demo && make test && make install
+cmake . && make && make cql_demo && make cql_test && make test && make install
 ```
 
 Running ```make help``` will give you a list of available make targets

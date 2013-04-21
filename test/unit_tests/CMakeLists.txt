@@ -1,7 +1,6 @@
 #-------------------
 # Test
 #-------------------
-enable_testing()
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ".")
 set(PROJECT_TEST_NAME ${PROJECT_NAME_STR}_test)
 include_directories(${INCLUDES} ${PROJECT_SOURCE_DIR}/src/)
