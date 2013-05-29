@@ -135,7 +135,8 @@ cql::encode_short(std::vector<cql::cql_byte_t>& output,
 {
     cql::cql_short_t s = htons(value);
     output.resize(sizeof(s));
-    output.assign(&s, &s + sizeof(s));
+    const cql::cql_byte_t* it = reinterpret_cast<cql::cql_byte_t*>(&s);
+    output.assign(it, it + sizeof(s));
 }
 
 std::istream&
@@ -176,7 +177,8 @@ cql::encode_int(std::vector<cql::cql_byte_t>& output,
 {
     cql::cql_int_t l = htonl(value);
     output.resize(sizeof(l));
-    output.assign(&l, &l + sizeof(l));
+    const cql::cql_byte_t* it = reinterpret_cast<cql::cql_byte_t*>(&l);
+    output.assign(it, it + sizeof(l));
 }
 
 std::istream&
@@ -217,7 +219,8 @@ cql::encode_float(std::vector<cql::cql_byte_t>& output,
 {
     cql::cql_int_t l = swap_float(value);
     output.resize(sizeof(l));
-    output.assign(&l, &l + sizeof(l));
+    const cql::cql_byte_t* it = reinterpret_cast<cql::cql_byte_t*>(&l);
+    output.assign(it, it + sizeof(l));
 }
 
 std::istream&
@@ -258,7 +261,8 @@ cql::encode_double(std::vector<cql::cql_byte_t>& output,
 {
     double d = swap_double(value);
     output.resize(sizeof(d));
-    output.assign(&d, &d + sizeof(d));
+    const cql::cql_byte_t* it = reinterpret_cast<cql::cql_byte_t*>(&d);
+    output.assign(it, it + sizeof(d));
 }
 
 std::istream&
@@ -297,9 +301,10 @@ void
 cql::encode_bigint(std::vector<cql::cql_byte_t>& output,
                    const cql::cql_bigint_t value)
 {
-    double d = ntoh<cql::cql_bigint_t>(value);
+	cql::cql_bigint_t d = ntoh<cql::cql_bigint_t>(value);
     output.resize(sizeof(d));
-    output.assign(&d, &d + sizeof(d));
+    const cql::cql_byte_t* it = reinterpret_cast<cql::cql_byte_t*>(&d);
+    output.assign(it, it + sizeof(d));
 }
 
 std::istream&
