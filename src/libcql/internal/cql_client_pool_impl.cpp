@@ -26,6 +26,7 @@
 cql::cql_client_pool_impl_t::cql_client_pool_impl_t(cql::cql_client_pool_t::cql_client_callback_t  client_callback,
                                                     cql::cql_client_pool_t::cql_ready_callback_t   ready_callback,
                                                     cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback) :
+    _index(0),
     _ready(false),
     _defunct(false),
     _client_callback(client_callback),
@@ -39,6 +40,7 @@ cql::cql_client_pool_impl_t::cql_client_pool_impl_t(cql::cql_client_pool_t::cql_
                                                     cql::cql_client_pool_t::cql_ready_callback_t   ready_callback,
                                                     cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback,
                                                     cql::cql_client_pool_t::cql_log_callback_t     log_callback) :
+    _index(0),
     _ready(false),
     _defunct(false),
     _client_callback(client_callback),
@@ -53,6 +55,7 @@ cql::cql_client_pool_impl_t::cql_client_pool_impl_t(cql::cql_client_pool_t::cql_
                                                     cql::cql_client_pool_t::cql_defunct_callback_t defunct_callback,
                                                     cql::cql_client_pool_t::cql_log_callback_t     log_callback,
                                                     size_t                                         reconnect_limit) :
+    _index(0),
     _ready(false),
     _defunct(false),
     _client_callback(client_callback),

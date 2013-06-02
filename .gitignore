@@ -47,3 +47,8 @@ ext/tmp
 
 # OSX
 .DS_Store
+
+# Eclipse
+.cproject
+.project
+
