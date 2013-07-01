@@ -28,8 +28,8 @@ message("Installing ${openssl_NAME} into ext build area: ${EXT_PREFIX} ...")
 ExternalProject_Add(openssl
   DEPENDS zlib
   PREFIX ${EXT_PREFIX}
-  URL http://openssl.org/source/openssl-1.0.0c.tar.gz
-  URL_MD5 "ff8fb85610aef328315a9decbb2712e4"
+  URL http://openssl.org/source/openssl-1.0.0e.tar.gz
+  URL_MD5 "7040b89c4c58c7a1016c0dfa6e821c86"
   PATCH_COMMAND ""
   CONFIGURE_COMMAND ${SSL_CONFIGURE_COMMAND} zlib no-shared no-zlib-dynamic --prefix=${EXT_PREFIX}
   BUILD_IN_SOURCE 1
