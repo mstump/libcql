@@ -58,11 +58,26 @@ set(INCLUDES ${INCLUDES} ${Boost_INCLUDE_DIRS} )
 #-------------------
 # libcql static and shared
 #-------------------
+# Some 64 bit linux distros use /usr/lib64 for 64 bit libraries.
+# on these platforms we must
+IF(NOT DEFINED WANT_LIB64)
+        # TODO: detect 64-bit build and existance of /usr/lib64 and set to
+        # TRUE.
+        MESSAGE("WANT_LIB64 unset; assuming normal library directory names")
+        SET(WANT_LIB64 FALSE)
+ENDIF(NOT DEFINED WANT_LIB64)
+
+IF(WANT_LIB64)
+        SET(LIBDIRNAME "lib64")
+ELSE(WANT_LIB64)
+        SET(LIBDIRNAME "lib")
+ENDIF(WANT_LIB64)
+MESSAGE("Will install libraries to ${CMAKE_INSTALL_PREFIX}/${LIBDIRNAME}")
+
 set(PROJECT_LIB_NAME ${PROJECT_NAME_STR})
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "build/bin/")
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/build/bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
+set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${LIBDIRNAME})
+set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/${LIBDIRNAME})
 set(PROJECT_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/include)
 
 include_directories(${INCLUDES} ${PROJECT_INCLUDE_DIR} ${PROJECT_SOURCE_DIR}/src)
@@ -92,8 +107,8 @@ INSTALL(FILES ${INSTALL_HEADERS} DESTINATION include/libcql)
 
 INSTALL(TARGETS ${PROJECT_LIB_NAME}-static ${PROJECT_LIB_NAME}
   RUNTIME DESTINATION bin
-  LIBRARY DESTINATION lib
-  ARCHIVE DESTINATION lib)
+  LIBRARY DESTINATION ${LIBDIRNAME}
+  ARCHIVE DESTINATION ${LIBDIRNAME})
 
 
 #-------------------
