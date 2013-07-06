@@ -50,37 +50,6 @@ In addition to the sample code below there is a fully functional [demo](https://
 #include <libcql/cql_client_factory.hpp>
 #include <libcql/cql_result.hpp>
 
-int
-main(int argc,
-     char* argv[])
-{
-    // setup Boost ASIO
-    boost::asio::io_service io_service;
-
-    // instantiate a client
-    std::auto_ptr<cql::cql_client_t> client(create_cql_client_t(io_service));
-
-    // Connect to localhost
-    client->connect("localhost", 9042, &connect_callback, NULL);
-
-    // Start the event loop
-    io_service.run();
-    return 0;
-}
-
-void
-connect_callback(cql::cql_client_t& client)
-{
-    // Called after a successfull connection, or
-    // if using SSL it's called after a successfull handshake.
-
-    // perform a query
-    client.query("use system;",
-                 cql::CQL_CONSISTENCY_ALL,
-                 &query_callback,
-                 &message_errback);
-}
-
 void
 query_callback(cql::cql_client_t& client,
                int8_t stream,
@@ -98,6 +67,36 @@ message_errback(cql::cql_client_t& client,
     std::cerr << "ERROR " << err.message << std::endl;
 }
 
+void
+connect_callback(cql::cql_client_t& client)
+{
+    // Called after a successfull connection, or
+    // if using SSL it's called after a successfull handshake.
+
+    // perform a query
+    client.query("use system;",
+                 cql::CQL_CONSISTENCY_ALL,
+                 &query_callback,
+                 &message_errback);
+}
+
+int
+main(int argc,
+     char* argv[])
+{
+    // setup Boost ASIO
+    boost::asio::io_service io_service;
+
+    // instantiate a client
+    std::auto_ptr<cql::cql_client_t> client(cql::cql_client_factory_t::create_cql_client_t(io_service));
+
+    // Connect to localhost
+    client->connect("localhost", 9042, &connect_callback, NULL);
+
+    // Start the event loop
+    io_service.run();
+    return 0;
+}
 
 ```
 
