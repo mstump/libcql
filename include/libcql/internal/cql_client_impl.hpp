@@ -87,7 +87,6 @@ namespace cql {
             _port(0),
             _resolver(io_service),
             _transport(transport),
-            _stream_counter(0),
             _request_buffer(0),
             _callback_storage(128),
             _connect_callback(0),
@@ -106,7 +105,6 @@ namespace cql {
             _port(0),
             _resolver(io_service),
             _transport(transport),
-            _stream_counter(0),
             _request_buffer(0),
             _callback_storage(128),
             _connect_callback(0),
@@ -670,7 +668,6 @@ namespace cql {
         boost::asio::ip::tcp::resolver        _resolver;
         std::auto_ptr<cql_transport_t>        _transport;
 
-        cql::cql_stream_id_t                  _stream_counter;
         request_buffer_t                      _request_buffer;
 
         cql::cql_header_impl_t                _response_header;
