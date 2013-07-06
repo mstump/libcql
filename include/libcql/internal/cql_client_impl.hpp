@@ -51,6 +51,7 @@
 #include "libcql/cql_execute.hpp"
 #include "libcql/internal/cql_message.hpp"
 #include "libcql/internal/cql_defines.hpp"
+#include "libcql/internal/cql_callback_storage.hpp"
 #include "libcql/internal/cql_header_impl.hpp"
 #include "libcql/internal/cql_message_event_impl.hpp"
 #include "libcql/internal/cql_message_execute_impl.hpp"
@@ -76,7 +77,8 @@ namespace cql {
     public:
         typedef std::list<cql::cql_message_buffer_t> request_buffer_t;
         typedef std::pair<cql_message_callback_t, cql_message_errback_t> callback_pair_t;
-        typedef boost::unordered_map<cql::cql_stream_id_t, callback_pair_t> callback_map_t;
+        typedef cql::indexed_storage<callback_pair_t> callback_storage_t;
+//        typedef boost::unordered_map<cql::cql_stream_id_t, callback_pair_t> callback_map_t;
         typedef boost::function<void(const boost::system::error_code&, std::size_t)> write_callback_t;
 
 
@@ -87,6 +89,7 @@ namespace cql {
             _transport(transport),
             _stream_counter(0),
             _request_buffer(0),
+            _callback_storage(128),
             _connect_callback(0),
             _connect_errback(0),
             _log_callback(0),
@@ -105,6 +108,7 @@ namespace cql {
             _transport(transport),
             _stream_counter(0),
             _request_buffer(0),
+            _callback_storage(128),
             _connect_callback(0),
             _connect_errback(0),
             _log_callback(log_callback),
@@ -170,7 +174,7 @@ namespace cql {
                                                                      boost::asio::placeholders::error,
                                                                      boost::asio::placeholders::bytes_transferred));
 
-            _callback_map.insert(callback_map_t::value_type(stream, callback_pair_t(callback, errback)));
+            _callback_storage.put(stream, callback_pair_t(callback, errback));
             return stream;
         }
 
@@ -185,7 +189,7 @@ namespace cql {
                                                                      boost::asio::placeholders::error,
                                                                      boost::asio::placeholders::bytes_transferred));
 
-            _callback_map.insert(callback_map_t::value_type(stream, callback_pair_t(callback, errback)));
+            _callback_storage.put(stream, callback_pair_t(callback, errback));
             return stream;
         }
 
@@ -200,7 +204,7 @@ namespace cql {
                                                                      boost::asio::placeholders::error,
                                                                      boost::asio::placeholders::bytes_transferred));
 
-            _callback_map.insert(callback_map_t::value_type(stream, callback_pair_t(callback, errback)));
+            _callback_storage.put(stream, callback_pair_t(callback, errback));
             return stream;
         }
 
@@ -222,6 +226,7 @@ namespace cql {
             _closing = true;
             log(CQL_LOG_INFO, "closing connection");
             boost::system::error_code ec;
+            _resolver.get_io_service().stop();
             _transport->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
             _transport->lowest_layer().close();
         }
@@ -280,14 +285,12 @@ namespace cql {
         cql::cql_stream_id_t
         get_new_stream()
         {
-            if (_stream_counter < INT8_MAX) {
-                return _stream_counter++;
+            cql_stream_id_t result = _callback_storage.allocate_index();
+            if (result < 0) {
+                throw cql_exception("Too many opened streams. The maximum is 128 (please consult with cql protocol spec)");
             }
-            else {
-                cql::cql_stream_id_t tmp = _stream_counter;
-                _stream_counter = 0;
-                return tmp;
-            }
+
+            return result;
         }
 
         void
@@ -371,7 +374,7 @@ namespace cql {
                                                                      boost::asio::placeholders::error,
                                                                      boost::asio::placeholders::bytes_transferred));
 
-            _callback_map.insert(callback_map_t::value_type(stream, callback_pair_t(callback, errback)));
+            _callback_storage.put(stream, callback_pair_t(callback, errback));
             return stream;
         }
 
@@ -509,7 +512,6 @@ namespace cql {
                          const boost::system::error_code& err)
         {
             log(CQL_LOG_DEBUG, "received body for message " + header.str());
-            callback_map_t::iterator it;
 
             if (!err) {
 
@@ -519,18 +521,20 @@ namespace cql {
                     switch (header.opcode()) {
 
                     case CQL_OPCODE_RESULT:
+                    {
 
                         log(CQL_LOG_DEBUG, "received result message " + header.str());
+                        cql_stream_id_t stream_id = header.stream();
+                        if (_callback_storage.has(stream_id)) {
+                            callback_pair_t& callback_pair = _callback_storage.get(stream_id);
+                            callback_pair.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
+                            _callback_storage.deallocate_index(stream_id);
+                        } else {
+                            log(CQL_LOG_INFO, "no callback found for message " + header.str());
+                        }
 
-                        it = _callback_map.find(header.stream());
-                        if (it != _callback_map.end()) {
-                            (*it).second.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
-                            _callback_map.erase(it);
-                        }
-                        else {
-                            log(CQL_LOG_ERROR, "no callback found for message " + header.str());
-                        }
                         break;
+                    }
 
                     case CQL_OPCODE_EVENT:
                         log(CQL_LOG_DEBUG, "received event message");
@@ -540,22 +544,22 @@ namespace cql {
                         break;
 
                     case CQL_OPCODE_ERROR:
-                        it = _callback_map.find(header.stream());
-                        if (it != _callback_map.end()) {
+                    {
+                        cql_stream_id_t stream_id = header.stream();
+                        if (_callback_storage.has(stream_id)) {
+                            callback_pair_t& callback_pair = _callback_storage.get(stream_id);
                             cql::cql_message_error_impl_t* m = dynamic_cast<cql::cql_message_error_impl_t*>(_response_message.get());
                             cql::cql_error_t cql_error;
                             cql_error.cassandra = true;
                             cql_error.code = m->code();
                             cql_error.message = m->message();
-                            (*it).second.second(*this, header.stream(), cql_error);
-                            _callback_map.erase(it);
-                        }
-                        else {
+                            callback_pair.second(*this, header.stream(), cql_error);
+                            _callback_storage.deallocate_index(stream_id);
+                        } else {
                             log(CQL_LOG_INFO, "no callback found for message " + header.str() + " " + _response_message->str());
                         }
-
                         break;
-
+                    }
                     case CQL_OPCODE_READY:
                         log(CQL_LOG_DEBUG, "received ready message");
                         if (!_events_registered) {
@@ -671,7 +675,8 @@ namespace cql {
 
         cql::cql_header_impl_t                _response_header;
         std::auto_ptr<cql::cql_message_t>     _response_message;
-        callback_map_t                        _callback_map;
+//        callback_map_t                        _callback_map;
+        callback_storage_t                    _callback_storage;
 
         cql_connection_callback_t             _connect_callback;
         cql_connection_errback_t              _connect_errback;
