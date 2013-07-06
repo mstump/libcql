@@ -526,9 +526,9 @@ namespace cql {
                         log(CQL_LOG_DEBUG, "received result message " + header.str());
                         cql_stream_id_t stream_id = header.stream();
                         if (_callback_storage.has(stream_id)) {
-                            callback_pair_t& callback_pair = _callback_storage.get(stream_id);
-                            callback_pair.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
+                            callback_pair_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.deallocate_index(stream_id);
+                            callback_pair.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
                         } else {
                             log(CQL_LOG_INFO, "no callback found for message " + header.str());
                         }
@@ -547,14 +547,14 @@ namespace cql {
                     {
                         cql_stream_id_t stream_id = header.stream();
                         if (_callback_storage.has(stream_id)) {
-                            callback_pair_t& callback_pair = _callback_storage.get(stream_id);
+                            callback_pair_t callback_pair = _callback_storage.get(stream_id);
+                            _callback_storage.deallocate_index(stream_id);
                             cql::cql_message_error_impl_t* m = dynamic_cast<cql::cql_message_error_impl_t*>(_response_message.get());
                             cql::cql_error_t cql_error;
                             cql_error.cassandra = true;
                             cql_error.code = m->code();
                             cql_error.message = m->message();
                             callback_pair.second(*this, header.stream(), cql_error);
-                            _callback_storage.deallocate_index(stream_id);
                         } else {
                             log(CQL_LOG_INFO, "no callback found for message " + header.str() + " " + _response_message->str());
                         }
