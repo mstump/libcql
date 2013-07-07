@@ -34,7 +34,7 @@ namespace cql {
             struct {
                 struct {
                     // -1 - there is no next free index
-                    // -1 - flags that his one has been allocated (for checks and stuff)
+                    // -2 - flags that his one has been allocated (for checks and stuff)
                     int32_t index; // signed because might be -1
                     int32_t count; // doesn't matter never should be negative (see index restrictions)
                 } next_free;

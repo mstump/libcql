@@ -224,7 +224,6 @@ namespace cql {
             _closing = true;
             log(CQL_LOG_INFO, "closing connection");
             boost::system::error_code ec;
-            _resolver.get_io_service().stop();
             _transport->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
             _transport->lowest_layer().close();
         }
