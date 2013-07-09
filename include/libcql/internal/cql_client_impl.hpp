@@ -293,10 +293,9 @@ namespace cql {
         {
             cql::cql_error_t error;
             error.library=true;
-            error.message = "Too many stream ids. The maximum value of parallel requests is 128 per protocol documentation";
+            error.message = "Too many streams. The maximum value of parallel requests is 127 (1 is reserved by this library)";
             return error;
         }
-
 
         inline void
         log(cql::cql_short_t level,

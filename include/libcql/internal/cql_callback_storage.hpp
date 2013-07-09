@@ -1,5 +1,5 @@
 /*
-  Copyright (c) 2012 Dimitry Ivanov
+  Copyright (c) 2013 Matthew Stump
 
   This file is part of libcql.
 
