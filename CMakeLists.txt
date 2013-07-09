@@ -7,7 +7,7 @@ project(${PROJECT_NAME_STR} C CXX)
 #-------------------
 
 set (libcql_VERSION_MAJOR 0)
-set (libcql_VERSION_MINOR 6)
+set (libcql_VERSION_MINOR 7)
 set (libcql_VERSION_STRING ${libcql_VERSION_MAJOR}.${libcql_VERSION_MINOR})
 
 #-------------------
