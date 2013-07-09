@@ -123,15 +123,5 @@ namespace cql {
         CQL_EVENT_TOPOLOGY_REMOVE_NODE = 0x02,
     };
 
-    class cql_exception : public std::exception {
-    public:
-        cql_exception() : std::exception() {}
-        cql_exception(const std::string& message) : _message(message) {}
-	virtual ~cql_exception() throw() {}
-
-        virtual const char* what() const throw() { return _message.c_str(); }
-    private:
-        std::string _message;
-    };
 } // namespace cql
 #endif // __CQL_H_INCLUDED__
