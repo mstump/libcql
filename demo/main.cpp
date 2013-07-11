@@ -36,7 +36,7 @@ print_rows(
     cql::cql_result_t& result)
 {
     while (result.next()) {
-        for (int i = 0; i < result.column_count(); ++i) {
+        for (size_t i = 0; i < result.column_count(); ++i) {
             cql::cql_byte_t* data = NULL;
             cql::cql_int_t size = 0;
             result.get_data(i, &data, size);
@@ -49,7 +49,7 @@ print_rows(
 
 void
 log_callback(
-    const cql::cql_short_t level,
+    const cql::cql_short_t,
     const std::string& message)
 {
     std::cout << "LOG: " << message << std::endl;
@@ -57,7 +57,7 @@ log_callback(
 
 void
 event_callback(
-    cql::cql_client_t& client,
+    cql::cql_client_t&,
     cql::cql_event_t* event)
 {
     std::cout << "EVENT RECEIVED: " << event->event_type() << std::endl;
@@ -112,7 +112,7 @@ private:
 
 int
 main(int argc,
-     char* argv[])
+     char**)
 {
     try
     {

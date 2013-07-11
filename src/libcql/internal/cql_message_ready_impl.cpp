@@ -52,13 +52,13 @@ cql::cql_message_ready_impl_t::str() const
 }
 
 bool
-cql::cql_message_ready_impl_t::consume(cql::cql_error_t* err)
+cql::cql_message_ready_impl_t::consume(cql::cql_error_t*)
 {
     return true;
 }
 
 bool
-cql::cql_message_ready_impl_t::prepare(cql::cql_error_t* err)
+cql::cql_message_ready_impl_t::prepare(cql::cql_error_t*)
 {
     return true;
 }

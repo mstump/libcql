@@ -126,7 +126,7 @@ cql::cql_message_result_impl_t::str() const
 }
 
 bool
-cql::cql_message_result_impl_t::consume(cql::cql_error_t* err)
+cql::cql_message_result_impl_t::consume(cql::cql_error_t*)
 {
     _keyspace_name.clear();
     _row_count = 0;
@@ -190,7 +190,7 @@ cql::cql_message_result_impl_t::consume(cql::cql_error_t* err)
 }
 
 bool
-cql::cql_message_result_impl_t::prepare(cql::cql_error_t* err)
+cql::cql_message_result_impl_t::prepare(cql::cql_error_t*)
 {
     return true;
 }

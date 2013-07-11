@@ -70,7 +70,7 @@ cql::cql_message_register_impl_t::str() const
 }
 
 bool
-cql::cql_message_register_impl_t::consume(cql::cql_error_t* err)
+cql::cql_message_register_impl_t::consume(cql::cql_error_t*)
 {
     cql::vector_stream_t buffer(*_buffer);
     std::istream stream(&buffer);
@@ -80,7 +80,7 @@ cql::cql_message_register_impl_t::consume(cql::cql_error_t* err)
 }
 
 bool
-cql::cql_message_register_impl_t::prepare(cql::cql_error_t* err)
+cql::cql_message_register_impl_t::prepare(cql::cql_error_t*)
 {
     size_t size = sizeof(cql_short_t);
     BOOST_FOREACH(const std::string& event, _events) {

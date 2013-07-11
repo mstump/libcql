@@ -90,7 +90,7 @@ cql::cql_message_credentials_impl_t::str() const
 }
 
 bool
-cql::cql_message_credentials_impl_t::consume(cql::cql_error_t* err)
+cql::cql_message_credentials_impl_t::consume(cql::cql_error_t*)
 {
     cql::vector_stream_t buffer(*_buffer);
     std::istream stream(&buffer);
@@ -100,7 +100,7 @@ cql::cql_message_credentials_impl_t::consume(cql::cql_error_t* err)
 }
 
 bool
-cql::cql_message_credentials_impl_t::prepare(cql::cql_error_t* err)
+cql::cql_message_credentials_impl_t::prepare(cql::cql_error_t*)
 {
     size_t size = 0;
     BOOST_FOREACH(const credentials_map_t::value_type& pair, _credentials) {

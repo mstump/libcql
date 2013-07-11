@@ -88,7 +88,7 @@ cql::cql_message_startup_impl_t::str() const
 }
 
 bool
-cql::cql_message_startup_impl_t::consume(cql::cql_error_t* err)
+cql::cql_message_startup_impl_t::consume(cql::cql_error_t*)
 {
     cql::vector_stream_t buffer(*_buffer);
     std::istream stream(&buffer);
@@ -108,7 +108,7 @@ cql::cql_message_startup_impl_t::consume(cql::cql_error_t* err)
 }
 
 bool
-cql::cql_message_startup_impl_t::prepare(cql::cql_error_t* err)
+cql::cql_message_startup_impl_t::prepare(cql::cql_error_t*)
 {
     std::map<std::string, std::string> startup;
     size_t size = sizeof(cql::cql_short_t);

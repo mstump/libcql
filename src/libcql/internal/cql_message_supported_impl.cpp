@@ -84,7 +84,7 @@ cql::cql_message_supported_impl_t::str() const
 }
 
 bool
-cql::cql_message_supported_impl_t::consume(cql::cql_error_t* err)
+cql::cql_message_supported_impl_t::consume(cql::cql_error_t*)
 {
     cql::vector_stream_t buffer(*_buffer);
     std::istream stream(&buffer);
@@ -102,7 +102,7 @@ cql::cql_message_supported_impl_t::consume(cql::cql_error_t* err)
 }
 
 bool
-cql::cql_message_supported_impl_t::prepare(cql::cql_error_t* err)
+cql::cql_message_supported_impl_t::prepare(cql::cql_error_t*)
 {
     cql::vector_stream_t buffer(*_buffer);
     std::ostream stream(&buffer);

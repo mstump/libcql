@@ -119,7 +119,7 @@ namespace cql {
     enum cql_event_topology_enum {
         CQL_EVENT_TOPOLOGY_UNKNOWN     = 0x00,
         CQL_EVENT_TOPOLOGY_ADD_NODE    = 0x01,
-        CQL_EVENT_TOPOLOGY_REMOVE_NODE = 0x02,
+        CQL_EVENT_TOPOLOGY_REMOVE_NODE = 0x02
     };
 
 } // namespace cql
