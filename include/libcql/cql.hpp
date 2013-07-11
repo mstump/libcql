@@ -21,6 +21,7 @@
 #define __CQL_H_INCLUDED__
 
 #include <stdint.h>
+#include <string>
 
 
 namespace cql {
