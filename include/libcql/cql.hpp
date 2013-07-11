@@ -20,8 +20,6 @@
 #define __CQL_H_INCLUDED__
 
 #include <stdint.h>
-#include <string>
-
 
 namespace cql {
     typedef uint8_t   cql_byte_t;
