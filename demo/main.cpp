@@ -33,101 +33,33 @@
 #include <libcql/cql_result.hpp>
 
 void
-message_errback(cql::cql_client_t& client,
-                int8_t stream,
-                const cql::cql_error_t& err)
+print_rows(
+    cql::cql_result_t& result)
 {
-    std::cerr << "ERROR " << err.message << std::endl;
-}
-
-void
-connection_errback(cql::cql_client_t& client,
-                   const cql::cql_error_t& err)
-{
-    std::cerr << "ERROR " << boost::lexical_cast<std::string>(err.code) << " " << err.message << std::endl;
-}
-
-void
-select_callback(cql::cql_client_t& client,
-                int8_t stream,
-                cql::cql_result_t* result)
-{
-    while (result->next()) {
-        for (int i = 0; i < result->column_count(); ++i) {
+    while (result.next()) {
+        for (int i = 0; i < result.column_count(); ++i) {
             cql::cql_byte_t* data = NULL;
             cql::cql_int_t size = 0;
-            result->get_data(i, &data, size);
+            result.get_data(i, &data, size);
             std::cout.write(reinterpret_cast<char*>(data), size);
             std::cout << " | ";
         }
         std::cout << std::endl;
     }
-    client.close();
 }
 
 void
-execute_callback(cql::cql_client_t& client,
-                 int8_t stream,
-                 cql::cql_result_t* result)
-{
-    while (result->next()) {
-        for (int i = 0; i < result->column_count(); ++i) {
-            cql::cql_byte_t* data = NULL;
-            cql::cql_int_t size = 0;
-            if (result->get_data(i, &data, size)) {
-                std::cout.write(reinterpret_cast<char*>(data), size);
-                std::cout << " | ";
-            }
-        }
-        std::cout << std::endl;
-    }
-
-    client.query("SELECT * from schema_keyspaces;",
-                 cql::CQL_CONSISTENCY_ALL,
-                 &select_callback,
-                 &message_errback);
-}
-
-void
-prepare_callback(cql::cql_client_t& client,
-                 int8_t stream,
-                 cql::cql_result_t* result)
-{
-    cql::cql_execute_t m(result->query_id(), cql::CQL_CONSISTENCY_ONE);
-    client.execute(&m,
-                   &execute_callback,
-                   &message_errback);
-}
-
-void
-use_callback(cql::cql_client_t& client,
-             int8_t stream,
-             const cql::cql_result_t* result)
-{
-    client.prepare("SELECT * from schema_keyspaces;",
-                   &prepare_callback,
-                   &message_errback);
-}
-
-void
-connect_callback(cql::cql_client_pool_t* pool)
-{
-    pool->query("USE system;",
-                cql::CQL_CONSISTENCY_ALL,
-                &use_callback,
-                &message_errback);
-}
-
-void
-log_callback(const cql::cql_short_t level,
-             const std::string& message)
+log_callback(
+    const cql::cql_short_t level,
+    const std::string& message)
 {
     std::cout << "LOG: " << message << std::endl;
 }
 
 void
-event_callback(cql::cql_client_t& client,
-               cql::cql_event_t* event)
+event_callback(
+    cql::cql_client_t& client,
+    cql::cql_event_t* event)
 {
     std::cout << "EVENT RECEIVED: " << event->event_type() << std::endl;
 }
@@ -179,7 +111,6 @@ private:
     cql::cql_client_t::cql_log_callback_t _log_callback;
 };
 
-
 int
 main(int argc,
      char* argv[])
@@ -187,8 +118,12 @@ main(int argc,
     try
     {
         boost::asio::io_service io_service;
-        boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
 
+        std::auto_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(io_service));
+        boost::thread thread(boost::bind(&boost::asio::io_service::run, &io_service));
+
+        // decide if we need SSL
+        boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
         cql::cql_client_pool_t::cql_client_callback_t client_factory;
         if (argc > 1) {
             client_factory = client_ssl_functor_t(io_service, ctx, &log_callback);
@@ -196,13 +131,33 @@ main(int argc,
         else {
             client_factory = client_functor_t(io_service, &log_callback);
         }
-        std::auto_ptr<cql::cql_client_pool_t> pool(cql::cql_client_pool_factory_t::create_client_pool_t(client_factory, &connect_callback, NULL));
+        std::auto_ptr<cql::cql_client_pool_t> pool(cql::cql_client_pool_factory_t::create_client_pool_t(client_factory, NULL, NULL));
+        boost::shared_future<cql::cql_future_connection_t> connect_future = pool->add_client("localhost", 9042);
+        connect_future.wait();
+        std::cout << "connect successfull? ";
+        if (!connect_future.get().error.is_err()) {
+            std::cout << "TRUE" << std::endl;
 
-        std::list<std::string> events;
-        events.push_back("SCHEMA_CHANGE");
+            boost::shared_future<cql::cql_future_result_t> future = pool->query("USE system;", cql::CQL_CONSISTENCY_ONE);
+            future.wait();
+            std::cout << "switch keyspace successfull? " << (!future.get().error.is_err() ? "true" : "false") << std::endl;
 
-        pool->add_client("localhost", 9042, &event_callback, events);
-        io_service.run();
+            future = pool->query("SELECT * from schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
+            future.wait();
+            std::cout << "select successfull? " << (!future.get().error.is_err() ? "true" : "false") << std::endl;
+            if (future.get().result) {
+                print_rows(*future.get().result);
+            }
+            pool->close();
+        }
+        else {
+            std::cout << "FALSE" << std::endl;
+        }
+
+        work.reset();
+        thread.join();
+
+        std::cout << "THE END" << std::endl;
     }
     catch (std::exception& e)
     {

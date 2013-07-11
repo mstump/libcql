@@ -17,35 +17,40 @@
   along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CQL_ERROR_H_
-#define CQL_ERROR_H_
+#ifndef CQL_FUTURE_CONNECTION_H_
+#define CQL_FUTURE_CONNECTION_H_
 
-#include <string>
 #include "libcql/cql.hpp"
+#include "libcql/cql_error.hpp"
 
 namespace cql {
 
-    struct cql_error_t
-    {
-        bool        cassandra;
-        bool        transport;
-        bool        library;
-        int         code;
-        std::string message;
+    // Forward declarations
+    class cql_client_t;
 
-        cql_error_t() :
-            cassandra(false),
-            transport(false),
-            library(false),
-            code(0)
+    struct cql_future_connection_t
+    {
+        cql_future_connection_t() :
+            client(NULL)
         {}
 
-        inline bool
-        is_err() const
-        {
-            return cassandra || transport || library;
-        }
+        cql_future_connection_t(
+            cql::cql_client_t* client) :
+            client(client)
+        {}
+
+        cql_future_connection_t(
+            cql::cql_client_t* client,
+            cql::cql_error_t   error) :
+            client(client),
+            error(error)
+        {}
+
+        cql::cql_client_t*                   client;
+        cql::cql_error_t                     error;
     };
+
+
 } // namespace cql
 
-#endif // CQL_ERROR_H_
+#endif // CQL_FUTURE_CONNECTION_H_

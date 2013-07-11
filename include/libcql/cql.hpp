@@ -89,11 +89,11 @@ namespace cql {
     };
 
     enum cql_result_type_enum {
-        CQL_RESULT_VOID              = 0x0001,
-        CQL_RESULT_ROWS              = 0x0002,
-        CQL_RESULT_SET_KEYSPACE      = 0x0003,
-        CQL_RESULT_PREPARED          = 0x0004,
-        CQL_RESULT_SCHEMA_CHANGE     = 0x0005
+        CQL_RESULT_VOID          = 0x0001,
+        CQL_RESULT_ROWS          = 0x0002,
+        CQL_RESULT_SET_KEYSPACE  = 0x0003,
+        CQL_RESULT_PREPARED      = 0x0004,
+        CQL_RESULT_SCHEMA_CHANGE = 0x0005
     };
 
     enum cql_event_enum {

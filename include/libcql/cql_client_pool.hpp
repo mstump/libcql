@@ -50,38 +50,57 @@ namespace cql {
         virtual
         ~cql_client_pool_t(){};
 
-        virtual void
-        add_client(const std::string& server,
-                   unsigned int       port) = 0;
+        virtual boost::shared_future<cql::cql_future_connection_t>
+        add_client(
+            const std::string& server,
+            unsigned int       port) = 0;
 
-        virtual void
-        add_client(const std::string&                      server,
-                   unsigned int                            port,
-                   cql::cql_client_t::cql_event_callback_t event_callback,
-                   const std::list<std::string>&           events) = 0;
+        virtual boost::shared_future<cql::cql_future_connection_t>
+        add_client(
+            const std::string&                      server,
+            unsigned int                            port,
+            cql::cql_client_t::cql_event_callback_t event_callback,
+            const std::list<std::string>&           events) = 0;
 
-        virtual void
-        add_client(const std::string&                        server,
-                   unsigned int                              port,
-                   cql::cql_client_t::cql_event_callback_t   event_callback,
-                   const std::list<std::string>&             events,
-                   const std::map<std::string, std::string>& credentials) = 0;
-
-        virtual cql::cql_stream_id_t
-        query(const std::string&                        query,
-              cql_int_t                                 consistency,
-              cql::cql_client_t::cql_message_callback_t callback,
-              cql::cql_client_t::cql_message_errback_t  errback) = 0;
+        virtual boost::shared_future<cql::cql_future_connection_t>
+        add_client(
+            const std::string&                        server,
+            unsigned int                              port,
+            cql::cql_client_t::cql_event_callback_t   event_callback,
+            const std::list<std::string>&             events,
+            const std::map<std::string, std::string>& credentials) = 0;
 
         virtual cql::cql_stream_id_t
-        prepare(const std::string&                        query,
-                cql::cql_client_t::cql_message_callback_t callback,
-                cql::cql_client_t::cql_message_errback_t  errback) = 0;
+        query(
+            const std::string&                        query,
+            cql_int_t                                 consistency,
+            cql::cql_client_t::cql_message_callback_t callback,
+            cql::cql_client_t::cql_message_errback_t  errback) = 0;
 
         virtual cql::cql_stream_id_t
-        execute(cql::cql_execute_t*                       message,
-                cql::cql_client_t::cql_message_callback_t callback,
-                cql::cql_client_t::cql_message_errback_t  errback) = 0;
+        prepare(
+            const std::string&                        query,
+            cql::cql_client_t::cql_message_callback_t callback,
+            cql::cql_client_t::cql_message_errback_t  errback) = 0;
+
+        virtual cql::cql_stream_id_t
+        execute(
+            cql::cql_execute_t*                       message,
+            cql::cql_client_t::cql_message_callback_t callback,
+            cql::cql_client_t::cql_message_errback_t  errback) = 0;
+
+        virtual boost::shared_future<cql::cql_future_result_t>
+        query(
+            const std::string& query,
+            cql_int_t          consistency) = 0;
+
+        virtual boost::shared_future<cql::cql_future_result_t>
+        prepare(
+            const std::string& query) = 0;
+
+        virtual boost::shared_future<cql::cql_future_result_t>
+        execute(
+            cql::cql_execute_t* message) = 0;
 
         virtual bool
         defunct() = 0;

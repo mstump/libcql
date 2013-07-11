@@ -42,13 +42,17 @@
 #include <boost/function.hpp>
 #include <boost/lexical_cast.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/make_shared.hpp>
 #include <boost/shared_ptr.hpp>
+#include <boost/thread/future.hpp>
 #include <boost/unordered_map.hpp>
 
 #include "libcql/cql.hpp"
 #include "libcql/cql_client.hpp"
 #include "libcql/cql_error.hpp"
 #include "libcql/cql_execute.hpp"
+#include "libcql/cql_future_connection.hpp"
+#include "libcql/cql_future_result.hpp"
 #include "libcql/internal/cql_message.hpp"
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_header_impl.hpp"
@@ -80,8 +84,9 @@ namespace cql {
         typedef boost::function<void(const boost::system::error_code&, std::size_t)> write_callback_t;
 
 
-        cql_client_impl_t(boost::asio::io_service& io_service,
-                          cql_transport_t* transport) :
+        cql_client_impl_t(
+            boost::asio::io_service& io_service,
+            cql_transport_t*         transport) :
             _port(0),
             _resolver(io_service),
             _transport(transport),
@@ -97,9 +102,10 @@ namespace cql {
             _closing(false)
         {}
 
-        cql_client_impl_t(boost::asio::io_service& io_service,
-                          cql_transport_t* transport,
-                          cql::cql_client_t::cql_log_callback_t log_callback) :
+        cql_client_impl_t(
+            boost::asio::io_service&              io_service,
+            cql_transport_t*                      transport,
+            cql::cql_client_t::cql_log_callback_t log_callback) :
             _port(0),
             _resolver(io_service),
             _transport(transport),
@@ -115,54 +121,80 @@ namespace cql {
             _closing(false)
         {}
 
-        void
+        boost::shared_future<cql::cql_future_connection_t>
         connect(const std::string& server,
-                unsigned int port,
-                cql::cql_client_t::cql_connection_callback_t callback,
-                cql::cql_client_t::cql_connection_errback_t errback)
+                unsigned int port)
         {
-            std::list<std::string> events;
-            cql::cql_client_t::cql_credentials_t credentials;
-            connect(server, port, callback, errback, NULL, events, credentials);
-        }
+            boost::shared_ptr<boost::promise<cql::cql_future_connection_t> > promise(new boost::promise<cql::cql_future_connection_t>());
+            boost::shared_future<cql::cql_future_connection_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
 
-        void
-        connect(const std::string& server,
-                unsigned int port,
-                cql::cql_client_t::cql_connection_callback_t callback,
-                cql::cql_client_t::cql_connection_errback_t errback,
-                cql::cql_client_t::cql_event_callback_t event_callback,
-                const std::list<std::string>& events)
-        {
-            cql::cql_client_t::cql_credentials_t credentials;
-            connect(server, port, callback, errback, event_callback, events, credentials);
+            connect(server,
+                    port,
+                    boost::bind(&cql_client_impl_t::_connection_future_callback, this, promise, ::_1),
+                    boost::bind(&cql_client_impl_t::_connection_future_errback, this, promise, ::_1, ::_2));
+
+            return shared_future;
         }
 
         void
         connect(const std::string& server,
                 unsigned int port,
                 cql_connection_callback_t callback,
-                cql_connection_errback_t errback,
-                cql::cql_client_t::cql_event_callback_t event_callback,
-                const std::list<std::string>& events,
-                cql::cql_client_t::cql_credentials_t credentials)
+                cql_connection_errback_t errback)
         {
             _server = server;
             _port = port;
             _connect_callback = callback;
             _connect_errback = errback;
-            _event_callback = event_callback;
-            _events = events;
-            _credentials = credentials;
-
             resolve();
         }
 
+        boost::shared_future<cql::cql_future_result_t>
+        query(const std::string& query_string,
+              cql_int_t          consistency)
+        {
+            boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise(new boost::promise<cql::cql_future_result_t>());
+            boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+
+            query(query_string,
+                  consistency,
+                  boost::bind(&cql_client_impl_t::_statement_future_callback, this, promise, ::_1, ::_2, ::_3),
+                  boost::bind(&cql_client_impl_t::_statement_future_errback, this, promise, ::_1, ::_2, ::_3));
+
+            return shared_future;
+        }
+
+        boost::shared_future<cql::cql_future_result_t>
+        prepare(const std::string& query_string)
+        {
+            boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise(new boost::promise<cql::cql_future_result_t>());
+            boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+
+            prepare(query_string,
+                    boost::bind(&cql_client_impl_t::_statement_future_callback, this, promise, ::_1, ::_2, ::_3),
+                    boost::bind(&cql_client_impl_t::_statement_future_errback, this, promise, ::_1, ::_2, ::_3));
+
+            return shared_future;
+        }
+
+        boost::shared_future<cql::cql_future_result_t>
+        execute(cql::cql_execute_t* message)
+        {
+            boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise(new boost::promise<cql::cql_future_result_t>());
+            boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+
+            execute(message,
+                    boost::bind(&cql_client_impl_t::_statement_future_callback, this, promise, ::_1, ::_2, ::_3),
+                    boost::bind(&cql_client_impl_t::_statement_future_errback, this, promise, ::_1, ::_2, ::_3));
+
+            return shared_future;
+        }
+
         cql::cql_stream_id_t
-        query(const std::string& query,
-              cql_int_t consistency,
+        query(const std::string&                        query,
+              cql_int_t                                 consistency,
               cql::cql_client_t::cql_message_callback_t callback,
-              cql::cql_client_t::cql_message_errback_t errback)
+              cql::cql_client_t::cql_message_errback_t  errback)
         {
             cql::cql_stream_id_t stream = create_request(new cql::cql_message_query_impl_t(query, consistency),
                                                          boost::bind(&cql_client_impl_t::write_handle,
@@ -175,9 +207,9 @@ namespace cql {
         }
 
         cql::cql_stream_id_t
-        prepare(const std::string& query,
+        prepare(const std::string&                        query,
                 cql::cql_client_t::cql_message_callback_t callback,
-                cql::cql_client_t::cql_message_errback_t errback)
+                cql::cql_client_t::cql_message_errback_t  errback)
         {
             cql::cql_stream_id_t stream = create_request(new cql::cql_message_prepare_impl_t(query),
                                                          boost::bind(&cql_client_impl_t::write_handle,
@@ -190,9 +222,9 @@ namespace cql {
         }
 
         cql::cql_stream_id_t
-        execute(cql::cql_execute_t* message,
+        execute(cql::cql_execute_t*                       message,
                 cql::cql_client_t::cql_message_callback_t callback,
-                cql::cql_client_t::cql_message_errback_t errback)
+                cql::cql_client_t::cql_message_errback_t  errback)
         {
             cql::cql_stream_id_t stream = create_request(message->impl(),
                                                          boost::bind(&cql_client_impl_t::write_handle,
@@ -238,6 +270,15 @@ namespace cql {
             return _port;
         }
 
+        void
+        events(
+            cql::cql_client_t::cql_event_callback_t event_callback,
+            const std::list<std::string>&           events)
+        {
+            _event_callback = event_callback;
+            _events = events;
+        }
+
         const std::list<std::string>&
         events() const
         {
@@ -254,6 +295,13 @@ namespace cql {
         credentials() const
         {
             return _credentials;
+        }
+
+        void
+        credentials(
+            const cql::cql_client_t::cql_credentials_t credentials)
+        {
+            _credentials = credentials;
         }
 
         void
@@ -288,6 +336,44 @@ namespace cql {
                 _stream_counter = 0;
                 return tmp;
             }
+        }
+
+
+        void
+        _connection_future_callback(
+            boost::shared_ptr<boost::promise<cql::cql_future_connection_t> > promise,
+            cql_client_t&)
+        {
+            promise->set_value(cql::cql_future_connection_t(this));
+        }
+
+        void
+        _connection_future_errback(
+            boost::shared_ptr<boost::promise<cql::cql_future_connection_t> > promise,
+            cql_client_t&,
+            const cql_error_t&                                           error)
+        {
+            promise->set_value(cql::cql_future_connection_t(this, error));
+        }
+
+        void
+        _statement_future_callback(
+            boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise,
+            cql_client_t&,
+            const cql::cql_stream_id_t                                   stream,
+            cql::cql_result_t*                                           result_ptr)
+        {
+            promise->set_value(cql::cql_future_result_t(this, stream, result_ptr));
+        }
+
+        void
+        _statement_future_errback(
+            boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise,
+            cql_client_t&,
+            const cql::cql_stream_id_t                                   stream,
+            const cql_error_t&                                           error)
+        {
+            promise->set_value(cql::cql_future_result_t(this, stream, error));
         }
 
         void
@@ -524,7 +610,7 @@ namespace cql {
 
                         it = _callback_map.find(header.stream());
                         if (it != _callback_map.end()) {
-                            (*it).second.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
+                            (*it).second.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.release()));
                             _callback_map.erase(it);
                         }
                         else {
@@ -535,7 +621,7 @@ namespace cql {
                     case CQL_OPCODE_EVENT:
                         log(CQL_LOG_DEBUG, "received event message");
                         if (_event_callback) {
-                            _event_callback(*this, dynamic_cast<cql::cql_message_event_impl_t*>(_response_message.get()));
+                            _event_callback(*this, dynamic_cast<cql::cql_message_event_impl_t*>(_response_message.release()));
                         }
                         break;
 
@@ -661,31 +747,25 @@ namespace cql {
             }
         }
 
-        std::string                           _server;
-        unsigned int                          _port;
-        boost::asio::ip::tcp::resolver        _resolver;
-        std::auto_ptr<cql_transport_t>        _transport;
-
-        cql::cql_stream_id_t                  _stream_counter;
-        request_buffer_t                      _request_buffer;
-
-        cql::cql_header_impl_t                _response_header;
-        std::auto_ptr<cql::cql_message_t>     _response_message;
-        callback_map_t                        _callback_map;
-
-        cql_connection_callback_t             _connect_callback;
-        cql_connection_errback_t              _connect_errback;
-        cql_log_callback_t                    _log_callback;
-
-        bool                                  _events_registered;
-        std::list<std::string>                _events;
-        cql_event_callback_t                  _event_callback;
-
-        cql::cql_client_t::cql_credentials_t  _credentials;
-
-        bool                                  _defunct;
-        bool                                  _ready;
-        bool                                  _closing;
+        std::string                                _server;
+        unsigned int                               _port;
+        boost::asio::ip::tcp::resolver             _resolver;
+        std::auto_ptr<cql_transport_t>             _transport;
+        cql::cql_stream_id_t                       _stream_counter;
+        request_buffer_t                           _request_buffer;
+        cql::cql_header_impl_t                     _response_header;
+        std::auto_ptr<cql::cql_message_t>          _response_message;
+        callback_map_t                             _callback_map;
+        cql_connection_callback_t                  _connect_callback;
+        cql_connection_errback_t                   _connect_errback;
+        cql_log_callback_t                         _log_callback;
+        bool                                       _events_registered;
+        std::list<std::string>                     _events;
+        cql_event_callback_t                       _event_callback;
+        cql::cql_client_t::cql_credentials_t       _credentials;
+        bool                                       _defunct;
+        bool                                       _ready;
+        bool                                       _closing;
     };
 
 } // namespace cql

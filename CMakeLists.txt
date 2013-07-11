@@ -39,7 +39,7 @@ endif()
 
 # Boost
 set(Boost_USE_MULTITHREADED ON)
-find_package(Boost 1.47.0 COMPONENTS system unit_test_framework)
+find_package(Boost 1.47.0 COMPONENTS system thread unit_test_framework)
 set(LIBS ${LIBS} ${Boost_LIBRARIES} )
 
 # Threading

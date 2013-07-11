@@ -28,9 +28,11 @@
 
 #include <boost/function.hpp>
 #include <boost/noncopyable.hpp>
+#include <boost/thread/future.hpp>
 
 #include "libcql/cql.hpp"
-
+#include "libcql/cql_future_connection.hpp"
+#include "libcql/cql_future_result.hpp"
 
 namespace cql {
 
@@ -60,95 +62,110 @@ namespace cql {
         virtual
         ~cql_client_t(){};
 
+        /**
+           Connect to the server at the specified address and port.
+
+           @param server host
+           @param port port
+         */
+        virtual boost::shared_future<cql::cql_future_connection_t>
+        connect(const std::string& server,
+                unsigned int port) = 0;
 
         /**
            Connect to the server at the specified address and port.
 
+           @param server host
+           @param port port
            @param callback Callback function which will be called when connection is complete and ready for use.
            @param errback Errback which will be called for transport errors encountered at any point in the lifecycle of the client.
          */
         virtual void
-        connect(const std::string& server,
-                unsigned int port,
-                cql_connection_callback_t callback,
-                cql_connection_errback_t errback) = 0;
-
-        /**
-           Connect to the server at the specified address and port.
-
-           @param callback Callback function which will be called when connection is complete and ready for use.
-           @param errback Errback which will be called for transport errors encountered at any point in the lifecycle of the client.
-           @param event_callback Callback function which will be called when events from the server are received.
-           @param events List of events to register and listen for.
-         */
-        virtual void
-        connect(const std::string& server,
-                unsigned int port,
-                cql_connection_callback_t callback,
-                cql_connection_errback_t errback,
-                cql_event_callback_t event_callback,
-                const std::list<std::string>& events) = 0;
-
-        /**
-           Connect to the server at the specified address and port.
-
-           @param callback Callback function which will be called when connection is complete and ready for use.
-           @param errback Errback which will be called for transport errors encountered at any point in the lifecycle of the client.
-           @param event_callback Callback function which will be called when events from the server are received.
-           @param events List of events to register and listen for.
-           @param credentials Credentials to use if prompted for authentication.
-         */
-        virtual void
-        connect(const std::string& server,
-                unsigned int port,
-                cql_connection_callback_t callback,
-                cql_connection_errback_t errback,
-                cql_event_callback_t event_callback,
-                const std::list<std::string>& events,
-                cql_credentials_t credentials) = 0;
+        connect(
+            const std::string&        server,
+            unsigned int              port,
+            cql_connection_callback_t callback,
+            cql_connection_errback_t  errback) = 0;
 
         /**
            Perform an ad-hoc query using the specified string and consistency.
 
-           @param query The query string.
-           @param consistency The desired consistency.
-           @param callback Called for successful query results.
-           @param errback Called for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
-           @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
+           @param query query string.
+           @param consistency desired consistency.
+           @param callback callback for successful query results.
+           @param errback callback for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
+           @return stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
          */
         virtual cql::cql_stream_id_t
-        query(const std::string& query,
-              cql_int_t consistency,
-              cql_message_callback_t callback,
-              cql_message_errback_t errback) = 0;
+        query(
+            const std::string&     query,
+            cql_int_t              consistency,
+            cql_message_callback_t callback,
+            cql_message_errback_t  errback) = 0;
+
+        /**
+           Perform an ad-hoc query using the specified string and consistency.
+
+           @param query query string.
+           @param consistency desired consistency.
+           @return populated when results or error is obtained
+         */
+        virtual boost::shared_future<cql::cql_future_result_t>
+        query(
+            const std::string& query,
+            cql_int_t          consistency) = 0;
 
         /**
            Prepare a CQL statement.
 
            When the callback is triggered it will be passed a cql_message_result_t which contains the ID of the prepared statement. This ID is used when composing execution messages.
 
-           @param query The query string.
-           @param callback Called for successful query results.
-           @param errback Called for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
-           @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
+           @param query query string.
+           @param callback callback for successful query results.
+           @param errback callback for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
+           @return stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
          */
         virtual cql::cql_stream_id_t
-        prepare(const std::string& query,
-                cql_message_callback_t callback,
-                cql_message_errback_t errback) = 0;
+        prepare(
+            const std::string&     query,
+            cql_message_callback_t callback,
+            cql_message_errback_t  errback) = 0;
+
+        /**
+           Prepare a CQL statement.
+
+           When the callback is triggered it will be passed a cql_message_result_t which contains the ID of the prepared statement. This ID is used when composing execution messages.
+
+           @param query query string.
+           @return populated when results or error is obtained
+         */
+        virtual boost::shared_future<cql::cql_future_result_t>
+        prepare(
+            const std::string& query) = 0;
 
         /**
            Execute a prepared CQL statement.
 
-           @param message The execute message
-           @param callback Called for successful query results
-           @param errback Called for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
-           @return The stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
+           @param message execute message
+           @param callback callback for successful query results
+           @param errback callback for un-successful query results. Only triggered for application level errors, transport level errors trigger the connect errback.
+           @return stream ID of the message. Results can be returned out of order, and the stream ID is used to correlate the results with the message.
          */
         virtual cql::cql_stream_id_t
-        execute(cql::cql_execute_t* message,
-                cql_message_callback_t callback,
-                cql_message_errback_t errback) = 0;
+        execute(
+            cql::cql_execute_t*    message,
+            cql_message_callback_t callback,
+            cql_message_errback_t  errback) = 0;
+
+        /**
+           Execute a prepared CQL statement.
+
+           @param message execute message
+           @return populated when results or error is obtained
+         */
+        virtual boost::shared_future<cql::cql_future_result_t>
+        execute(
+            cql::cql_execute_t* message) = 0;
 
         /**
            If the connection errback is triggered, this function is used to determine whether the underlying transport is still valid or if a reconnect is neccessary.
@@ -187,16 +204,31 @@ namespace cql {
         events() const = 0;
 
         /**
-           The callback triggered for registered events.
+           Set list of registered events and callback
+         */
+        virtual void
+        events(
+            cql::cql_client_t::cql_event_callback_t event_callback,
+            const std::list<std::string>&           events) = 0;
+
+        /**
+           Callback triggered for registered events.
          */
         virtual cql_event_callback_t
         event_callback() const = 0;
 
         /**
-           The credentials used if prompted for authentication
+           Credentials used if prompted for authentication
          */
         virtual const cql_credentials_t&
         credentials() const = 0;
+
+        /**
+           Credentials used if prompted for authentication
+         */
+        virtual void
+        credentials(
+            const cql::cql_client_t::cql_credentials_t credentials) = 0;
 
         /**
            Force reconnect
