@@ -101,18 +101,18 @@ TEST_MESSAGE_RESULT[] = { 0x00, 0x00, 0x00, 0x02, // result_type(int=2)
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
-                          0x00, 0x00, 0x00, 0x00, // 5
+                          0x00, 0x00, 0x00, 0x00,  // 5
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
-                          0x00, 0x00, 0x00, 0x00, // 11
+                          0x00, 0x00, 0x00, 0x00,  // 11
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
                           0xff, 0xff, 0xff, 0xff,
-                          0x00, 0x00, 0x00, 0x00, // 15
-                          0x00, 0x00, 0x00, 0x01, 0x00 };
+                          0x00, 0x00, 0x00, 0x00,  // 15
+                          0x00, 0x01, 0xFF, 0xFF}; // this is different that real life, which would be 1 null byte, needed to test the negative is_null case
 
 
 BOOST_AUTO_TEST_CASE(opcode)
@@ -505,6 +505,20 @@ BOOST_AUTO_TEST_CASE(deserialize_map)
 
     BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_VARCHAR, map->key_type());
     BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_INT, map->value_type());
+}
+
+BOOST_AUTO_TEST_CASE(not_null)
+{
+	cql::cql_message_result_impl_t m;
+    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
+    cql::cql_error_t err;
+    m.consume(&err);
+    BOOST_CHECK_EQUAL(true, m.next());
+    BOOST_CHECK_EQUAL(true, m.next());
+
+    bool is_null = false;
+    BOOST_CHECK_EQUAL(true, m.is_null(16, is_null));
+    BOOST_CHECK_EQUAL(false, is_null);
 }
 
 BOOST_AUTO_TEST_CASE(null_columns_map)
