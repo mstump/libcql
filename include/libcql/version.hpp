@@ -23,6 +23,6 @@
 //  LIBCQL_VERSION / 100 % 1000 is the minor version
 //  LIBCQL_VERSION / 100000 is the major version
 
-#define LIBCQL_VERSION 0000700
+#define LIBCQL_VERSION 700
 
 #endif // __CQL_VERSION_H_INCLUDED__
