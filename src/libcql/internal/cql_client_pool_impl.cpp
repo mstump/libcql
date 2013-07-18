@@ -98,7 +98,7 @@ cql::cql_client_pool_impl_t::add_client(
     boost::mutex::scoped_lock lock(_mutex);
 
     boost::shared_ptr<boost::promise<cql::cql_future_connection_t> > promise(new boost::promise<cql::cql_future_connection_t>());
-    boost::shared_future<cql::cql_future_connection_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+    boost::shared_future<cql::cql_future_connection_t> shared_future(promise->get_future());
 
     std::auto_ptr<cql::cql_client_pool_impl_t::client_container_t> client_container(new cql::cql_client_pool_impl_t::client_container_t(_client_callback()));
 
@@ -171,7 +171,7 @@ cql::cql_client_pool_impl_t::query(
     }
 
     boost::promise<cql::cql_future_result_t> promise;
-    boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise.get_future()));
+    boost::shared_future<cql::cql_future_result_t> shared_future(promise.get_future());
 
     cql::cql_future_result_t future_result;
     future_result.error.library = true;
@@ -192,7 +192,7 @@ cql::cql_client_pool_impl_t::prepare(
     }
 
     boost::promise<cql::cql_future_result_t> promise;
-    boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise.get_future()));
+    boost::shared_future<cql::cql_future_result_t> shared_future(promise.get_future());
 
     cql::cql_future_result_t future_result;
     future_result.error.library = true;
@@ -213,7 +213,7 @@ cql::cql_client_pool_impl_t::execute(
     }
 
     boost::promise<cql::cql_future_result_t> promise;
-    boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise.get_future()));
+    boost::shared_future<cql::cql_future_result_t> shared_future(promise.get_future());
 
     cql::cql_future_result_t future_result;
     future_result.error.library = true;

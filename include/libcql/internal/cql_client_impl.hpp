@@ -128,7 +128,7 @@ namespace cql {
                 unsigned int port)
         {
             boost::shared_ptr<boost::promise<cql::cql_future_connection_t> > promise(new boost::promise<cql::cql_future_connection_t>());
-            boost::shared_future<cql::cql_future_connection_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+            boost::shared_future<cql::cql_future_connection_t> shared_future(promise->get_future());
 
             connect(server,
                     port,
@@ -156,7 +156,7 @@ namespace cql {
               cql_int_t          consistency)
         {
             boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise(new boost::promise<cql::cql_future_result_t>());
-            boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+            boost::shared_future<cql::cql_future_result_t> shared_future(promise->get_future());
 
             query(query_string,
                   consistency,
@@ -170,7 +170,7 @@ namespace cql {
         prepare(const std::string& query_string)
         {
             boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise(new boost::promise<cql::cql_future_result_t>());
-            boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+            boost::shared_future<cql::cql_future_result_t> shared_future(promise->get_future());
 
             prepare(query_string,
                     boost::bind(&cql_client_impl_t::_statement_future_callback, this, promise, ::_1, ::_2, ::_3),
@@ -183,7 +183,7 @@ namespace cql {
         execute(cql::cql_execute_t* message)
         {
             boost::shared_ptr<boost::promise<cql::cql_future_result_t> > promise(new boost::promise<cql::cql_future_result_t>());
-            boost::shared_future<cql::cql_future_result_t> shared_future(BOOST_THREAD_MAKE_RV_REF(promise->get_future()));
+            boost::shared_future<cql::cql_future_result_t> shared_future(promise->get_future());
 
             execute(message,
                     boost::bind(&cql_client_impl_t::_statement_future_callback, this, promise, ::_1, ::_2, ::_3),
