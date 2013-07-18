@@ -24,13 +24,15 @@
 #include <string>
 
 #include <boost/function.hpp>
+#include <boost/thread/future.hpp>
 
 #include "libcql/cql.hpp"
+#include "libcql/cql_client.hpp"
+#include "libcql/cql_future_connection.hpp"
 
 namespace cql {
 
     // Forward declarations
-    class cql_client_t;
     class cql_event_t;
     class cql_result_t;
     class cql_execute_t;

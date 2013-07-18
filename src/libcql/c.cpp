@@ -16,12 +16,117 @@
   limitations under the License.
 */
 
-#include <libcql/cql.hpp>
-#include "c.h"
+#include <boost/asio.hpp>
+#include "libcql/cql.hpp"
+#include "libcql/cql_client_factory.hpp"
+#include "libcql/cql_client_pool.hpp"
+#include "libcql/cql_client_pool_factory.hpp"
+#include "libcql/c.h"
 
-struct cql_context_t
+struct cql_context_t :
+    boost::noncopyable
 {
-    cql_client_pool_t* pool;
+    cql_context_t() :
+        io_work(io_service),
+        io_thread(boost::bind(&boost::asio::io_service::run, &io_service)),
+        log_callback(NULL)
+    {}
+
+    cql::cql_client_t*
+    create_client()
+    {
+        return cql::cql_client_factory_t::create_cql_client_t(io_service, log_callback);
+    }
+
+    cql::cql_client_t*
+    create_client_ssl()
+    {
+        return cql::cql_client_factory_t::create_cql_client_t(io_service, log_callback);
+    }
+
+    boost::asio::io_service               io_service;
+    boost::asio::io_service::work         io_work;
+    boost::thread                         io_thread;
+    std::auto_ptr<cql::cql_client_pool_t> pool;
+    cql::cql_client_t::cql_log_callback_t log_callback;
+};
+
+struct future_base_t
+{
+    enum type_enum {
+        CONNECTION_FUTURE,
+        RESULT_FUTURE };
+
+    virtual type_enum
+    type() = 0;
+
+    virtual bool
+    ready() = 0;
+
+    virtual void
+    wait() = 0;
+
+    virtual bool
+    is_err() = 0;
+
+    virtual int
+    error_code() = 0;
+
+    virtual void
+    error_message(
+        char** message) = 0;
+};
+
+template<typename T>
+struct future_t :
+    public future_base_t
+{
+    T                        future;
+    future_base_t::type_enum future_type;
+
+    future_t(
+        T future,
+        future_base_t::type_enum future_type) :
+        future(future),
+        future_type(future_type)
+    {}
+
+    inline future_base_t::type_enum
+    type()
+    {
+        return future_type;
+    }
+
+    inline bool
+    ready()
+    {
+        return future.is_ready();
+    }
+
+    inline void
+    wait()
+    {
+        future.wait();
+    }
+
+    inline bool
+    is_err()
+    {
+        return future.get().error.is_err();
+    }
+
+    inline int
+    error_code()
+    {
+        return future.get().error.code;
+    }
+
+    inline void
+    error_message(
+        char** message)
+    {
+        *message = strdup(future.get().error.message.c_str());
+    }
 };
 
 void*
@@ -42,7 +147,13 @@ cql_init(
     void*  context,
     void** status)
 {
-    return false;
+    (void) status;
+    static_cast<cql_context_t*>(context)->pool.reset(
+        cql::cql_client_pool_factory_t::create_client_pool_t(
+            boost::bind(&cql_context_t::create_client, static_cast<cql_context_t*>(context)),
+            NULL,
+            NULL));
+    return true;
 }
 
 bool
@@ -50,7 +161,13 @@ cql_init_ssl(
     void*  context,
     void** status)
 {
-    return false;
+    (void) status;
+    static_cast<cql_context_t*>(context)->pool.reset(
+        cql::cql_client_pool_factory_t::create_client_pool_t(
+            boost::bind(&cql_context_t::create_client_ssl, static_cast<cql_context_t*>(context)),
+            NULL,
+            NULL));
+    return true;
 }
 
 void
@@ -67,89 +184,11 @@ cql_add_client(
     size_t         host_size,
     unsigned short port)
 {
-    return static_cast<cql_context_t*>(context)->pool->add_client(std::string(host, host_size), port);
-}
-
-void*
-cql_prepared_new(
-    void*  context,
-    void*  query,
-    size_t query_size)
-{
-
-}
-
-void
-cql_prepared_push_data(
-    void*  context,
-    void*  prepared,
-    void*  data,
-    size_t data_size)
-{
-
-}
-
-void
-cql_prepared_push_bool(
-    void* context,
-    void* prepared,
-    bool  param)
-{
-
-}
-
-void
-cql_prepared_push_short(
-    void* context,
-    void* prepared,
-    short param)
-{
-
-}
-
-void
-cql_prepared_push_int(
-    void* context,
-    void* prepared,
-    int   param)
-{
-
-}
-
-void
-cql_prepared_push_float(
-    void* context,
-    void* prepared,
-    float param)
-{
-
-}
-
-void
-cql_prepared_push_double(
-    void* context,
-    void* prepared,
-    float param)
-{
-
-}
-
-void
-cql_prepared_push_bigint(
-    void*   context,
-    void*   prepared,
-    int64_t param)
-{
-
-}
-
-void*
-cql_execute_prepared(
-    void*  context,
-    void*  prepared,
-    int    consistency)
-{
-
+    return new future_t<boost::shared_future<cql::cql_future_connection_t> >(
+        static_cast<cql_context_t*>(context)->pool->add_client(
+            std::string(static_cast<char*>(host), host_size),
+            port),
+        future_base_t::CONNECTION_FUTURE);
 }
 
 bool
@@ -157,7 +196,8 @@ cql_future_ready(
     void* context,
     void* future)
 {
-
+    (void) context;
+    return static_cast<future_base_t*>(future)->ready();
 }
 
 void
@@ -165,7 +205,8 @@ cql_future_wait(
     void* context,
     void* future)
 {
-
+    (void) context;
+    return static_cast<future_base_t*>(future)->wait();
 }
 
 bool
@@ -173,7 +214,8 @@ cql_future_success(
     void* context,
     void* future)
 {
-
+    (void) context;
+    return !static_cast<future_base_t*>(future)->is_err();
 }
 
 int
@@ -181,7 +223,8 @@ cql_future_get_error_code(
     void* context,
     void* future)
 {
-
+    (void) context;
+    return static_cast<future_base_t*>(future)->error_code();
 }
 
 void
@@ -190,5 +233,6 @@ cql_future_get_error_message(
     void*  future,
     char** message)
 {
-
+    (void) context;
+    static_cast<future_base_t*>(future)->error_message(message);
 }

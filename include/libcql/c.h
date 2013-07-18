@@ -85,6 +85,38 @@ cql_add_client(
 
 /******************************************************************************/
 /*                                                                            */
+/* Futures                                                                    */
+/*                                                                            */
+/******************************************************************************/
+
+CQL_EXPORT bool
+cql_future_ready(
+    void* context,
+    void* future);
+
+CQL_EXPORT void
+cql_future_wait(
+    void* context,
+    void* future);
+
+CQL_EXPORT bool
+cql_future_success(
+    void* context,
+    void* future);
+
+CQL_EXPORT int
+cql_future_get_error_code(
+    void* context,
+    void* future);
+
+CQL_EXPORT void
+cql_future_get_error_message(
+    void*  context,
+    void*  future,
+    char** message);
+
+/******************************************************************************/
+/*                                                                            */
 /* Queries and Prepared Statements                                            */
 /*                                                                            */
 /******************************************************************************/
@@ -156,37 +188,7 @@ cql_execute_push_bigint(
     void*   prepared,
     int64_t param);
 
-/******************************************************************************/
-/*                                                                            */
-/* Futures                                                                    */
-/*                                                                            */
-/******************************************************************************/
 
-CQL_EXPORT bool
-cql_future_ready(
-    void* context,
-    void* future);
-
-CQL_EXPORT void
-cql_future_wait(
-    void* context,
-    void* future);
-
-CQL_EXPORT bool
-cql_future_success(
-    void* context,
-    void* future);
-
-CQL_EXPORT int
-cql_future_get_error_code(
-    void* context,
-    void* future);
-
-CQL_EXPORT void
-cql_future_get_error_message(
-    void*  context,
-    void*  future,
-    char** message);
 
 #undef CQL_EXPORT
 
