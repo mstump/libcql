@@ -123,27 +123,28 @@ cql_future_get_error_message(
 
 CQL_EXPORT void*
 cql_query(
-    void*  context,
-    void*  query,
-    size_t query_size);
+    void*       context,
+    const char* query,
+    size_t      query_size,
+    int         consistency);
 
 CQL_EXPORT void*
 cql_prepare(
-    void*  context,
-    void*  query,
-    size_t query_size);
+    void*       context,
+    const char* query,
+    size_t      query_size);
 
 CQL_EXPORT void*
 cql_execute_new(
     void*  context,
-    void*  query,
-    size_t query_size);
+    void*  id,
+    size_t id_size);
 
 CQL_EXPORT void*
 cql_execute(
-    void*  context,
-    void*  prepared,
-    int    consistency);
+    void* context,
+    void* prepared,
+    int   consistency);
 
 CQL_EXPORT void
 cql_execute_push_data(
