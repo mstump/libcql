@@ -1,7 +1,7 @@
 #include <boost/test/unit_test.hpp>
 #include <string.h>
 
-#include "libcql/cql.hpp"
+#include "libcql/cql.h"
 #include "libcql/cql_error.hpp"
 #include "libcql/cql_list.hpp"
 #include "libcql/cql_set.hpp"
@@ -219,7 +219,7 @@ BOOST_AUTO_TEST_CASE(column_type)
     cql::cql_error_t err;
     m.consume(&err);
 
-    cql::cql_column_type_enum t;
+    cql_int_t t;
     m.column_type("ascii", t);
     BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_ASCII, t);
 
@@ -377,8 +377,8 @@ BOOST_AUTO_TEST_CASE(deserialize_data_0)
     m.consume(&err);
     BOOST_CHECK_EQUAL(true, m.next());
 
-    cql::cql_byte_t* data = 0;
-    cql::cql_int_t size = 0;
+    cql_byte_t* data = 0;
+    cql_int_t size = 0;
 
     const char test_str[] = {0x61, 0x73, 0x63, 0x69, 0x69};
 
@@ -395,8 +395,8 @@ BOOST_AUTO_TEST_CASE(deserialize_data_10)
     m.consume(&err);
     BOOST_CHECK_EQUAL(true, m.next());
 
-    cql::cql_byte_t* data = 0;
-    cql::cql_int_t size = 0;
+    cql_byte_t* data = 0;
+    cql_int_t size = 0;
 
     const char test_str[] = {0x00, 0x04, 0x00, 0x00};
 
@@ -413,8 +413,8 @@ BOOST_AUTO_TEST_CASE(deserialize_data_14)
     m.consume(&err);
     BOOST_CHECK_EQUAL(true, m.next());
 
-    cql::cql_byte_t* data = 0;
-    cql::cql_int_t size = 0;
+    cql_byte_t* data = 0;
+    cql_int_t size = 0;
 
     const unsigned char test_str[] = {0x21, 0xc9, 0xb0, 0x31, 0xa3, 0xdc, 0x45, 0x56,
                                       0xb4, 0x2f, 0x12, 0xc2, 0x86, 0x7c, 0x7d, 0x4a, 0x00}; // one extra byte for null terminiation
@@ -463,7 +463,7 @@ BOOST_AUTO_TEST_CASE(deserialize_set)
     BOOST_CHECK_EQUAL(true, m.get_set(3, &set));
     BOOST_CHECK_EQUAL(3, set->size());
 
-    cql::cql_int_t value = -1;
+    cql_int_t value = -1;
     BOOST_CHECK_EQUAL(true, set->get_int(0, value));
     BOOST_CHECK_EQUAL(1, value);
 
@@ -496,7 +496,7 @@ BOOST_AUTO_TEST_CASE(deserialize_map)
     BOOST_CHECK_EQUAL(true, map->get_key_string(1, key));
     BOOST_CHECK_EQUAL("b", key);
 
-    cql::cql_int_t value = -1;
+    cql_int_t value = -1;
     BOOST_CHECK_EQUAL(true, map->get_value_int(0, value));
     BOOST_CHECK_EQUAL(1, value);
 

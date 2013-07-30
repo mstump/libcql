@@ -1,5 +1,5 @@
 #include <boost/test/unit_test.hpp>
-#include "libcql/cql.hpp"
+#include "libcql/cql.h"
 #include "libcql/cql_error.hpp"
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_message_options_impl.hpp"

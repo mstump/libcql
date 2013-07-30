@@ -50,4 +50,6 @@
 #define CQL_EVENT_SCHEMA_CHANGE_UPDATED "UPDATED"
 #define CQL_EVENT_SCHEMA_CHANGE_DROPPED "DROPPED"
 
+#define CQL_HEADER_SIZE sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length)
+
 #endif // __CQL_DEFINES_H_INCLUDED__

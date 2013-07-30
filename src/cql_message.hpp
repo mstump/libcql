@@ -22,17 +22,17 @@
 #include <string>
 #include <vector>
 #include <boost/shared_ptr.hpp>
-#include "libcql/cql.hpp"
+#include "libcql/cql.h"
 
 namespace cql {
     struct cql_error_t;
 
-    typedef boost::shared_ptr<std::vector<cql::cql_byte_t> > cql_message_buffer_t;
+    typedef boost::shared_ptr<std::vector<cql_byte_t> > cql_message_buffer_t;
 
     class cql_message_t {
     public:
 
-        virtual cql::cql_opcode_enum
+        virtual cql_byte_t
         opcode() const = 0;
 
         virtual cql_int_t

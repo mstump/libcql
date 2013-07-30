@@ -16,34 +16,35 @@
   limitations under the License.
 */
 
-#ifndef CQL_UTIL_H_
-#define CQL_UTIL_H_
+#ifndef CQL_ERROR_H_
+#define CQL_ERROR_H_
 
-#include <ostream>
-#include <streambuf>
-#include <vector>
+#include <string>
 #include "libcql/cql.h"
 
 namespace cql {
 
-    struct HexCharStruct
+    struct cql_error_t
     {
-        unsigned char c;
-        HexCharStruct(unsigned char _c) : c(_c) { }
+        bool        cassandra;
+        bool        transport;
+        bool        library;
+        int         code;
+        std::string message;
+
+        cql_error_t() :
+            cassandra(false),
+            transport(false),
+            library(false),
+            code(0)
+        {}
+
+        inline bool
+        is_err() const
+        {
+            return cassandra || transport || library;
+        }
     };
-
-    inline std::ostream&
-    operator<<(std::ostream& o, const HexCharStruct& hs)
-    {
-        return (o << std::hex << (int)hs.c);
-    }
-
-    inline
-    HexCharStruct hex(unsigned char _c)
-    {
-        return HexCharStruct(_c);
-    }
-
 } // namespace cql
 
-#endif // CQL_UTIL_H_
+#endif // CQL_ERROR_H_

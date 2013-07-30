@@ -21,15 +21,7 @@
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
 
-#include <libcql/cql.hpp>
-#include <libcql/cql_error.hpp>
-#include <libcql/cql_event.hpp>
-#include <libcql/cql_client.hpp>
-#include <libcql/cql_client_factory.hpp>
-#include <libcql/cql_client_pool.hpp>
-#include <libcql/cql_client_pool_factory.hpp>
-#include <libcql/cql_execute.hpp>
-#include <libcql/cql_result.hpp>
+#include <libcql/cql.h>
 
 void
 print_rows(

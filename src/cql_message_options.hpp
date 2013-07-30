@@ -16,34 +16,48 @@
   limitations under the License.
 */
 
-#ifndef CQL_UTIL_H_
-#define CQL_UTIL_H_
+#ifndef CQL_MESSAGE_OPTIONS_H_
+#define CQL_MESSAGE_OPTIONS_H_
 
-#include <ostream>
-#include <streambuf>
-#include <vector>
 #include "libcql/cql.h"
+#include "cql_message.hpp"
 
 namespace cql {
 
-    struct HexCharStruct
+    class cql_message_options_t :
+        public cql_message_t
     {
-        unsigned char c;
-        HexCharStruct(unsigned char _c) : c(_c) { }
+
+    public:
+        cql_message_options_t();
+
+        cql_message_options_t(
+            size_t size);
+
+        cql_byte_t
+        opcode() const;
+
+        cql_int_t
+        size() const;
+
+        std::string
+        str() const;
+
+        bool
+        consume(
+            cql::cql_error_t* err);
+
+        bool
+        prepare(
+            cql::cql_error_t* err);
+
+        cql_message_buffer_t
+        buffer();
+
+    private:
+        cql::cql_message_buffer_t _buffer;
     };
-
-    inline std::ostream&
-    operator<<(std::ostream& o, const HexCharStruct& hs)
-    {
-        return (o << std::hex << (int)hs.c);
-    }
-
-    inline
-    HexCharStruct hex(unsigned char _c)
-    {
-        return HexCharStruct(_c);
-    }
 
 } // namespace cql
 
-#endif // CQL_UTIL_H_
+#endif // CQL_MESSAGE_OPTIONS_H_

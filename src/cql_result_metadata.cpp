@@ -29,7 +29,7 @@
 #include <ext/functional>
 #endif
 #include "cql_defines.hpp"
-#include "libcql/cql_serialization.hpp"
+#include "cql_serialization.hpp"
 
 #include "cql_result_metadata.hpp"
 
@@ -66,8 +66,8 @@ cql::cql_result_metadata_t::str() const
     return output.str();
 }
 
-cql::cql_byte_t*
-cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
+cql_byte_t*
+cql::cql_result_metadata_t::read(cql_byte_t* input)
 {
     input = cql::decode_int(input, _flags);
     input = cql::decode_int(input, _column_count);
@@ -95,12 +95,12 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
         option_t option;
         input = cql::decode_option(input, option.primary_type, option.primary_class);
 
-        if (option.primary_type == cql::CQL_COLUMN_TYPE_SET || option.primary_type == cql::CQL_COLUMN_TYPE_LIST) {
+        if (option.primary_type == CQL_COLUMN_TYPE_SET || option.primary_type == CQL_COLUMN_TYPE_LIST) {
             // it's a native set or list. Read the option which tells us the collecion member type
             input = cql::decode_option(input, option.collection_primary_type, option.collection_primary_class);
         }
 
-        if (option.primary_type == cql::CQL_COLUMN_TYPE_MAP) {
+        if (option.primary_type == CQL_COLUMN_TYPE_MAP) {
             // it's a native map. Read the options which tells us the collecion key and values types
             input = cql::decode_option(input, option.collection_primary_type, option.collection_primary_class);
             input = cql::decode_option(input, option.collection_secondary_type, option.collection_secondary_class);
@@ -113,26 +113,26 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
     return input;
 }
 
-cql::cql_int_t
+cql_int_t
 cql::cql_result_metadata_t::flags() const
 {
     return _flags;
 }
 
 void
-cql::cql_result_metadata_t::flags(cql::cql_int_t v)
+cql::cql_result_metadata_t::flags(cql_int_t v)
 {
     _flags = v;
 }
 
-cql::cql_int_t
+cql_int_t
 cql::cql_result_metadata_t::column_count() const
 {
     return _column_count;
 }
 
 void
-cql::cql_result_metadata_t::column_count(cql::cql_int_t v)
+cql::cql_result_metadata_t::column_count(cql_int_t v)
 {
     _column_count = v;
 }
@@ -213,7 +213,7 @@ cql::cql_result_metadata_t::column_class(const std::string& keyspace,
 
 bool
 cql::cql_result_metadata_t::column_type(int i,
-                                        cql::cql_column_type_enum& output) const
+                                        cql_int_t& output) const
 {
     if (i > _column_count || i < 0) {
         return false;
@@ -221,7 +221,7 @@ cql::cql_result_metadata_t::column_type(int i,
 
     int val = _columns[i].primary_type;
     if (val >= 0 && val <= 0x0022) {
-        output = static_cast<cql_column_type_enum>(val);
+        output = static_cast<cql_int_t>(val);
     }
     else {
         output = CQL_COLUMN_TYPE_UNKNOWN;
@@ -231,7 +231,7 @@ cql::cql_result_metadata_t::column_type(int i,
 
 bool
 cql::cql_result_metadata_t::column_type(const std::string& column,
-                                        cql::cql_column_type_enum& output) const
+                                        cql_int_t& output) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty()) {
         return false;
@@ -244,7 +244,7 @@ bool
 cql::cql_result_metadata_t::column_type(const std::string& keyspace,
                                         const std::string& table,
                                         const std::string& column,
-                                        cql::cql_column_type_enum& output) const
+                                        cql_int_t& output) const
 {
     column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
     if(it != _column_name_idx.end()) {
@@ -341,7 +341,7 @@ cql::cql_result_metadata_t::collection_primary_class(const std::string& keyspace
 
 bool
 cql::cql_result_metadata_t::collection_primary_type(int i,
-                                                    cql::cql_column_type_enum& output) const
+                                                    cql_int_t& output) const
 {
     if (i > _column_count || i < 0) {
         return false;
@@ -353,7 +353,7 @@ cql::cql_result_metadata_t::collection_primary_type(int i,
 
 bool
 cql::cql_result_metadata_t::collection_primary_type(const std::string& column,
-                                                    cql::cql_column_type_enum& output) const
+                                                    cql_int_t& output) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty()) {
         return false;
@@ -366,7 +366,7 @@ bool
 cql::cql_result_metadata_t::collection_primary_type(const std::string& keyspace,
                                                     const std::string& table,
                                                     const std::string& column,
-                                                    cql::cql_column_type_enum& output) const
+                                                    cql_int_t& output) const
 {
     column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
     if(it != _column_name_idx.end()) {
@@ -417,7 +417,7 @@ cql::cql_result_metadata_t::collection_secondary_class(const std::string& keyspa
 
 bool
 cql::cql_result_metadata_t::collection_secondary_type(int i,
-                                                      cql::cql_column_type_enum& output) const
+                                                      cql_int_t& output) const
 {
     if (i > _column_count || i < 0) {
         return false;
@@ -429,7 +429,7 @@ cql::cql_result_metadata_t::collection_secondary_type(int i,
 
 bool
 cql::cql_result_metadata_t::collection_secondary_type(const std::string& column,
-                                                      cql::cql_column_type_enum& output) const
+                                                      cql_int_t& output) const
 {
     if (_global_keyspace_name.empty() || _global_table_name.empty()) {
         return false;
@@ -442,7 +442,7 @@ bool
 cql::cql_result_metadata_t::collection_secondary_type(const std::string& keyspace,
                                                       const std::string& table,
                                                       const std::string& column,
-                                                      cql::cql_column_type_enum& output) const
+                                                      cql_int_t& output) const
 {
     column_name_idx_t::const_iterator it = _column_name_idx.find(column_name_t(keyspace, table, column));
     if(it != _column_name_idx.end()) {

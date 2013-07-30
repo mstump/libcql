@@ -25,7 +25,7 @@
 #include <boost/tuple/tuple.hpp>
 #include <boost/unordered_map.hpp>
 
-#include "libcql/cql.hpp"
+#include "libcql/cql.h"
 
 namespace cql {
 
@@ -41,8 +41,8 @@ namespace cql {
         std::string
         str() const;
 
-        cql::cql_byte_t*
-        read(cql::cql_byte_t* input);
+        cql_byte_t*
+        read(cql_byte_t* input);
 
         cql_int_t
         flags() const;
@@ -98,17 +98,17 @@ namespace cql {
 
         bool
         column_type(int i,
-                    cql::cql_column_type_enum& output) const;
+                    cql_int_t& output) const;
 
         bool
         column_type(const std::string& column,
-                    cql::cql_column_type_enum& output) const;
+                    cql_int_t& output) const;
 
         bool
         column_type(const std::string& keyspace,
                     const std::string& table,
                     const std::string& column,
-                    cql::cql_column_type_enum& output) const;
+                    cql_int_t& output) const;
 
         bool
         get_index(const std::string& column,
@@ -136,17 +136,17 @@ namespace cql {
 
         bool
         collection_primary_type(int i,
-                                cql::cql_column_type_enum& output) const;
+                                cql_int_t& output) const;
 
         bool
         collection_primary_type(const std::string& column,
-                                cql::cql_column_type_enum& output) const;
+                                cql_int_t& output) const;
 
         bool
         collection_primary_type(const std::string& keyspace,
                                 const std::string& table,
                                 const std::string& column,
-                                cql::cql_column_type_enum& output) const;
+                                cql_int_t& output) const;
 
         bool
         collection_secondary_class(int i,
@@ -164,24 +164,24 @@ namespace cql {
 
         bool
         collection_secondary_type(int i,
-                                  cql::cql_column_type_enum& output) const;
+                                  cql_int_t& output) const;
 
         bool
         collection_secondary_type(const std::string& column,
-                                  cql::cql_column_type_enum& output) const;
+                                  cql_int_t& output) const;
 
         bool
         collection_secondary_type(const std::string& keyspace,
                                   const std::string& table,
                                   const std::string& column,
-                                  cql::cql_column_type_enum& output) const;
+                                  cql_int_t& output) const;
 
     private:
 
         struct option_t {
-            cql::cql_column_type_enum primary_type;
-            cql::cql_column_type_enum collection_primary_type;
-            cql::cql_column_type_enum collection_secondary_type;
+            cql_short_t primary_type;
+            cql_short_t collection_primary_type;
+            cql_short_t collection_secondary_type;
             std::string primary_class;
             std::string collection_primary_class;
             std::string collection_secondary_class;
@@ -192,22 +192,22 @@ namespace cql {
                 collection_secondary_type(CQL_COLUMN_TYPE_UNKNOWN)
             {}
 
-            option_t(cql::cql_column_type_enum primary_type) :
+            option_t(cql_int_t primary_type) :
                 primary_type(primary_type),
                 collection_primary_type(CQL_COLUMN_TYPE_UNKNOWN),
                 collection_secondary_type(CQL_COLUMN_TYPE_UNKNOWN)
             {}
 
-            option_t(cql::cql_column_type_enum primary_type,
-                     cql::cql_column_type_enum collection_primary_type) :
+            option_t(cql_int_t primary_type,
+                     cql_int_t collection_primary_type) :
                 primary_type(primary_type),
                 collection_primary_type(collection_primary_type),
                 collection_secondary_type(CQL_COLUMN_TYPE_UNKNOWN)
             {}
 
-            option_t(cql::cql_column_type_enum primary_type,
-                     cql::cql_column_type_enum collection_primary_type,
-                     cql::cql_column_type_enum collection_secondary_type) :
+            option_t(cql_int_t primary_type,
+                     cql_int_t collection_primary_type,
+                     cql_int_t collection_secondary_type) :
                 primary_type(primary_type),
                 collection_primary_type(collection_primary_type),
                 collection_secondary_type(collection_secondary_type)
