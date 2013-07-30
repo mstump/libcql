@@ -21,7 +21,6 @@ BOOST_AUTO_TEST_CASE(decode_option)
     cql_short_t id       = 0;
     std::string custom;
 
-
     cql_byte_t* pos = cql::decode_option(buffer, id, custom);
     BOOST_CHECK_EQUAL(1, id);
     BOOST_CHECK_EQUAL("", custom);
