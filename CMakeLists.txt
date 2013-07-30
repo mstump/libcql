@@ -131,7 +131,7 @@ add_custom_target(uninstall
 # unit tests
 #-------------------
 enable_testing()
-add_subdirectory(test/unit_tests)
+add_subdirectory(test/unit)
 
 #-------------------
 # the demo program
