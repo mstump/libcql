@@ -25,6 +25,7 @@
 
 #include "libcql/cql.h"
 #include "cql_defines.hpp"
+#include "cql_message.hpp"
 #include "cql_serialization.hpp"
 #include "cql_util.hpp"
 #include "cql_vector_stream.hpp"

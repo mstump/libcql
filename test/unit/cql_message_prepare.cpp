@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "libcql/cql.h"
-#include "libcql/cql_error.hpp"
-#include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_message_prepare_impl.hpp"
+#include "cql_error.hpp"
+#include "cql_defines.hpp"
+#include "cql_message_prepare.hpp"
 
 BOOST_AUTO_TEST_SUITE(cql_message_prepare)
 
@@ -15,13 +15,13 @@ char TEST_MESSAGE_PREPARE[] = {
 
 BOOST_AUTO_TEST_CASE(opcode)
 {
-	cql::cql_message_prepare_impl_t m;
-	BOOST_CHECK_EQUAL(cql::CQL_OPCODE_PREPARE, m.opcode());
+	cql::cql_message_prepare_t m;
+	BOOST_CHECK_EQUAL(CQL_OPCODE_PREPARE, m.opcode());
 }
 
 BOOST_AUTO_TEST_CASE(serialization_to_byte)
 {
-	cql::cql_message_prepare_impl_t m("SELECT * from schema_keyspaces;");
+	cql::cql_message_prepare_t m("SELECT * from schema_keyspaces;");
     cql::cql_error_t err;
     m.prepare(&err);
     BOOST_CHECK_EQUAL(sizeof(TEST_MESSAGE_PREPARE), m.size());
@@ -30,7 +30,7 @@ BOOST_AUTO_TEST_CASE(serialization_to_byte)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte)
 {
-	cql::cql_message_prepare_impl_t m;
+	cql::cql_message_prepare_t m;
     m.buffer()->assign(TEST_MESSAGE_PREPARE, TEST_MESSAGE_PREPARE + sizeof(TEST_MESSAGE_PREPARE));
     cql::cql_error_t err;
     m.consume(&err);

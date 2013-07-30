@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "libcql/cql.h"
-#include "libcql/cql_error.hpp"
-#include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_message_query_impl.hpp"
+#include "cql_error.hpp"
+#include "cql_defines.hpp"
+#include "cql_message_query.hpp"
 
 BOOST_AUTO_TEST_SUITE(cql_message_query)
 
@@ -13,13 +13,13 @@ char TEST_MESSAGE_QUERY[] = {
 
 BOOST_AUTO_TEST_CASE(opcode)
 {
-	cql::cql_message_query_impl_t m;
-	BOOST_CHECK_EQUAL(cql::CQL_OPCODE_QUERY, m.opcode());
+	cql::cql_message_query_t m;
+	BOOST_CHECK_EQUAL(CQL_OPCODE_QUERY, m.opcode());
 }
 
 BOOST_AUTO_TEST_CASE(serialization_to_byte)
 {
-	cql::cql_message_query_impl_t m("use system;", cql::CQL_CONSISTENCY_ALL);
+	cql::cql_message_query_t m("use system;", CQL_CONSISTENCY_ALL);
     cql::cql_error_t err;
     m.prepare(&err);
     BOOST_CHECK_EQUAL(sizeof(TEST_MESSAGE_QUERY), m.size());
@@ -28,13 +28,13 @@ BOOST_AUTO_TEST_CASE(serialization_to_byte)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte)
 {
-	cql::cql_message_query_impl_t m;
+	cql::cql_message_query_t m;
     m.buffer()->assign(TEST_MESSAGE_QUERY, TEST_MESSAGE_QUERY + sizeof(TEST_MESSAGE_QUERY));
     cql::cql_error_t err;
     m.consume(&err);
 
 	BOOST_CHECK_EQUAL("use system;", m.query());
-	BOOST_CHECK_EQUAL(cql::CQL_CONSISTENCY_ALL, m.consistency());
+	BOOST_CHECK_EQUAL(CQL_CONSISTENCY_ALL, m.consistency());
 }
 
 BOOST_AUTO_TEST_SUITE_END()

@@ -30,7 +30,7 @@
 
 #include "cql_message_result.hpp"
 
-std::string
+inline std::string
 result_type_string(cql_short_t t)
 {
     switch(t) {

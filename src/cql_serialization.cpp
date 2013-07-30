@@ -621,7 +621,7 @@ cql::decode_option(
     cql_short_t& id,
     std::string& value)
 {
-    cql::decode_short(input, id);
+    input = cql::decode_short(input, id);
     if (id == CQL_COLUMN_TYPE_CUSTOM) {
         input = cql::decode_string(input, value);
     }

@@ -2,12 +2,12 @@
 #include <string.h>
 
 #include "libcql/cql.h"
-#include "libcql/cql_error.hpp"
-#include "libcql/cql_list.hpp"
-#include "libcql/cql_set.hpp"
-#include "libcql/cql_map.hpp"
-#include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_message_result_impl.hpp"
+#include "cql_error.hpp"
+#include "cql_list.hpp"
+#include "cql_set.hpp"
+#include "cql_map.hpp"
+#include "cql_defines.hpp"
+#include "cql_message_result.hpp"
 
 BOOST_AUTO_TEST_SUITE(cql_message_result)
 
@@ -117,13 +117,13 @@ TEST_MESSAGE_RESULT[] = { 0x00, 0x00, 0x00, 0x02, // result_type(int=2)
 
 BOOST_AUTO_TEST_CASE(opcode)
 {
-	cql::cql_message_result_impl_t m;
-	BOOST_CHECK_EQUAL(cql::CQL_OPCODE_RESULT, m.opcode());
+	cql::cql_message_result_t m;
+	BOOST_CHECK_EQUAL(CQL_OPCODE_RESULT, m.opcode());
 }
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte_size)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -133,17 +133,17 @@ BOOST_AUTO_TEST_CASE(serialization_from_byte_size)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte_result_type)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
 
-    BOOST_CHECK_EQUAL(cql::CQL_RESULT_ROWS, m.result_type());
+    BOOST_CHECK_EQUAL(CQL_RESULT_ROWS, m.result_type());
 }
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte_flags)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -153,7 +153,7 @@ BOOST_AUTO_TEST_CASE(serialization_from_byte_flags)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte_global_keyspace_and_table)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -166,7 +166,7 @@ BOOST_AUTO_TEST_CASE(serialization_from_byte_global_keyspace_and_table)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte_row_count)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -175,7 +175,7 @@ BOOST_AUTO_TEST_CASE(serialization_from_byte_row_count)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte_column_count)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -184,7 +184,7 @@ BOOST_AUTO_TEST_CASE(serialization_from_byte_column_count)
 
 BOOST_AUTO_TEST_CASE(column_index_by_name)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -214,40 +214,40 @@ BOOST_AUTO_TEST_CASE(column_index_by_name)
 
 BOOST_AUTO_TEST_CASE(column_type)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
 
     cql_int_t t;
     m.column_type("ascii", t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_ASCII, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_ASCII, t);
 
     m.column_type(0, t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_ASCII, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_ASCII, t);
 
     m.column_type("int", t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_INT, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_INT, t);
 
     m.column_type(10, t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_INT, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_INT, t);
 
     m.column_type("varint", t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_VARINT, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_VARINT, t);
 
     m.column_type(16, t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_VARINT, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_VARINT, t);
 
     m.column_type("a_set", t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_SET, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_SET, t);
 
     m.column_type(3, t);
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_SET, t);
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_SET, t);
 }
 
 BOOST_AUTO_TEST_CASE(next)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -256,7 +256,7 @@ BOOST_AUTO_TEST_CASE(next)
 
 BOOST_AUTO_TEST_CASE(next_next)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -267,7 +267,7 @@ BOOST_AUTO_TEST_CASE(next_next)
 
 BOOST_AUTO_TEST_CASE(deserialize_string_name)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -280,7 +280,7 @@ BOOST_AUTO_TEST_CASE(deserialize_string_name)
 
 BOOST_AUTO_TEST_CASE(deserialize_string_index)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -293,7 +293,7 @@ BOOST_AUTO_TEST_CASE(deserialize_string_index)
 
 BOOST_AUTO_TEST_CASE(deserialize_int_name)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -306,7 +306,7 @@ BOOST_AUTO_TEST_CASE(deserialize_int_name)
 
 BOOST_AUTO_TEST_CASE(deserialize_int_index)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -319,7 +319,7 @@ BOOST_AUTO_TEST_CASE(deserialize_int_index)
 
 BOOST_AUTO_TEST_CASE(deserialize_double_name)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -332,7 +332,7 @@ BOOST_AUTO_TEST_CASE(deserialize_double_name)
 
 BOOST_AUTO_TEST_CASE(deserialize_double_index)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -345,7 +345,7 @@ BOOST_AUTO_TEST_CASE(deserialize_double_index)
 
 BOOST_AUTO_TEST_CASE(deserialize_float_name)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -358,7 +358,7 @@ BOOST_AUTO_TEST_CASE(deserialize_float_name)
 
 BOOST_AUTO_TEST_CASE(deserialize_float_index)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -371,7 +371,7 @@ BOOST_AUTO_TEST_CASE(deserialize_float_index)
 
 BOOST_AUTO_TEST_CASE(deserialize_data_0)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -389,7 +389,7 @@ BOOST_AUTO_TEST_CASE(deserialize_data_0)
 
 BOOST_AUTO_TEST_CASE(deserialize_data_10)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -407,7 +407,7 @@ BOOST_AUTO_TEST_CASE(deserialize_data_10)
 
 BOOST_AUTO_TEST_CASE(deserialize_data_14)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -426,7 +426,7 @@ BOOST_AUTO_TEST_CASE(deserialize_data_14)
 
 BOOST_AUTO_TEST_CASE(deserialize_list)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -447,12 +447,12 @@ BOOST_AUTO_TEST_CASE(deserialize_list)
     BOOST_CHECK_EQUAL(true, list->get_bool(2, value));
     BOOST_CHECK(!value);
 
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_BOOLEAN, list->element_type());
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_BOOLEAN, list->element_type());
 }
 
 BOOST_AUTO_TEST_CASE(deserialize_set)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -473,12 +473,12 @@ BOOST_AUTO_TEST_CASE(deserialize_set)
     BOOST_CHECK_EQUAL(true, set->get_int(2, value));
     BOOST_CHECK_EQUAL(3, value);
 
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_INT, set->element_type());
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_INT, set->element_type());
 }
 
 BOOST_AUTO_TEST_CASE(deserialize_map)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -503,13 +503,13 @@ BOOST_AUTO_TEST_CASE(deserialize_map)
     BOOST_CHECK_EQUAL(true, map->get_value_int(1, value));
     BOOST_CHECK_EQUAL(2, value);
 
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_VARCHAR, map->key_type());
-    BOOST_CHECK_EQUAL(cql::CQL_COLUMN_TYPE_INT, map->value_type());
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_VARCHAR, map->key_type());
+    BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_INT, map->value_type());
 }
 
 BOOST_AUTO_TEST_CASE(not_null)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -523,7 +523,7 @@ BOOST_AUTO_TEST_CASE(not_null)
 
 BOOST_AUTO_TEST_CASE(null_columns_map)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
@@ -541,7 +541,7 @@ BOOST_AUTO_TEST_CASE(null_columns_map)
 
 BOOST_AUTO_TEST_CASE(null_columns_text)
 {
-	cql::cql_message_result_impl_t m;
+	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);

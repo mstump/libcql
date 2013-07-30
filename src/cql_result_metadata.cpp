@@ -67,7 +67,8 @@ cql::cql_result_metadata_t::str() const
 }
 
 cql_byte_t*
-cql::cql_result_metadata_t::read(cql_byte_t* input)
+cql::cql_result_metadata_t::read(
+    cql_byte_t* input)
 {
     input = cql::decode_int(input, _flags);
     input = cql::decode_int(input, _column_count);

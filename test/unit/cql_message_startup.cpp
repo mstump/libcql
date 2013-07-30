@@ -1,8 +1,8 @@
 #include <boost/test/unit_test.hpp>
 #include "libcql/cql.h"
-#include "libcql/cql_error.hpp"
-#include "libcql/internal/cql_defines.hpp"
-#include "libcql/internal/cql_message_startup_impl.hpp"
+#include "cql_error.hpp"
+#include "cql_defines.hpp"
+#include "cql_message_startup.hpp"
 
 BOOST_AUTO_TEST_SUITE(cql_message_startup)
 
@@ -13,13 +13,13 @@ char TEST_MESSAGE_STARTUP[] = {
 
 BOOST_AUTO_TEST_CASE(opcode)
 {
-	cql::cql_message_startup_impl_t m;
-	BOOST_CHECK_EQUAL(cql::CQL_OPCODE_STARTUP, m.opcode());
+	cql::cql_message_startup_t m;
+	BOOST_CHECK_EQUAL(CQL_OPCODE_STARTUP, m.opcode());
 }
 
 BOOST_AUTO_TEST_CASE(serialization_to_byte)
 {
-	cql::cql_message_startup_impl_t m;
+	cql::cql_message_startup_t m;
     m.version(CQL_VERSION_IMPL);
     cql::cql_error_t err;
     m.prepare(&err);
@@ -29,7 +29,7 @@ BOOST_AUTO_TEST_CASE(serialization_to_byte)
 
 BOOST_AUTO_TEST_CASE(serialization_from_byte)
 {
-	cql::cql_message_startup_impl_t m;
+	cql::cql_message_startup_t m;
     m.buffer()->assign(TEST_MESSAGE_STARTUP, TEST_MESSAGE_STARTUP + sizeof(TEST_MESSAGE_STARTUP));
     cql::cql_error_t err;
     m.consume(&err);
