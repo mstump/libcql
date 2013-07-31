@@ -54,11 +54,23 @@ struct cql_context_t :
                                 log_callback);
     }
 
+    inline void
+    set_opt(int         option,
+            const void* value,
+            size_t      value_size)
+    {
+        const cql_byte_t* byte_value = static_cast<const cql_byte_t*>(value);
+        options[option] = std::vector<cql_byte_t>(byte_value, byte_value + value_size);
+    }
+
+    typedef std::map<int, std::vector<cql_byte_t> >  options_container_t;
+
     boost::asio::io_service               io_service;
     boost::asio::ssl::context             ssl_context;
     boost::asio::io_service::work         io_work;
     boost::thread                         io_thread;
     std::auto_ptr<cql::cql_client_pool_t> pool;
+    options_container_t                   options;
     cql::cql_client_t::cql_log_callback_t log_callback;
 };
 
@@ -154,6 +166,20 @@ cql_context_free(
 }
 
 bool
+cql_set_opt(
+    void*  context,
+    int    option,
+    void*  value,
+    size_t value_size,
+    void** status)
+{
+    (void) status;
+
+    static_cast<cql_context_t*>(context)->set_opt(option, value, value_size);
+    return true;
+}
+
+bool
 cql_init(
     void*  context,
     void** status)
@@ -238,6 +264,17 @@ cql_future_get_error_message(
     static_cast<future_base_t*>(future)->error_message(message);
 }
 
+bool
+cql_future_get_result(
+    void*  context,
+    void*  future,
+    void** result)
+{
+    (void) context;
+    (void) future;
+    (void) message;
+    return false;
+}
 
 void*
 cql_query(

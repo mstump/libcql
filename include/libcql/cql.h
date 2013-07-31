@@ -132,7 +132,7 @@ typedef int8_t    cql_stream_id_t;
 
 /******************************************************************************/
 /*                                                                            */
-/* CQL Context and Pool                                                       */
+/* CQL Context initialization and configuration                               */
 /*                                                                            */
 /******************************************************************************/
 
@@ -144,9 +144,23 @@ cql_context_free(
     void* context);
 
 CQL_EXPORT bool
+cql_set_opt(
+    void*  context,
+    int    option,
+    void*  value,
+    size_t value_size,
+    void** status);
+
+CQL_EXPORT bool
 cql_init(
     void*  context,
     void** status);
+
+/******************************************************************************/
+/*                                                                            */
+/* Pool                                                                       */
+/*                                                                            */
+/******************************************************************************/
 
 CQL_EXPORT void
 cql_close(
@@ -190,6 +204,12 @@ cql_future_get_error_message(
     void*  context,
     void*  future,
     char** message);
+
+CQL_EXPORT bool
+cql_future_get_result(
+    void*  context,
+    void*  future,
+    void** result);
 
 /******************************************************************************/
 /*                                                                            */
@@ -264,6 +284,19 @@ cql_execute_push_bigint(
     void*   context,
     void*   prepared,
     int64_t param);
+
+/******************************************************************************/
+/*                                                                            */
+/* Result data                                                                */
+/*                                                                            */
+/******************************************************************************/
+
+
+CQL_EXPORT bool
+cql_result_get_type(
+    cql_int_t
+    result_type() const;
+
 
 
 
