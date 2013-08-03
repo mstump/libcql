@@ -162,9 +162,10 @@ cql_init(
 /*                                                                            */
 /******************************************************************************/
 
-CQL_EXPORT void
+CQL_EXPORT bool
 cql_close(
-    void*  context);
+    void*  context,
+    void** status);
 
 CQL_EXPORT void*
 cql_add_client(
@@ -209,7 +210,8 @@ CQL_EXPORT bool
 cql_future_get_result(
     void*  context,
     void*  future,
-    void** result);
+    void** result,
+    void** status);
 
 /******************************************************************************/
 /*                                                                            */
@@ -236,53 +238,57 @@ cql_execute_new(
     void*  id,
     size_t id_size);
 
+CQL_EXPORT void
+cql_execute_free(
+    void*  execute);
+
 CQL_EXPORT void*
 cql_execute(
     void* context,
-    void* prepared,
+    void* execute,
     int   consistency);
 
 CQL_EXPORT void
 cql_execute_push_data(
     void*  context,
-    void*  prepared,
+    void*  execute,
     void*  data,
     size_t data_size);
 
 CQL_EXPORT void
 cql_execute_push_bool(
     void* context,
-    void* prepared,
+    void* execute,
     bool  param);
 
 CQL_EXPORT void
 cql_execute_push_short(
     void* context,
-    void* prepared,
+    void* execute,
     short param);
 
 CQL_EXPORT void
 cql_execute_push_int(
     void* context,
-    void* prepared,
+    void* execute,
     int   param);
 
 CQL_EXPORT void
 cql_execute_push_float(
     void* context,
-    void* prepared,
+    void* execute,
     float param);
 
 CQL_EXPORT void
 cql_execute_push_double(
     void* context,
-    void* prepared,
+    void* execute,
     float param);
 
 CQL_EXPORT void
 cql_execute_push_bigint(
     void*   context,
-    void*   prepared,
+    void*   execute,
     int64_t param);
 
 /******************************************************************************/
@@ -292,10 +298,10 @@ cql_execute_push_bigint(
 /******************************************************************************/
 
 
-CQL_EXPORT bool
-cql_result_get_type(
-    cql_int_t
-    result_type() const;
+// CQL_EXPORT bool
+// cql_result_get_type(
+//     cql_int_t
+//     result_type() const;
 
 
 

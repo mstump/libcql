@@ -35,8 +35,16 @@ cql::cql_message_execute_t::cql_message_execute_t() :
     _consistency(CQL_CONSISTENCY_ONE)
 {}
 
-cql::cql_message_execute_t::cql_message_execute_t(size_t size) :
+cql::cql_message_execute_t::cql_message_execute_t(
+    size_t size) :
     _buffer(new std::vector<cql_byte_t>(size)),
+    _consistency(CQL_CONSISTENCY_ONE)
+{}
+
+cql::cql_message_execute_t::cql_message_execute_t(
+    const cql_byte_t* id,
+    size_t            id_size) :
+    _buffer(new std::vector<cql_byte_t>(id, id + id_size)),
     _consistency(CQL_CONSISTENCY_ONE)
 {}
 
@@ -146,6 +154,14 @@ cql::cql_message_execute_t::push_back(
     cql::cql_message_execute_t::param_t p;
     cql::encode_bool(p, val);
     _params.push_back(p);
+}
+
+void
+cql::cql_message_execute_t::push_back(
+    const cql_byte_t* data,
+    size_t            data_size)
+{
+    _params.push_back(cql::cql_message_execute_t::param_t(data, data + data_size));
 }
 
 void

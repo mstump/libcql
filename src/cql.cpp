@@ -268,11 +268,13 @@ bool
 cql_future_get_result(
     void*  context,
     void*  future,
-    void** result)
+    void** result,
+    void** status)
 {
     (void) context;
     (void) future;
-    (void) message;
+    (void) result;
+    (void) status;
     return false;
 }
 
@@ -302,20 +304,103 @@ cql_prepare(
     return NULL;
 }
 
-// void*
-// cql_execute_new(
-//     void*  context,
-//     void*  id,
-//     size_t id_size)
-// {
+void*
+cql_execute_new(
+    void*  context,
+    void*  id,
+    size_t id_size)
+{
+    (void) context;
+    return new cql::cql_message_execute_t(static_cast<cql_byte_t*>(id), id_size);
+}
 
-// }
+void
+cql_execute_free(
+    void*  execute)
+{
+    delete static_cast<cql::cql_message_execute_t*>(execute);
+}
 
-// void*
-// cql_execute(
-//     void* context,
-//     void* prepared,
-//     int   consistency)
-// {
+void*
+cql_execute(
+    void* context,
+    void* execute,
+    int   consistency)
+{
+    static_cast<cql::cql_message_execute_t*>(execute)->consistency(consistency);
 
-// }
+    return new future_t<boost::shared_future<cql::cql_future_result_t> >(
+        static_cast<cql_context_t*>(context)->pool->execute(*static_cast<cql::cql_message_execute_t*>(execute)),
+        future_base_t::RESULT_FUTURE);
+}
+
+void
+cql_execute_push_data(
+    void*  context,
+    void*  execute,
+    void*  data,
+    size_t data_size)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(static_cast<cql_byte_t*>(data), data_size);
+}
+
+void
+cql_execute_push_bool(
+    void* context,
+    void* execute,
+    bool  param)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
+}
+
+void
+cql_execute_push_short(
+    void* context,
+    void* execute,
+    short param)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
+}
+
+void
+cql_execute_push_int(
+    void* context,
+    void* execute,
+    int   param)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
+}
+
+void
+cql_execute_push_float(
+    void* context,
+    void* execute,
+    float param)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
+}
+
+void
+cql_execute_push_double(
+    void* context,
+    void* execute,
+    float param)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
+}
+
+void
+cql_execute_push_bigint(
+    void*   context,
+    void*   execute,
+    int64_t param)
+{
+    (void) context;
+    static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
+}

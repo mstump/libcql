@@ -42,6 +42,10 @@ namespace cql {
             size_t size);
 
         cql_message_execute_t(
+            const cql_byte_t* id,
+            size_t            id_size);
+
+        cql_message_execute_t(
             const std::vector<cql_byte_t>& id,
             cql_short_t consistency);
 
@@ -90,6 +94,11 @@ namespace cql {
         void
         push_back(
             const bool val);
+
+        void
+        push_back(
+            const cql_byte_t* data,
+            size_t            data_size);
 
         void
         pop_back();
