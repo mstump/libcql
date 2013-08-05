@@ -20,11 +20,13 @@
 #define CQL_MESSAGE_RESULT_H_
 
 #include <vector>
+#include <boost/multi_array.hpp>
 #include <boost/asio/buffer.hpp>
 
 #include "libcql/cql.h"
 #include "cql_message.hpp"
 #include "cql_result_metadata.hpp"
+#include "cql_serialization.hpp"
 
 namespace cql {
 
@@ -55,17 +57,20 @@ namespace cql {
         std::string
         str() const;
 
-        size_t
-        column_count() const;
+        inline size_t
+        column_count() const
+        {
+            return _values.shape()[1];
+        }
 
-        size_t
-        row_count() const;
+        inline size_t
+        row_count() const
+        {
+            return _values.shape()[0];
+        }
 
         const std::vector<cql_byte_t>&
         query_id() const;
-
-        bool
-        next();
 
         bool
         consume(
@@ -81,182 +86,144 @@ namespace cql {
         const cql_result_metadata_t&
         get_metadata();
 
-        bool
+        inline bool
         exists(
-            const std::string& column) const;
+            const std::string& column) const
+        {
+            return _metadata.exists(column);
+        }
 
-        bool
-        column_class(
-            int i,
-            std::string& output) const;
-
-        bool
-        column_class(
-            const std::string& column,
-            std::string& output) const;
-
-        bool
-        column_type(
-            int i,
-            cql_int_t& output) const;
-
-        bool
-        column_type(
-            const std::string& column,
-            cql_int_t& output) const;
-
-        bool
+        inline bool
         get_index(
             const std::string& column,
-            int& output) const;
+            size_t&            output) const
+        {
+            return _metadata.get_index(column, reinterpret_cast<int&>(output));
+        }
 
-        bool
-        is_null(
-            int i,
-            bool& output) const;
+        inline bool
+        column_class(
+            size_t       column,
+            std::string& output) const
+        {
+            return _metadata.column_class(column, output);
+        }
 
-        bool
+        inline bool
+        column_type(
+            size_t     column,
+            cql_int_t& output) const
+        {
+            return _metadata.column_type(column, output);
+        }
+
+        inline bool
         is_null(
-            const std::string& column,
-            bool& output) const;
+            size_t row,
+            size_t column,
+            bool&  output) const
+        {
+            if (row > row_count() || column > column_count()) {
+                return false;
+            }
+
+            cql_int_t size = 0;
+            cql::decode_int(_values[row][column], size);
+            output = size <= 0;
+            return true;
+        }
 
         bool
         get_bool(
-            int i,
-            bool& output) const;
-
-        bool
-        get_bool(
-            const std::string& column,
-            bool& output) const;
+            size_t row,
+            size_t column,
+            bool&  output) const;
 
         bool
         get_int(
-            int i,
-            cql_int_t& output) const;
-
-        bool
-        get_int(
-            const std::string& column,
+            size_t      row,
+            size_t     column,
             cql_int_t& output) const;
 
         bool
         get_float(
-            int i,
-            float& output) const;
-
-        bool
-        get_float(
-            const std::string& column,
+            size_t row,
+            size_t column,
             float& output) const;
 
         bool
         get_double(
-            int i,
-            double& output) const;
-
-        bool
-        get_double(
-            const std::string& column,
+            size_t  row,
+            size_t  column,
             double& output) const;
 
         bool
         get_bigint(
-            int i,
-            cql_bigint_t& output) const;
-
-        bool
-        get_bigint(
-            const std::string& column,
+            size_t        row,
+            size_t        column,
             cql_bigint_t& output) const;
 
         bool
         get_string(
-            int i,
-            std::string& output) const;
-
-        bool
-        get_string(
-            const std::string& column,
+            size_t       row,
+            size_t       column,
             std::string& output) const;
 
         bool
         get_data(
-            int i,
+            size_t       row,
+            size_t       column,
             cql_byte_t** output,
-            cql_int_t& size) const;
-
-        bool
-        get_data(
-            const std::string& column,
-            cql_byte_t** output,
-            cql_int_t& size) const;
+            cql_int_t&   size) const;
 
         bool
         get_list(
-            int i,
-            cql::cql_list_t** output) const;
-
-        bool
-        get_list(
-            const std::string& column,
+            size_t            row,
+            size_t            column,
             cql::cql_list_t** output) const;
 
         bool
         get_set(
-            int i,
-            cql::cql_set_t** output) const;
-
-        bool
-        get_set(
-            const std::string& column,
+            size_t           row,
+            size_t           column,
             cql::cql_set_t** output) const;
 
         bool
         get_map(
-            int i,
-            cql::cql_map_t** output) const;
-
-        bool
-        get_map(
-            const std::string& column,
+            size_t           row,
+            size_t           column,
             cql::cql_map_t** output) const;
 
         inline bool
         is_valid(
-            int i,
+            size_t    row,
+            size_t    column,
             cql_int_t column_type) const
         {
             bool index_null = false;
-            if (!is_null(i, index_null) || index_null) {
+            if (!is_null(row, column, index_null) || index_null) {
                 return false;
             }
 
             cql_int_t t = CQL_COLUMN_TYPE_UNKNOWN;
-            if (!_metadata.column_type(i, t)) {
+            if (!_metadata.column_type(column, t) || column_type != t) {
                 return false;
             }
 
-            if (column_type != t) {
-                return false;
-            }
-
-            return (*reinterpret_cast<cql_int_t*>(_row[i]) != 0);
+            return (*reinterpret_cast<cql_int_t*>(_values[row][column]) != 0);
         }
 
 
     private:
-        cql::cql_message_buffer_t  _buffer;
-        cql_byte_t*                _pos;
-        std::vector<cql_byte_t*>   _row;
-        size_t                     _row_pos;
-        cql_int_t                  _row_count;
-        cql_int_t                  _column_count;
-        std::vector<cql_byte_t>    _query_id;
-        cql_int_t                  _result_type;
-        std::string                _keyspace_name;
-        std::string                _table_name;
-        cql::cql_result_metadata_t _metadata;
+        typedef boost::multi_array<cql_byte_t*, 2> value_array_t;
+
+        cql::cql_message_buffer_t                  _buffer;
+        value_array_t                              _values;
+        std::vector<cql_byte_t>                    _query_id;
+        cql_int_t                                  _result_type;
+        std::string                                _keyspace_name;
+        std::string                                _table_name;
+        cql::cql_result_metadata_t                 _metadata;
     };
 
 } // namespace cql

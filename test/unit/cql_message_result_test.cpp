@@ -189,7 +189,7 @@ BOOST_AUTO_TEST_CASE(column_index_by_name)
     cql::cql_error_t err;
     m.consume(&err);
 
-    int index = -1;
+    size_t index = 0;
     m.get_index("ascii", index);
     BOOST_CHECK_EQUAL(0, index);
 
@@ -220,152 +220,81 @@ BOOST_AUTO_TEST_CASE(column_type)
     m.consume(&err);
 
     cql_int_t t;
-    m.column_type("ascii", t);
+    size_t index = 0;
+    BOOST_CHECK(m.get_index("ascii", index));
+    BOOST_CHECK(m.column_type(index, t));
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_ASCII, t);
 
     m.column_type(0, t);
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_ASCII, t);
 
-    m.column_type("int", t);
+    BOOST_CHECK(m.get_index("int", index));
+    BOOST_CHECK(m.column_type(index, t));
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_INT, t);
 
     m.column_type(10, t);
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_INT, t);
 
-    m.column_type("varint", t);
+    BOOST_CHECK(m.get_index("varint", index));
+    BOOST_CHECK(m.column_type(index, t));
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_VARINT, t);
 
     m.column_type(16, t);
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_VARINT, t);
 
-    m.column_type("a_set", t);
+    BOOST_CHECK(m.get_index("a_set", index));
+    BOOST_CHECK(m.column_type(index, t));
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_SET, t);
 
     m.column_type(3, t);
     BOOST_CHECK_EQUAL(CQL_COLUMN_TYPE_SET, t);
 }
 
-BOOST_AUTO_TEST_CASE(next)
+BOOST_AUTO_TEST_CASE(deserialize_string)
 {
 	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-}
-
-BOOST_AUTO_TEST_CASE(next_next)
-{
-	cql::cql_message_result_t m;
-    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
-    cql::cql_error_t err;
-    m.consume(&err);
-    BOOST_CHECK(m.next());
-    BOOST_CHECK(m.next());
-    BOOST_CHECK(!m.next());
-}
-
-BOOST_AUTO_TEST_CASE(deserialize_string_name)
-{
-	cql::cql_message_result_t m;
-    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
-    cql::cql_error_t err;
-    m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     std::string val;
-    BOOST_CHECK_EQUAL(true, m.get_string("text", val));
+    BOOST_CHECK_EQUAL(true, m.get_string(0, 11, val));
     BOOST_CHECK_EQUAL("text", val);
 }
 
-BOOST_AUTO_TEST_CASE(deserialize_string_index)
+BOOST_AUTO_TEST_CASE(deserialize_int)
 {
 	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-
-    std::string val;
-    BOOST_CHECK_EQUAL(true, m.get_string(11, val));
-    BOOST_CHECK_EQUAL("text", val);
-}
-
-BOOST_AUTO_TEST_CASE(deserialize_int_name)
-{
-	cql::cql_message_result_t m;
-    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
-    cql::cql_error_t err;
-    m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     int val = -1;
-    BOOST_CHECK_EQUAL(true, m.get_int("int", val));
+    BOOST_CHECK_EQUAL(true, m.get_int(0, 10, val));
     BOOST_CHECK_EQUAL(314, val);
 }
 
-BOOST_AUTO_TEST_CASE(deserialize_int_index)
+BOOST_AUTO_TEST_CASE(deserialize_double)
 {
 	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-
-    int val = -1;
-    BOOST_CHECK_EQUAL(true, m.get_int(10, val));
-    BOOST_CHECK_EQUAL(314, val);
-}
-
-BOOST_AUTO_TEST_CASE(deserialize_double_name)
-{
-	cql::cql_message_result_t m;
-    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
-    cql::cql_error_t err;
-    m.consume(&err);
-    BOOST_CHECK(m.next());
 
     double val = -1;
-    BOOST_CHECK(m.get_double("double", val));
+    BOOST_CHECK(m.get_double(0, 8, val));
     BOOST_CHECK_CLOSE(3.1434532100000001, val, 0.0000000000000001); // not what you expect due to double limits
 }
 
-BOOST_AUTO_TEST_CASE(deserialize_double_index)
+BOOST_AUTO_TEST_CASE(deserialize_float)
 {
 	cql::cql_message_result_t m;
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK(m.next());
-
-    double val = -1;
-    BOOST_CHECK(m.get_double("double", val));
-    BOOST_CHECK_CLOSE(3.1434532100000001, val, 0.0000000000000001); // not what you expect due to double limits
-}
-
-BOOST_AUTO_TEST_CASE(deserialize_float_name)
-{
-	cql::cql_message_result_t m;
-    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
-    cql::cql_error_t err;
-    m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     float val = -1;
-    BOOST_CHECK_EQUAL(true, m.get_float("float", val));
-    BOOST_CHECK_CLOSE(3.14, val, 0.001); // not what you expect due to float limits
-}
-
-BOOST_AUTO_TEST_CASE(deserialize_float_index)
-{
-	cql::cql_message_result_t m;
-    m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
-    cql::cql_error_t err;
-    m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-
-    float val = -1;
-    BOOST_CHECK_EQUAL(true, m.get_float(9, val));
+    BOOST_CHECK_EQUAL(true, m.get_float(0, 9, val));
     BOOST_CHECK_CLOSE(3.14, val, 0.001); // not what you expect due to float limits
 }
 
@@ -375,14 +304,13 @@ BOOST_AUTO_TEST_CASE(deserialize_data_0)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     cql_byte_t* data = 0;
     cql_int_t size = 0;
 
     const char test_str[] = {0x61, 0x73, 0x63, 0x69, 0x69};
 
-    BOOST_CHECK_EQUAL(true, m.get_data(0, &data, size));
+    BOOST_CHECK_EQUAL(true, m.get_data(0, 0, &data, size));
     BOOST_CHECK_EQUAL(5, size);
     BOOST_CHECK(memcmp(test_str, reinterpret_cast<const char*>(data), sizeof(test_str)) == 0);
 }
@@ -393,14 +321,13 @@ BOOST_AUTO_TEST_CASE(deserialize_data_10)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     cql_byte_t* data = 0;
     cql_int_t size = 0;
 
     const char test_str[] = {0x00, 0x04, 0x00, 0x00};
 
-    BOOST_CHECK_EQUAL(true, m.get_data(10, &data, size));
+    BOOST_CHECK_EQUAL(true, m.get_data(0, 10, &data, size));
     BOOST_CHECK_EQUAL(4, size);
     BOOST_CHECK_EQUAL(0, strncmp(test_str, reinterpret_cast<const char*>(data), sizeof(test_str)));
 }
@@ -411,7 +338,6 @@ BOOST_AUTO_TEST_CASE(deserialize_data_14)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     cql_byte_t* data = 0;
     cql_int_t size = 0;
@@ -419,7 +345,7 @@ BOOST_AUTO_TEST_CASE(deserialize_data_14)
     const unsigned char test_str[] = {0x21, 0xc9, 0xb0, 0x31, 0xa3, 0xdc, 0x45, 0x56,
                                       0xb4, 0x2f, 0x12, 0xc2, 0x86, 0x7c, 0x7d, 0x4a, 0x00}; // one extra byte for null terminiation
 
-    BOOST_CHECK_EQUAL(true, m.get_data(14, &data, size));
+    BOOST_CHECK_EQUAL(true, m.get_data(0, 14, &data, size));
     BOOST_CHECK_EQUAL(16, size);
     BOOST_CHECK(memcmp(test_str, reinterpret_cast<const char*>(data), sizeof(test_str)) == 0);
 }
@@ -430,11 +356,10 @@ BOOST_AUTO_TEST_CASE(deserialize_list)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     cql::cql_list_t* list = NULL;
 
-    BOOST_CHECK_EQUAL(true, m.get_list(1, &list));
+    BOOST_CHECK_EQUAL(true, m.get_list(0, 1, &list));
     BOOST_CHECK_EQUAL(3, list->size());
 
     bool value = false;
@@ -456,11 +381,10 @@ BOOST_AUTO_TEST_CASE(deserialize_set)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     cql::cql_set_t* set = NULL;
 
-    BOOST_CHECK_EQUAL(true, m.get_set(3, &set));
+    BOOST_CHECK_EQUAL(true, m.get_set(0, 3, &set));
     BOOST_CHECK_EQUAL(3, set->size());
 
     cql_int_t value = -1;
@@ -482,11 +406,10 @@ BOOST_AUTO_TEST_CASE(deserialize_map)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
 
     cql::cql_map_t* map = NULL;
 
-    BOOST_CHECK_EQUAL(true, m.get_map(2, &map));
+    BOOST_CHECK_EQUAL(true, m.get_map(0, 2, &map));
     BOOST_CHECK_EQUAL(2, map->size());
 
     std::string key;
@@ -513,11 +436,9 @@ BOOST_AUTO_TEST_CASE(not_null)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-    BOOST_CHECK_EQUAL(true, m.next());
 
     bool is_null = false;
-    BOOST_CHECK_EQUAL(true, m.is_null(16, is_null));
+    BOOST_CHECK_EQUAL(true, m.is_null(1, 16, is_null));
     BOOST_CHECK_EQUAL(false, is_null);
 }
 
@@ -527,15 +448,13 @@ BOOST_AUTO_TEST_CASE(null_columns_map)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-    BOOST_CHECK_EQUAL(true, m.next());
 
     bool is_null = false;
-    BOOST_CHECK_EQUAL(true, m.is_null(2, is_null));
+    BOOST_CHECK_EQUAL(true, m.is_null(1, 2, is_null));
     BOOST_CHECK_EQUAL(true, is_null);
 
     cql::cql_map_t* map = NULL;
-    BOOST_CHECK_EQUAL(false, m.get_map(2, &map));
+    BOOST_CHECK_EQUAL(false, m.get_map(1, 2, &map));
     BOOST_CHECK(map == NULL);
 }
 
@@ -545,15 +464,13 @@ BOOST_AUTO_TEST_CASE(null_columns_text)
     m.buffer()->assign(TEST_MESSAGE_RESULT, TEST_MESSAGE_RESULT + sizeof(TEST_MESSAGE_RESULT));
     cql::cql_error_t err;
     m.consume(&err);
-    BOOST_CHECK_EQUAL(true, m.next());
-    BOOST_CHECK_EQUAL(true, m.next());
 
     bool is_null = false;
-    BOOST_CHECK_EQUAL(true, m.is_null(11, is_null));
+    BOOST_CHECK_EQUAL(true, m.is_null(1, 11, is_null));
     BOOST_CHECK_EQUAL(true, is_null);
 
     std::string val;
-    BOOST_CHECK_EQUAL(false, m.get_string(11, val));
+    BOOST_CHECK_EQUAL(false, m.get_string(1, 11, val));
     BOOST_CHECK_EQUAL(true, val.empty());
 }
 

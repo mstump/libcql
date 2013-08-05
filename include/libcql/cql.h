@@ -297,11 +297,35 @@ cql_execute_push_bigint(
 /*                                                                            */
 /******************************************************************************/
 
+CQL_EXPORT cql_int_t
+cql_result_get_type(
+    void* context,
+    void* result);
 
-// CQL_EXPORT bool
-// cql_result_get_type(
-//     cql_int_t
-//     result_type() const;
+CQL_EXPORT size_t
+cql_result_get_column_count(
+    void* context,
+    void* result);
+
+CQL_EXPORT size_t
+cql_result_get_row_count(
+    void* context,
+    void* result);
+
+CQL_EXPORT bool
+cql_result_get_index(
+    void*   context,
+    void*   result,
+    char*   column,
+    size_t  column_size,
+    size_t* index);
+
+CQL_EXPORT bool
+cql_result_is_null(
+    void*  context,
+    void*  result,
+    size_t column);
+
 
 
 
