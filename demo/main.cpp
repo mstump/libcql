@@ -31,6 +31,7 @@
 #include <libcql/cql_execute.hpp>
 #include <libcql/cql_result.hpp>
 
+// helper function to print query results
 void
 print_rows(
     cql::cql_result_t& result)
@@ -47,6 +48,7 @@ print_rows(
     }
 }
 
+// This function is called asynchronously every time an event is logged
 void
 log_callback(
     const cql::cql_short_t,
@@ -55,14 +57,7 @@ log_callback(
     std::cout << "LOG: " << message << std::endl;
 }
 
-void
-event_callback(
-    cql::cql_client_t&,
-    cql::cql_event_t* event)
-{
-    std::cout << "EVENT RECEIVED: " << event->event_type() << std::endl;
-}
-
+// This is a non-SSL client factory
 struct client_functor_t
 {
 
@@ -77,6 +72,7 @@ public:
     cql::cql_client_t*
     operator()()
     {
+        // called every time the pool needs to initiate a new connection to a host
         return cql::cql_client_factory_t::create_cql_client_t(_io_service, _log_callback);
     }
 
@@ -85,6 +81,8 @@ private:
     cql::cql_client_t::cql_log_callback_t _log_callback;
 };
 
+
+// This is an SSL client factory
 struct client_ssl_functor_t
 {
 
@@ -101,6 +99,7 @@ public:
     cql::cql_client_t*
     operator()()
     {
+        // called every time the pool needs to initiate a new connection to a host
         return cql::cql_client_factory_t::create_cql_client_t(_io_service, _ssl_ctx, _log_callback);
     }
 
@@ -116,12 +115,20 @@ main(int argc,
 {
     try
     {
+        // Initialize the IO service, this allows us to perform network operations asyncronously
         boost::asio::io_service io_service;
 
+        // Typically async operations are performed in the thread performing the request, because we want synchronous behavior
+        // we're going to spawn a thread whose sole purpose is to perform network communication, and we'll use this thread to
+        // initiate and check the status of requests.
+        //
+        // Also, typically the boost::asio::io_service::run will exit as soon as it's work is done, which we want to prevent
+        // because it's in it's own thread.  Using boost::asio::io_service::work prevents the thread from exiting.
         std::auto_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(io_service));
         boost::thread thread(boost::bind(&boost::asio::io_service::run, &io_service));
 
-        // decide if we need SSL
+        // decide which client factory we want, SSL or non-SSL.  This is a hack, if you pass any commandline arg to the
+        // binary it will use the SSL factory, non-SSL by default
         boost::asio::ssl::context ctx(boost::asio::ssl::context::sslv23);
         cql::cql_client_pool_t::cql_client_callback_t client_factory;
         if (argc > 1) {
@@ -130,26 +137,49 @@ main(int argc,
         else {
             client_factory = client_functor_t(io_service, &log_callback);
         }
+
+        // Construct the pool
         std::auto_ptr<cql::cql_client_pool_t> pool(cql::cql_client_pool_factory_t::create_client_pool_t(client_factory, NULL, NULL));
+
+        // Add a client to the pool, this operation returns a future.
         boost::shared_future<cql::cql_future_connection_t> connect_future = pool->add_client("localhost", 9042);
+
+        // Wait until the connection is complete, or has failed.
         connect_future.wait();
+
+        // Check whether or not the connection was successful.
         std::cout << "connect successfull? ";
         if (!connect_future.get().error.is_err()) {
+            // The connection succeeded
             std::cout << "TRUE" << std::endl;
 
+            // execute a query, switch keyspaces
             boost::shared_future<cql::cql_future_result_t> future = pool->query("USE system;", cql::CQL_CONSISTENCY_ONE);
+
+            // wait for the query to execute
             future.wait();
+
+            // check whether the query succeeded
             std::cout << "switch keyspace successfull? " << (!future.get().error.is_err() ? "true" : "false") << std::endl;
 
+            // execute a query, select all rows from the keyspace
             future = pool->query("SELECT * from schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
+
+            // wait for the query to execute
             future.wait();
+
+            // check whether the query succeeded
             std::cout << "select successfull? " << (!future.get().error.is_err() ? "true" : "false") << std::endl;
             if (future.get().result) {
+                // print the rows return by the successful query
                 print_rows(*future.get().result);
             }
+
+            // close the connection pool
             pool->close();
         }
         else {
+            // The connection failed
             std::cout << "FALSE" << std::endl;
         }
 
