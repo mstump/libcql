@@ -125,7 +125,7 @@ main(int argc,
         // Also, typically the boost::asio::io_service::run will exit as soon as it's work is done, which we want to prevent
         // because it's in it's own thread.  Using boost::asio::io_service::work prevents the thread from exiting.
         std::auto_ptr<boost::asio::io_service::work> work(new boost::asio::io_service::work(io_service));
-        boost::thread thread(boost::bind(&boost::asio::io_service::run, &io_service));
+        boost::thread thread(boost::bind(static_cast<size_t(boost::asio::io_service::*)()>(&boost::asio::io_service::run), &io_service));
 
         // decide which client factory we want, SSL or non-SSL.  This is a hack, if you pass any commandline arg to the
         // binary it will use the SSL factory, non-SSL by default
