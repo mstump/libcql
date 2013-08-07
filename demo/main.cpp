@@ -20,6 +20,7 @@
 #include <boost/asio/ssl.hpp>
 #include <boost/foreach.hpp>
 #include <boost/lexical_cast.hpp>
+#include <boost/thread.hpp>
 
 #include <libcql/cql.hpp>
 #include <libcql/cql_error.hpp>
