@@ -24,6 +24,7 @@
 #include "cql_socket_ssl.hpp"
 #include "cql_client_impl.hpp"
 #include "cql_client_pool.hpp"
+#include "cql_message_execute.hpp"
 
 typedef cql::cql_client_impl_t<cql::cql_socket_t> client_t;
 typedef cql::cql_client_impl_t<cql::cql_socket_ssl_t> client_ssl_t;
@@ -41,17 +42,17 @@ struct cql_context_t :
     cql::cql_client_t*
     create_client()
     {
-        return new client_t(io_service,
-                            new cql::cql_socket_t(io_service),
-                            log_callback);
+            return new client_t(io_service,
+                                new cql::cql_socket_t(io_service),
+                                log_callback);
     }
 
     cql::cql_client_t*
     create_client_ssl()
     {
-        return new client_ssl_t(io_service,
-                                new cql::cql_socket_ssl_t(io_service, ssl_context),
-                                log_callback);
+            return new client_ssl_t(io_service,
+                                    new cql::cql_socket_ssl_t(io_service, ssl_context),
+                                    log_callback);
     }
 
     inline void
@@ -59,8 +60,8 @@ struct cql_context_t :
             const void* value,
             size_t      value_size)
     {
-        const cql_byte_t* byte_value = static_cast<const cql_byte_t*>(value);
-        options[option] = std::vector<cql_byte_t>(byte_value, byte_value + value_size);
+            const cql_byte_t* byte_value = static_cast<const cql_byte_t*>(value);
+            options[option] = std::vector<cql_byte_t>(byte_value, byte_value + value_size);
     }
 
     typedef std::map<int, std::vector<cql_byte_t> >  options_container_t;
@@ -74,7 +75,7 @@ struct cql_context_t :
     cql::cql_client_t::cql_log_callback_t log_callback;
 };
 
-struct future_base_t
+struct cql_future_t
 {
     enum type_enum {
         CONNECTION_FUTURE,
@@ -102,19 +103,19 @@ struct future_base_t
 
 template<typename T>
 struct future_t :
-    public future_base_t
+    public cql_future_t
 {
     T                        future;
-    future_base_t::type_enum future_type;
+    cql_future_t::type_enum future_type;
 
     future_t(
         T future,
-        future_base_t::type_enum future_type) :
+        cql_future_t::type_enum future_type) :
         future(future),
         future_type(future_type)
     {}
 
-    inline future_base_t::type_enum
+    inline cql_future_t::type_enum
     type()
     {
         return future_type;
@@ -148,11 +149,11 @@ struct future_t :
     error_message(
         char** message)
     {
-        *message = strdup(future.get().error.message.c_str());
+            *message = strdup(future.get().error.message.c_str());
     }
 };
 
-void*
+cql_context_t*
 cql_context_new()
 {
     return new cql_context_t;
@@ -160,38 +161,38 @@ cql_context_new()
 
 void
 cql_context_free(
-    void* context)
+    cql_context_t* context)
 {
-    delete static_cast<cql_context_t*>(context);
+    delete context;
 }
 
 bool
 cql_set_opt(
-    void*  context,
-    int    option,
-    void*  value,
-    size_t value_size,
-    void** status)
+    cql_context_t* context,
+    int            option,
+    void*          value,
+    size_t         value_size,
+    void**         status)
 {
     (void) status;
 
-    static_cast<cql_context_t*>(context)->set_opt(option, value, value_size);
+    context->set_opt(option, value, value_size);
     return true;
 }
 
 bool
 cql_init(
-    void*  context,
-    void** status)
+    cql_context_t* context,
+    void**         status)
 {
     (void) status;
 
     // Note: for SSL
-    // boost::bind(&cql_context_t::create_client_ssl, static_cast<cql_context_t*>(context)),
+    // boost::bind(&cql_context_t::create_client_ssl, context),
 
-    static_cast<cql_context_t*>(context)->pool.reset(
+    context->pool.reset(
         new cql::cql_client_pool_t(
-            boost::bind(&cql_context_t::create_client, static_cast<cql_context_t*>(context)),
+            boost::bind(&cql_context_t::create_client, context),
             NULL,
             NULL));
     return true;
@@ -199,77 +200,77 @@ cql_init(
 
 void
 cql_close(
-    void*  context)
+    cql_context_t* context)
 {
-    static_cast<cql_context_t*>(context)->pool->close();
+    context->pool->close();
 }
 
 void*
 cql_add_client(
-    void*          context,
+    cql_context_t* context,
     void*          host,
     size_t         host_size,
     unsigned short port)
 {
     return new future_t<boost::shared_future<cql::cql_future_connection_t> >(
-        static_cast<cql_context_t*>(context)->pool->add_client(
+        context->pool->add_client(
             std::string(static_cast<char*>(host), host_size),
             port),
-        future_base_t::CONNECTION_FUTURE);
+        cql_future_t::CONNECTION_FUTURE);
 }
 
 bool
 cql_future_ready(
-    void* context,
-    void* future)
+    cql_context_t* context,
+    void*          future)
 {
     (void) context;
-    return static_cast<future_base_t*>(future)->ready();
+    return static_cast<cql_future_t*>(future)->ready();
 }
 
 void
 cql_future_wait(
-    void* context,
-    void* future)
+    cql_context_t* context,
+    void*          future)
 {
     (void) context;
-    return static_cast<future_base_t*>(future)->wait();
+    return static_cast<cql_future_t*>(future)->wait();
 }
 
 bool
 cql_future_success(
-    void* context,
-    void* future)
+    cql_context_t* context,
+    void*          future)
 {
     (void) context;
-    return !static_cast<future_base_t*>(future)->is_err();
+    return !static_cast<cql_future_t*>(future)->is_err();
 }
 
 int
 cql_future_get_error_code(
-    void* context,
-    void* future)
+    cql_context_t* context,
+    void*          future)
 {
     (void) context;
-    return static_cast<future_base_t*>(future)->error_code();
+    return static_cast<cql_future_t*>(future)->error_code();
 }
 
 void
 cql_future_get_error_message(
-    void*  context,
-    void*  future,
-    char** message)
+    cql_context_t* context,
+    void*          future,
+    char**         message)
 {
     (void) context;
-    static_cast<future_base_t*>(future)->error_message(message);
+    static_cast<cql_future_t*>(future)->error_message(message);
 }
 
 bool
 cql_future_get_result(
-    void*  context,
-    void*  future,
-    void** result,
-    void** status)
+    cql_context_t* context,
+    void*          future,
+    void**         result,
+    void**         status)
 {
     (void) context;
     (void) future;
@@ -278,37 +279,37 @@ cql_future_get_result(
     return false;
 }
 
-void*
+cql_future_t*
 cql_query(
-    void*       context,
-    const char* query,
-    size_t      query_size,
-    int         consistency)
+    cql_context_t* context,
+    const char*    query,
+    size_t         query_size,
+    int            consistency)
 {
     std::string query_string(query, query_size);
     return new future_t<boost::shared_future<cql::cql_future_result_t> >(
-        static_cast<cql_context_t*>(context)->pool->query(query_string, consistency),
-        future_base_t::RESULT_FUTURE);
+        context->pool->query(query_string, consistency),
+        cql_future_t::RESULT_FUTURE);
 }
 
-void*
+cql_future_t*
 cql_prepare(
-    void*       context,
-    const char* query,
-    size_t      query_size)
+    cql_context_t* context,
+    const char*    query,
+    size_t         query_size)
 {
     std::string query_string(query, query_size);
     return new future_t<boost::shared_future<cql::cql_future_result_t> >(
-        static_cast<cql_context_t*>(context)->pool->prepare(query_string),
-        future_base_t::RESULT_FUTURE);
+        context->pool->prepare(query_string),
+        cql_future_t::RESULT_FUTURE);
     return NULL;
 }
 
 void*
 cql_execute_new(
-    void*  context,
-    void*  id,
-    size_t id_size)
+    cql_context_t* context,
+    void*          id,
+    size_t         id_size)
 {
     (void) context;
     return new cql::cql_message_execute_t(static_cast<cql_byte_t*>(id), id_size);
@@ -316,30 +317,30 @@ cql_execute_new(
 
 void
 cql_execute_free(
-    void*  execute)
+    void* execute)
 {
     delete static_cast<cql::cql_message_execute_t*>(execute);
 }
 
-void*
+cql_future_t*
 cql_execute(
-    void* context,
-    void* execute,
-    int   consistency)
+    cql_context_t* context,
+    void*          execute,
+    int            consistency)
 {
     static_cast<cql::cql_message_execute_t*>(execute)->consistency(consistency);
 
     return new future_t<boost::shared_future<cql::cql_future_result_t> >(
-        static_cast<cql_context_t*>(context)->pool->execute(*static_cast<cql::cql_message_execute_t*>(execute)),
-        future_base_t::RESULT_FUTURE);
+        context->pool->execute(*static_cast<cql::cql_message_execute_t*>(execute)),
+        cql_future_t::RESULT_FUTURE);
 }
 
 void
 cql_execute_push_data(
-    void*  context,
-    void*  execute,
-    void*  data,
-    size_t data_size)
+    cql_context_t* context,
+    void*          execute,
+    void*          data,
+    size_t         data_size)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(static_cast<cql_byte_t*>(data), data_size);
@@ -347,9 +348,9 @@ cql_execute_push_data(
 
 void
 cql_execute_push_bool(
-    void* context,
-    void* execute,
-    bool  param)
+    cql_context_t* context,
+    void*          execute,
+    bool           param)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
@@ -357,9 +358,9 @@ cql_execute_push_bool(
 
 void
 cql_execute_push_short(
-    void* context,
-    void* execute,
-    short param)
+    cql_context_t* context,
+    void*          execute,
+    short          param)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
@@ -367,9 +368,9 @@ cql_execute_push_short(
 
 void
 cql_execute_push_int(
-    void* context,
-    void* execute,
-    int   param)
+    cql_context_t* context,
+    void*          execute,
+    int            param)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
@@ -377,9 +378,9 @@ cql_execute_push_int(
 
 void
 cql_execute_push_float(
-    void* context,
-    void* execute,
-    float param)
+    cql_context_t* context,
+    void*          execute,
+    float          param)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
@@ -387,9 +388,9 @@ cql_execute_push_float(
 
 void
 cql_execute_push_double(
-    void* context,
-    void* execute,
-    float param)
+    cql_context_t* context,
+    void*          execute,
+    float          param)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);
@@ -397,9 +398,9 @@ cql_execute_push_double(
 
 void
 cql_execute_push_bigint(
-    void*   context,
-    void*   execute,
-    int64_t param)
+    cql_context_t* context,
+    void*          execute,
+    int64_t        param)
 {
     (void) context;
     static_cast<cql::cql_message_execute_t*>(execute)->push_back(param);

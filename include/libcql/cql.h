@@ -1,19 +1,19 @@
 /*
-  Copyright (c) 2013 Matthew Stump
+Copyright (c) 2013 Matthew Stump
 
-  This file is part of libcql.
+This file is part of libcql.
 
-  Licensed under the Apache License, Version 2.0 (the "License");
-  you may not use this file except in compliance with the License.
-  You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-  http://www.apache.org/licenses/LICENSE-2.0
+http://www.apache.org/licenses/LICENSE-2.0
 
-  Unless required by applicable law or agreed to in writing, software
-  distributed under the License is distributed on an "AS IS" BASIS,
-  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  See the License for the specific language governing permissions and
-  limitations under the License.
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 */
 
 #ifndef __CQL_C_H_INCLUDED__
@@ -54,6 +54,11 @@ typedef uint16_t  cql_short_t;
 typedef int32_t   cql_int_t;
 typedef int64_t   cql_bigint_t;
 typedef int8_t    cql_stream_id_t;
+
+struct cql_context_t;
+struct cql_future_t;
+struct cql_result_t;
+struct cql_status_t;
 
 #define CQL_OPCODE_ERROR        0x00
 #define CQL_OPCODE_STARTUP      0x01
@@ -136,25 +141,25 @@ typedef int8_t    cql_stream_id_t;
 /*                                                                            */
 /******************************************************************************/
 
-CQL_EXPORT void*
+CQL_EXPORT cql_context_t*
 cql_context_new();
 
 CQL_EXPORT void
 cql_context_free(
-    void* context);
+    cql_context_t* context);
 
 CQL_EXPORT bool
 cql_set_opt(
-    void*  context,
-    int    option,
-    void*  value,
-    size_t value_size,
-    void** status);
+    cql_context_t* context,
+    int            option,
+    void*          value,
+    size_t         value_size,
+    cql_status_t** status);
 
 CQL_EXPORT bool
 cql_init(
-    void*  context,
-    void** status);
+    cql_context_t* context,
+    cql_status_t** status);
 
 /******************************************************************************/
 /*                                                                            */
@@ -164,13 +169,13 @@ cql_init(
 
 CQL_EXPORT bool
 cql_close(
-    void*  context,
-    void** status);
+    cql_context_t* context,
+    cql_status_t** status);
 
 CQL_EXPORT void*
 cql_add_client(
-    void*          context,
-    void*          host,
+    cql_context_t* context,
+    char*          host,
     size_t         host_size,
     unsigned short port);
 
@@ -182,36 +187,36 @@ cql_add_client(
 
 CQL_EXPORT bool
 cql_future_ready(
-    void* context,
-    void* future);
+    cql_context_t* context,
+    cql_future_t*  future);
 
 CQL_EXPORT void
 cql_future_wait(
-    void* context,
-    void* future);
+    cql_context_t* context,
+    cql_future_t*  future);
 
 CQL_EXPORT bool
 cql_future_success(
-    void* context,
-    void* future);
+    cql_context_t* context,
+    cql_future_t*  future);
 
 CQL_EXPORT int
 cql_future_get_error_code(
-    void* context,
-    void* future);
+    cql_context_t* context,
+    cql_future_t*  future);
 
 CQL_EXPORT void
 cql_future_get_error_message(
-    void*  context,
-    void*  future,
-    char** message);
+    cql_context_t* context,
+    cql_future_t*  future,
+    char**         message);
 
 CQL_EXPORT bool
 cql_future_get_result(
-    void*  context,
-    void*  future,
-    void** result,
-    void** status);
+    cql_context_t* context,
+    cql_future_t*  future,
+    cql_result_t** result,
+    cql_status_t** status);
 
 /******************************************************************************/
 /*                                                                            */
@@ -219,77 +224,77 @@ cql_future_get_result(
 /*                                                                            */
 /******************************************************************************/
 
-CQL_EXPORT void*
+CQL_EXPORT cql_future_t*
 cql_query(
-    void*       context,
-    const char* query,
-    size_t      query_size,
-    int         consistency);
+    cql_context_t* context,
+    const char*    query,
+    size_t         query_size,
+    int            consistency);
 
-CQL_EXPORT void*
+CQL_EXPORT cql_future_t*
 cql_prepare(
-    void*       context,
-    const char* query,
-    size_t      query_size);
+    cql_context_t* context,
+    const char*    query,
+    size_t         query_size);
 
 CQL_EXPORT void*
 cql_execute_new(
-    void*  context,
-    void*  id,
-    size_t id_size);
+    cql_context_t* context,
+    void*          id,
+    size_t         id_size);
 
 CQL_EXPORT void
 cql_execute_free(
     void*  execute);
 
-CQL_EXPORT void*
+CQL_EXPORT cql_future_t*
 cql_execute(
-    void* context,
-    void* execute,
-    int   consistency);
+    cql_context_t* context,
+    void*          execute,
+    int            consistency);
 
 CQL_EXPORT void
 cql_execute_push_data(
-    void*  context,
-    void*  execute,
-    void*  data,
-    size_t data_size);
+    cql_context_t* context,
+    void*          execute,
+    void*          data,
+    size_t         data_size);
 
 CQL_EXPORT void
 cql_execute_push_bool(
-    void* context,
-    void* execute,
-    bool  param);
+    cql_context_t* context,
+    void*          execute,
+    bool           param);
 
 CQL_EXPORT void
 cql_execute_push_short(
-    void* context,
-    void* execute,
-    short param);
+    cql_context_t* context,
+    void*          execute,
+    short          param);
 
 CQL_EXPORT void
 cql_execute_push_int(
-    void* context,
-    void* execute,
-    int   param);
+    cql_context_t* context,
+    void*          execute,
+    int            param);
 
 CQL_EXPORT void
 cql_execute_push_float(
-    void* context,
-    void* execute,
-    float param);
+    cql_context_t* context,
+    void*          execute,
+    float          param);
 
 CQL_EXPORT void
 cql_execute_push_double(
-    void* context,
-    void* execute,
-    float param);
+    cql_context_t* context,
+    void*          execute,
+    float          param);
 
 CQL_EXPORT void
 cql_execute_push_bigint(
-    void*   context,
-    void*   execute,
-    int64_t param);
+    cql_context_t* context,
+    void*          execute,
+    int64_t        param);
 
 /******************************************************************************/
 /*                                                                            */
@@ -299,35 +304,33 @@ cql_execute_push_bigint(
 
 CQL_EXPORT cql_int_t
 cql_result_get_type(
-    void* context,
-    void* result);
+    cql_context_t* context,
+    cql_result_t*  result);
 
 CQL_EXPORT size_t
 cql_result_get_column_count(
-    void* context,
-    void* result);
+    cql_context_t* context,
+    cql_result_t*  result);
 
 CQL_EXPORT size_t
 cql_result_get_row_count(
-    void* context,
-    void* result);
+    cql_context_t* context,
+    cql_result_t*  result);
 
 CQL_EXPORT bool
 cql_result_get_index(
-    void*   context,
-    void*   result,
-    char*   column,
-    size_t  column_size,
-    size_t* index);
+    cql_context_t* context,
+    cql_result_t*  result,
+    char*          column,
+    size_t         column_size,
+    size_t*        index);
 
 CQL_EXPORT bool
 cql_result_is_null(
-    void*  context,
-    void*  result,
-    size_t column);
-
-
-
+    cql_context_t* context,
+    cql_result_t*  result,
+    size_t         row,
+    size_t         column);
 
 
 #undef CQL_EXPORT
