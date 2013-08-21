@@ -17,7 +17,13 @@
 */
 
 #include <vector>
+
+#ifdef _WIN32
+#include <Winsock2.h> 
+#else
 #include <arpa/inet.h>
+#endif
+
 #include <boost/foreach.hpp>
 #include <boost/detail/endian.hpp>
 #include "libcql/internal/cql_defines.hpp"
@@ -28,7 +34,7 @@ inline double
 swap_double(double source) {
 #ifdef _WIN32
     uint64_t bytes = *reinterpret_cast<uint64_t*>(&source);
-    uint64_t swapped = byteswap_uint64(bytes);
+    uint64_t swapped = _byteswap_uint64(bytes);
     return *reinterpret_cast<double*>(&swapped);
 #else
     union {
@@ -45,7 +51,7 @@ inline float
 swap_float(float source) {
 #ifdef _WIN32
     uint32_t bytes = *reinterpret_cast<uint32_t*>(&source);
-    uint32_t swapped = byteswap_uint32(bytes);
+    uint32_t swapped = _byteswap_ulong(bytes);
     return *reinterpret_cast<float*>(&swapped);
 #else
     union {

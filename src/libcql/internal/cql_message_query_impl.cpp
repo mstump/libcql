@@ -18,7 +18,11 @@
 
 #include <iomanip>
 #include <sstream>
+#ifdef _WIN32
+#include <Winsock2.h> 
+#else
 #include <arpa/inet.h>
+#endif
 #include "libcql/cql_vector_stream.hpp"
 #include "libcql/cql_serialization.hpp"
 #include "libcql/internal/cql_util.hpp"
