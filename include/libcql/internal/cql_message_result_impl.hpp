@@ -79,6 +79,12 @@ namespace cql {
         exists(const std::string& column) const;
 
         bool
+        column_name(int i,
+                    std::string& output_keyspace,
+                    std::string& output_table,
+                    std::string& output_column) const;
+
+        bool
         column_class(int i,
                      std::string& output) const;
 

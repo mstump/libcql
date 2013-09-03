@@ -83,6 +83,12 @@ namespace cql {
                const std::string& column) const;
 
         bool
+        column_name(int i,
+                    std::string& output_keyspace,
+                    std::string& output_table,
+                    std::string& output_column) const;
+
+        bool
         column_class(int i,
                      std::string& output) const;
 
@@ -179,6 +185,7 @@ namespace cql {
     private:
 
         struct option_t {
+            column_name_t name;
             cql::cql_column_type_enum primary_type;
             cql::cql_column_type_enum collection_primary_type;
             cql::cql_column_type_enum collection_secondary_type;
