@@ -173,12 +173,12 @@ main(int argc,
         // Construct the pool
         std::auto_ptr<cql::cql_client_pool_t> pool(cql::cql_client_pool_factory_t::create_client_pool_t(client_factory, NULL, NULL));
 
-		int numthreads = 10;
+		const int numthreads = 10;
 
 		for (int i = 0; i < numthreads; i++) {
 			// Add a client to the pool, this operation returns a future.
 			boost::shared_future<cql::cql_future_connection_t> connect_future = pool->add_client("localhost", 9042);
-			
+
 			// Wait until the connection is complete, or has failed.
 			connect_future.wait();
 
@@ -214,19 +214,25 @@ main(int argc,
             }
 
 			// More of the same from a multithreaded context.
+			pthread_t pids[numthreads];
+
 			for (int i = 0; i < numthreads; i++) {
 				pthread_t pid;
 				pthread_create( &pid, NULL, workThread, (void*) (pool.get()) );
-				pthread_detach( pid );
+				pids[i] = pid;
 			}
 			
 			// Let the threads run for a bit.
 			sleep (600);
+
 			terminate = true;
 			std::cout << "WRAPPING UP" << std::endl;
 
 			// give all threads the chance to finish
-			sleep(3);
+			for (int i = 0; i < numthreads; i++) {
+				void *status;
+				pthread_join(pids[i], &status);
+			}
 
             // close the connection pool
             pool->close();
