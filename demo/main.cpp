@@ -110,6 +110,29 @@ private:
     cql::cql_client_t::cql_log_callback_t _log_callback;
 };
 
+
+static void* workThread( void* args ) {
+	cql::cql_client_pool_t*	pool = (cql::cql_client_pool_t*) args;
+	
+	while ( true ) {
+		// execute a query, select all rows from the keyspace
+		 boost::shared_future<cql::cql_future_result_t> future = pool->query("SELECT * from schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
+		
+		// wait for the query to execute
+        future.wait();
+
+        // check whether the query succeeded
+        std::cout << "select successfull? " << (!future.get().error.is_err() ? "true" : "false") << std::endl;
+        if (future.get().result) {
+            // print the rows return by the successful query
+            print_rows(*future.get().result);
+        }
+	}
+	
+	return 0;
+}
+
+
 int
 main(int argc,
      char**)
@@ -175,6 +198,15 @@ main(int argc,
                 // print the rows return by the successful query
                 print_rows(*future.get().result);
             }
+
+			// More of the same from a multithreaded context.
+			for (int i = 0; i < 10; i++) {
+				pthread_t pid;
+				pthread_create( &pid, NULL, workThread, (void*) (pool.get()) );
+				pthread_detach( pid );
+			}
+			
+			sleep (60);
 
             // close the connection pool
             pool->close();
