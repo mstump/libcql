@@ -110,19 +110,27 @@ private:
     cql::cql_client_t::cql_log_callback_t _log_callback;
 };
 
+static bool terminate = false;
 
 static void* workThread( void* args ) {
 	cql::cql_client_pool_t*	pool = (cql::cql_client_pool_t*) args;
 	
-	while ( true ) {
+	while ( !terminate ) {
 		// execute a query, select all rows from the keyspace
-		 boost::shared_future<cql::cql_future_result_t> future = pool->query("SELECT * from schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
+		 boost::shared_future<cql::cql_future_result_t> future = pool->query("SELECT * from system.schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
 		
 		// wait for the query to execute
         future.wait();
 
         // check whether the query succeeded
         std::cout << "select successfull? " << (!future.get().error.is_err() ? "true" : "false") << std::endl;
+
+		if (future.get().error.is_err()) {
+			// Don't let this disappear in the log messages.
+			std::cout << "CATASTROPHIC ERROR: " << future.get().error.message << std::endl;
+			exit(0);
+		}
+			
         if (future.get().result) {
             // print the rows return by the successful query
             print_rows(*future.get().result);
@@ -165,18 +173,24 @@ main(int argc,
         // Construct the pool
         std::auto_ptr<cql::cql_client_pool_t> pool(cql::cql_client_pool_factory_t::create_client_pool_t(client_factory, NULL, NULL));
 
-        // Add a client to the pool, this operation returns a future.
-        boost::shared_future<cql::cql_future_connection_t> connect_future = pool->add_client("localhost", 9042);
+		int numthreads = 10;
 
-        // Wait until the connection is complete, or has failed.
-        connect_future.wait();
+		for (int i = 0; i < numthreads; i++) {
+			// Add a client to the pool, this operation returns a future.
+			boost::shared_future<cql::cql_future_connection_t> connect_future = pool->add_client("localhost", 9042);
+			
+			// Wait until the connection is complete, or has failed.
+			connect_future.wait();
 
-        // Check whether or not the connection was successful.
-        std::cout << "connect successfull? ";
-        if (!connect_future.get().error.is_err()) {
-            // The connection succeeded
-            std::cout << "TRUE" << std::endl;
+			// Check whether or not the connection was successful.
+			std::cout << "connect successfull? ";
+			if (!connect_future.get().error.is_err()) {
+				// The connection succeeded
+				std::cout << "TRUE" << std::endl;
+			}
+		}
 
+		if (pool->size() > 0) {
             // execute a query, switch keyspaces
             boost::shared_future<cql::cql_future_result_t> future = pool->query("USE system;", cql::CQL_CONSISTENCY_ONE);
 
@@ -200,13 +214,19 @@ main(int argc,
             }
 
 			// More of the same from a multithreaded context.
-			for (int i = 0; i < 10; i++) {
+			for (int i = 0; i < numthreads; i++) {
 				pthread_t pid;
 				pthread_create( &pid, NULL, workThread, (void*) (pool.get()) );
 				pthread_detach( pid );
 			}
 			
-			sleep (60);
+			// Let the threads run for a bit.
+			sleep (600);
+			terminate = true;
+			std::cout << "WRAPPING UP" << std::endl;
+
+			// give all threads the chance to finish
+			sleep(3);
 
             // close the connection pool
             pool->close();
