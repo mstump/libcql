@@ -91,6 +91,8 @@ namespace cql {
             void
             set_allocated()
             {
+                // Something went badly wrong if the object is already allocated.
+                assert(e.next_free.index != -2);
                 e.next_free.index = -2;
             }
         };
@@ -98,6 +100,7 @@ namespace cql {
         typedef entry_t<value_t> array_entry_t;
         array_entry_t* array;
         int32_t next_free_index;
+        boost::mutex _mutex;
     public:
         explicit
         small_indexed_storage(uint16_t size) :
@@ -116,6 +119,8 @@ namespace cql {
         allocate()
         {
             int32_t result;
+            boost::mutex::scoped_lock lock(_mutex);
+
             if ( (result = next_free_index) >= 0) {
                 if (array[next_free_index].next_free_cnt() > 0) {
                     array[++next_free_index].set_next_free(array[result].next_free_index(), array[result].next_free_cnt()-1);
@@ -133,6 +138,8 @@ namespace cql {
         void
         release(int32_t index)
         {
+            boost::mutex::scoped_lock lock(_mutex);
+            
             array[index].set_next_free(next_free_index);
             next_free_index = index;
         }
