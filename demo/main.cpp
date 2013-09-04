@@ -117,7 +117,12 @@ static void* workThread( void* args ) {
 	
 	while ( !terminate ) {
 		// execute a query, select all rows from the keyspace
-		 boost::shared_future<cql::cql_future_result_t> future = pool->query("SELECT * from system.schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
+
+		// NOTE: This call will result in a race condition within a few seconds after starting
+		// execution.  "The associated promise has been destructed prior to the associated
+		// state becoming ready."
+
+		boost::shared_future<cql::cql_future_result_t> future = pool->query("SELECT * from system.schema_keyspaces;", cql::CQL_CONSISTENCY_ONE);
 		
 		// wait for the query to execute
         future.wait();
