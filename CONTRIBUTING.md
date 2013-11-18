@@ -1,0 +1,1 @@
+This project has been turned over to [DataStax](https://github.com/datastax/cpp-driver). This repo is dead.
