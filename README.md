@@ -1,3 +1,6 @@
+## NOTICE: This project has been turned over to DataStax, expect an official release soonish
+
+
 libcql
 ======
 
