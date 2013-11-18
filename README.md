@@ -1,4 +1,4 @@
-## NOTICE: This project has been turned over to DataStax, expect an official release soonish
+## NOTICE: This project has been turned over to [DataStax](https://github.com/datastax/cpp-driver). This repo is dead.
 
 
 libcql
