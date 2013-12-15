@@ -410,7 +410,8 @@ cql::cql_message_result_impl_t::get_bigint(int i,
                                            cql::cql_bigint_t& output) const
 {
     if (is_valid(i, cql::CQL_COLUMN_TYPE_BIGINT)
-        || is_valid(i, cql::CQL_COLUMN_TYPE_TIMESTAMP)) {
+          || is_valid(i, cql::CQL_COLUMN_TYPE_TIMESTAMP)
+          || is_valid(i, cql::CQL_COLUMN_TYPE_COUNTER)) {
         cql::decode_bigint(_row[i] + sizeof(cql_int_t), output);
         return true;
     }
