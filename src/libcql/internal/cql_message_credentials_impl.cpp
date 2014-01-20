@@ -102,11 +102,11 @@ cql::cql_message_credentials_impl_t::consume(cql::cql_error_t*)
 bool
 cql::cql_message_credentials_impl_t::prepare(cql::cql_error_t*)
 {
-    size_t size = 0;
+    size_t size = 2;
     BOOST_FOREACH(const credentials_map_t::value_type& pair, _credentials) {
         size += pair.first.size();
         size += pair.second.size();
-        size += 2;
+        size += 4;
     }
     _buffer->resize(size);
 
