@@ -148,6 +148,10 @@ namespace cql {
             _port = port;
             _connect_callback = callback;
             _connect_errback = errback;
+            _connect_message_callback_wrap message_callback(callback);
+            _connect_error_callback_wrap error_callback(errback);
+            _callback_storage.put(_reserved_stream_id, callback_pair_t(message_callback, error_callback));
+          
             resolve();
         }
 
@@ -335,6 +339,26 @@ namespace cql {
         }
 
     private:
+        struct _connect_message_callback_wrap
+        {
+          cql_connection_callback_t callback;
+          _connect_message_callback_wrap(cql_connection_callback_t _callback) : callback(_callback) {};
+          void operator()(cql_client_t& client, const cql::cql_stream_id_t, cql::cql_result_t*)
+          {
+            callback(client);
+          }
+        };
+
+        struct _connect_error_callback_wrap
+        {
+          cql_connection_errback_t callback;
+          _connect_error_callback_wrap(cql_connection_errback_t _callback) : callback(_callback) {};
+          void operator()(cql_client_t& client, const cql::cql_stream_id_t, const cql::cql_error_t& error)
+          {
+            callback(client, error);
+          }
+        };
+
         inline cql::cql_error_t
         create_stream_id_error()
         {
