@@ -34,7 +34,7 @@ namespace cql {
             t value;
             int is_allocated;
         };
-        
+
         std::vector< bucket<value_t>* > array;
         std::vector<int32_t> frees;
     public:
@@ -69,6 +69,7 @@ namespace cql {
         release(int32_t index)
         {
             if (array[index]->is_allocated) {
+                array[index]->value.release();
                 array[index]->value.~value_t();
                 array[index]->is_allocated = 0;
             }

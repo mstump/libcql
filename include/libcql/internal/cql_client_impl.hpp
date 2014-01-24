@@ -79,8 +79,30 @@ namespace cql {
 
     public:
         typedef std::list<cql::cql_message_buffer_t> request_buffer_t;
-        typedef std::pair<cql_message_callback_t, cql_message_errback_t> callback_pair_t;
-        typedef cql::small_indexed_storage<callback_pair_t> callback_storage_t;
+
+        struct callback_item_t
+        {
+          callback_item_t(cql_message_callback_t _message_callback,
+                        cql_message_errback_t _error_callback,
+                        cql::cql_message_t* _message = 0) : message_callback(_message_callback),
+                                                         error_callback(_error_callback),
+                                                         message(_message)
+          {}
+
+          void release()
+          {
+            if (message) {
+              delete(message);
+              message = 0;
+            }
+          }
+
+          cql_message_callback_t message_callback;
+          cql_message_errback_t error_callback;
+          cql::cql_message_t* message;
+        };
+
+        typedef cql::small_indexed_storage<callback_item_t> callback_storage_t;
         typedef boost::function<void(const boost::system::error_code&, std::size_t)> write_callback_t;
 
 
@@ -150,7 +172,7 @@ namespace cql {
             _connect_errback = errback;
             _connect_message_callback_wrap message_callback(callback);
             _connect_error_callback_wrap error_callback(errback);
-            _callback_storage.put(_reserved_stream_id, callback_pair_t(message_callback, error_callback));
+            _callback_storage.put(_reserved_stream_id, callback_item_t(message_callback, error_callback));
 
             resolve();
         }
@@ -202,7 +224,7 @@ namespace cql {
               cql::cql_client_t::cql_message_callback_t callback,
               cql::cql_client_t::cql_message_errback_t  errback)
         {
-            return _execute(new cql::cql_message_query_impl_t(query, consistency), callback, errback);
+            return _execute(new cql::cql_message_query_impl_t(query, consistency), callback, errback, true);
         }
 
         cql::cql_stream_id_t
@@ -210,7 +232,7 @@ namespace cql {
                 cql::cql_client_t::cql_message_callback_t callback,
                 cql::cql_client_t::cql_message_errback_t  errback)
         {
-            return _execute(new cql::cql_message_prepare_impl_t(query), callback, errback);
+            return _execute(new cql::cql_message_prepare_impl_t(query), callback, errback, true);
         }
 
         cql::cql_stream_id_t
@@ -303,14 +325,19 @@ namespace cql {
         cql::cql_stream_id_t
         _execute(cql::cql_message_t*                       message,
                 cql::cql_client_t::cql_message_callback_t& callback,
-                cql::cql_client_t::cql_message_errback_t&  errback)
+                cql::cql_client_t::cql_message_errback_t&  errback,
+                bool cleanup = false)
         {
             cql::cql_stream_id_t stream = _callback_storage.allocate();
             if (stream == -1) {
                 errback(*this, stream, create_stream_id_error());
                 return -1;
             }
-            _callback_storage.put(stream, callback_pair_t(callback, errback));
+            if (cleanup) {
+              _callback_storage.put(stream, callback_item_t(callback, errback, message));
+            } else {
+              _callback_storage.put(stream, callback_item_t(callback, errback));
+            }
             return create_request(message,
                                    boost::bind(&cql_client_impl_t::write_handle,
                                                this,
@@ -612,9 +639,9 @@ namespace cql {
                         log(CQL_LOG_DEBUG, "received result message " + header.str());
                         cql_stream_id_t stream_id = header.stream();
                         if (_callback_storage.has(stream_id)) {
-                            callback_pair_t callback_pair = _callback_storage.get(stream_id);
+                            callback_item_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.release(stream_id);
-                            callback_pair.first(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.release()));
+                            callback_pair.message_callback(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.release()));
                         } else {
                             log(CQL_LOG_INFO, "no callback found for message " + header.str());
                         }
@@ -633,14 +660,14 @@ namespace cql {
                     {
                         cql_stream_id_t stream_id = header.stream();
                         if (_callback_storage.has(stream_id)) {
-                            callback_pair_t callback_pair = _callback_storage.get(stream_id);
+                            callback_item_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.release(stream_id);
                             cql::cql_message_error_impl_t* m = dynamic_cast<cql::cql_message_error_impl_t*>(_response_message.get());
                             cql::cql_error_t cql_error;
                             cql_error.cassandra = true;
                             cql_error.code = m->code();
                             cql_error.message = m->message();
-                            callback_pair.second(*this, header.stream(), cql_error);
+                            callback_pair.error_callback(*this, header.stream(), cql_error);
                         } else {
                             log(CQL_LOG_INFO, "no callback found for message " + header.str() + " " + _response_message->str());
                         }
