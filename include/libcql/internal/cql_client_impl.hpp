@@ -151,7 +151,7 @@ namespace cql {
             _connect_message_callback_wrap message_callback(callback);
             _connect_error_callback_wrap error_callback(errback);
             _callback_storage.put(_reserved_stream_id, callback_pair_t(message_callback, error_callback));
-          
+
             resolve();
         }
 
@@ -202,20 +202,7 @@ namespace cql {
               cql::cql_client_t::cql_message_callback_t callback,
               cql::cql_client_t::cql_message_errback_t  errback)
         {
-            cql::cql_stream_id_t stream = create_request(new cql::cql_message_query_impl_t(query, consistency),
-                                                         boost::bind(&cql_client_impl_t::write_handle,
-                                                                     this,
-                                                                     boost::asio::placeholders::error,
-                                                                     boost::asio::placeholders::bytes_transferred));
-
-            if (stream != -1) {
-                _callback_storage.put(stream, callback_pair_t(callback, errback));
-                return stream;
-            }
-            else {
-                errback(*this, stream, create_stream_id_error());
-                return -1;
-            }
+            return _execute(new cql::cql_message_query_impl_t(query, consistency), callback, errback);
         }
 
         cql::cql_stream_id_t
@@ -223,20 +210,7 @@ namespace cql {
                 cql::cql_client_t::cql_message_callback_t callback,
                 cql::cql_client_t::cql_message_errback_t  errback)
         {
-            cql::cql_stream_id_t stream = create_request(new cql::cql_message_prepare_impl_t(query),
-                                                         boost::bind(&cql_client_impl_t::write_handle,
-                                                                     this,
-                                                                     boost::asio::placeholders::error,
-                                                                     boost::asio::placeholders::bytes_transferred));
-
-            if (stream != -1) {
-                _callback_storage.put(stream, callback_pair_t(callback, errback));
-                return stream;
-            }
-            else {
-                errback(*this, stream, create_stream_id_error());
-                return -1;
-            }
+            return _execute(new cql::cql_message_prepare_impl_t(query), callback, errback);
         }
 
         cql::cql_stream_id_t
@@ -244,20 +218,7 @@ namespace cql {
                 cql::cql_client_t::cql_message_callback_t callback,
                 cql::cql_client_t::cql_message_errback_t  errback)
         {
-            cql::cql_stream_id_t stream = create_request(message->impl(),
-                                                         boost::bind(&cql_client_impl_t::write_handle,
-                                                                     this,
-                                                                     boost::asio::placeholders::error,
-                                                                     boost::asio::placeholders::bytes_transferred));
-
-            if (stream != -1) {
-                _callback_storage.put(stream, callback_pair_t(callback, errback));
-                return stream;
-            }
-            else {
-                errback(*this, stream, create_stream_id_error());
-                return -1;
-            }
+            return _execute(message->impl(), callback, errback);
         }
 
         bool
@@ -339,6 +300,25 @@ namespace cql {
         }
 
     private:
+        cql::cql_stream_id_t
+        _execute(cql::cql_message_t*                       message,
+                cql::cql_client_t::cql_message_callback_t& callback,
+                cql::cql_client_t::cql_message_errback_t&  errback)
+        {
+            cql::cql_stream_id_t stream = _callback_storage.allocate();
+            if (stream == -1) {
+                errback(*this, stream, create_stream_id_error());
+                return -1;
+            }
+            _callback_storage.put(stream, callback_pair_t(callback, errback));
+            return create_request(message,
+                                   boost::bind(&cql_client_impl_t::write_handle,
+                                               this,
+                                               boost::asio::placeholders::error,
+                                               boost::asio::placeholders::bytes_transferred),
+                                   stream);
+        }
+
         struct _connect_message_callback_wrap
         {
           cql_connection_callback_t callback;
@@ -487,15 +467,11 @@ namespace cql {
         cql::cql_stream_id_t
         create_request(cql::cql_message_t* message,
                        write_callback_t callback,
-                       bool use_reserved_stream_id = false)
+                       cql::cql_stream_id_t id)
         {
             cql::cql_error_t err;
             message->prepare(&err);
 
-            cql::cql_stream_id_t id = use_reserved_stream_id ? _reserved_stream_id : _callback_storage.allocate();
-            if (id == -1) {
-                return id;
-            }
             cql::cql_header_impl_t header(CQL_VERSION_1_REQUEST,
                                           CQL_FLAG_NOFLAG,
                                           id,
@@ -718,8 +694,7 @@ namespace cql {
                                        this,
                                        boost::asio::placeholders::error,
                                        boost::asio::placeholders::bytes_transferred),
-                           true);
-
+                           _reserved_stream_id);
             _events_registered = true;
         }
 
@@ -731,7 +706,7 @@ namespace cql {
                                                                                                                this,
                                                                                                                boost::asio::placeholders::error,
                                                                                                                boost::asio::placeholders::bytes_transferred),
-                           true);
+                           _reserved_stream_id);
 
             // start listening
             header_read();
@@ -747,7 +722,7 @@ namespace cql {
                                        this,
                                        boost::asio::placeholders::error,
                                        boost::asio::placeholders::bytes_transferred),
-                           true);
+                           _reserved_stream_id);
         }
 
         void
@@ -760,7 +735,7 @@ namespace cql {
                                        this,
                                        boost::asio::placeholders::error,
                                        boost::asio::placeholders::bytes_transferred),
-                           true);
+                           _reserved_stream_id);
         }
 
         inline void
