@@ -70,6 +70,12 @@
 #include "libcql/internal/cql_message_supported_impl.hpp"
 #include "libcql/cql_serialization.hpp"
 
+#ifndef CLIENTLOG
+#define LOG(Lvl, Message) {};
+#else
+#define LOG(Lvl, Message) log(Lvl, Message);
+#endif
+
 namespace cql {
 
     template <typename cql_transport_t>
@@ -259,7 +265,7 @@ namespace cql {
         close()
         {
             _closing = true;
-            log(CQL_LOG_INFO, "closing connection");
+            LOG(CQL_LOG_INFO, "closing connection");
             boost::system::error_code ec;
             _transport->lowest_layer().shutdown(boost::asio::ip::tcp::socket::shutdown_both, ec);
             _transport->lowest_layer().close();
@@ -424,7 +430,7 @@ namespace cql {
         void
         resolve()
         {
-            log(CQL_LOG_DEBUG, "resolving remote host " + _server + ":" + boost::lexical_cast<std::string>(_port));
+            LOG(CQL_LOG_DEBUG, "resolving remote host " + _server + ":" + boost::lexical_cast<std::string>(_port));
             boost::asio::ip::tcp::resolver::query query(_server, boost::lexical_cast<std::string>(_port));
             _resolver.async_resolve(query,
                                     boost::bind(&cql_client_impl_t::resolve_handle,
@@ -438,7 +444,7 @@ namespace cql {
                        boost::asio::ip::tcp::resolver::iterator endpoint_iterator)
         {
             if (!err) {
-                log(CQL_LOG_DEBUG, "resolved remote host, attempting to connect");
+                LOG(CQL_LOG_DEBUG, "resolved remote host, attempting to connect");
 #if BOOST_VERSION >= 104800
                 boost::asio::async_connect(_transport->lowest_layer(),
                                            endpoint_iterator,
@@ -453,7 +459,7 @@ namespace cql {
 #endif
             }
             else {
-                log(CQL_LOG_CRITICAL, "error resolving remote host " + err.message());
+                LOG(CQL_LOG_CRITICAL, "error resolving remote host " + err.message());
                 check_transport_err(err);
             }
         }
@@ -462,7 +468,7 @@ namespace cql {
         connect_handle(const boost::system::error_code& err)
         {
             if (!err) {
-                log(CQL_LOG_DEBUG, "connection successful to remote host");
+                LOG(CQL_LOG_DEBUG, "connection successful to remote host");
                 if (_transport->requires_handshake()) {
                     _transport->async_handshake(boost::bind(&cql_client_impl_t::handshake_handle,
                                                             this,
@@ -473,7 +479,7 @@ namespace cql {
                 }
             }
             else {
-                log(CQL_LOG_CRITICAL, "error connecting to remote host " + err.message());
+                LOG(CQL_LOG_CRITICAL, "error connecting to remote host " + err.message());
                 check_transport_err(err);
             }
         }
@@ -482,11 +488,11 @@ namespace cql {
         handshake_handle(const boost::system::error_code& err)
         {
             if (!err) {
-                log(CQL_LOG_DEBUG, "successful ssl handshake with remote host");
+                LOG(CQL_LOG_DEBUG, "successful ssl handshake with remote host");
                 options_write();
             }
             else {
-                log(CQL_LOG_CRITICAL, "error performing ssl handshake " + err.message());
+                LOG(CQL_LOG_CRITICAL, "error performing ssl handshake " + err.message());
                 check_transport_err(err);
             }
         }
@@ -506,7 +512,7 @@ namespace cql {
                                           message->size());
             header.prepare(&err);
 
-            log(CQL_LOG_DEBUG, "sending message: " + header.str() + " " + message->str());
+            LOG(CQL_LOG_DEBUG, "sending message: " + header.str() + " " + message->str());
 
             std::vector<boost::asio::const_buffer> buf;
             buf.push_back(boost::asio::buffer(&(*header.buffer())[0], header.size()));
@@ -536,10 +542,11 @@ namespace cql {
                 }
             }
             if (!err) {
-                log(CQL_LOG_DEBUG, "wrote to socket " + boost::lexical_cast<std::string>(num_bytes) + " bytes");
+                num_bytes++;
+                LOG(CQL_LOG_DEBUG, "wrote to socket " + boost::lexical_cast<std::string>(num_bytes) + " bytes");
             }
             else {
-                log(CQL_LOG_ERROR, "error writing to socket " + err.message());
+                LOG(CQL_LOG_ERROR, "error writing to socket " + err.message());
                 check_transport_err(err);
             }
         }
@@ -563,15 +570,15 @@ namespace cql {
             if (!err) {
                 cql::cql_error_t decode_err;
                 if (_response_header.consume(&decode_err)) {
-                    log(CQL_LOG_DEBUG, "received header for message " + _response_header.str());
+                    LOG(CQL_LOG_DEBUG, "received header for message " + _response_header.str());
                     body_read(_response_header);
                 }
                 else {
-                    log(CQL_LOG_ERROR, "error decoding header " + _response_header.str());
+                    LOG(CQL_LOG_ERROR, "error decoding header " + _response_header.str());
                 }
             }
             else {
-                log(CQL_LOG_ERROR, "error reading header " + err.message());
+                LOG(CQL_LOG_ERROR, "error reading header " + err.message());
                 check_transport_err(err);
             }
         }
@@ -624,7 +631,7 @@ namespace cql {
         body_read_handle(const cql::cql_header_impl_t& header,
                          const boost::system::error_code& err)
         {
-            log(CQL_LOG_DEBUG, "received body for message " + header.str());
+            LOG(CQL_LOG_DEBUG, "received body for message " + header.str());
 
             if (!err) {
 
@@ -636,21 +643,21 @@ namespace cql {
                     case CQL_OPCODE_RESULT:
                     {
 
-                        log(CQL_LOG_DEBUG, "received result message " + header.str());
+                        LOG(CQL_LOG_DEBUG, "received result message " + header.str());
                         cql_stream_id_t stream_id = header.stream();
                         if (_callback_storage.has(stream_id)) {
                             callback_item_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.release(stream_id);
                             callback_pair.message_callback(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.release()));
                         } else {
-                            log(CQL_LOG_INFO, "no callback found for message " + header.str());
+                            LOG(CQL_LOG_INFO, "no callback found for message " + header.str());
                         }
 
                         break;
                     }
 
                     case CQL_OPCODE_EVENT:
-                        log(CQL_LOG_DEBUG, "received event message");
+                        LOG(CQL_LOG_DEBUG, "received event message");
                         if (_event_callback) {
                             _event_callback(*this, dynamic_cast<cql::cql_message_event_impl_t*>(_response_message.release()));
                         }
@@ -669,12 +676,12 @@ namespace cql {
                             cql_error.message = m->message();
                             callback_pair.error_callback(*this, header.stream(), cql_error);
                         } else {
-                            log(CQL_LOG_INFO, "no callback found for message " + header.str() + " " + _response_message->str());
+                            LOG(CQL_LOG_INFO, "no callback found for message " + header.str() + " " + _response_message->str());
                         }
                         break;
                     }
                     case CQL_OPCODE_READY:
-                        log(CQL_LOG_DEBUG, "received ready message");
+                        LOG(CQL_LOG_DEBUG, "received ready message");
                         if (!_events_registered) {
                             events_register();
                         }
@@ -688,7 +695,7 @@ namespace cql {
                         break;
 
                     case CQL_OPCODE_SUPPORTED:
-                        log(CQL_LOG_DEBUG, "received supported message " + _response_message->str());
+                        LOG(CQL_LOG_DEBUG, "received supported message " + _response_message->str());
                         startup_write();
                         break;
 
@@ -697,15 +704,15 @@ namespace cql {
                         break;
 
                     default:
-                        log(CQL_LOG_ERROR, "unhandled opcode " + header.str());
+                        LOG(CQL_LOG_ERROR, "unhandled opcode " + header.str());
                     }
                 }
                 else {
-                    log(CQL_LOG_ERROR, "error deserializing result message " + consume_error.message);
+                    LOG(CQL_LOG_ERROR, "error deserializing result message " + consume_error.message);
                 }
             }
             else {
-                log(CQL_LOG_ERROR, "error reading body " + err.message());
+                LOG(CQL_LOG_ERROR, "error reading body " + err.message());
                 check_transport_err(err);
             }
             header_read(); // loop
