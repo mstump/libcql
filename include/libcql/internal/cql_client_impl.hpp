@@ -583,7 +583,7 @@ namespace cql {
             }
 
             boost::asio::async_read(*_transport,
-                                    boost::asio::buffer(&(*_response_message->buffer())[0], _response_message->size()),
+                                    boost::asio::buffer(header.length()==0 ? 0 : &(*_response_message->buffer())[0], _response_message->size()),
 #if BOOST_VERSION >= 104800
                                     boost::asio::transfer_exactly(header.length()),
 #else
