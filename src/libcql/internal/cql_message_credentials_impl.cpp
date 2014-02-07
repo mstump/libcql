@@ -36,20 +36,6 @@
 
 #include "libcql/internal/cql_message_credentials_impl.hpp"
 
-cql::cql_message_credentials_impl_t::cql_message_credentials_impl_t() :
-    _buffer(new std::vector<cql_byte_t>(0))
-{}
-
-cql::cql_message_credentials_impl_t::cql_message_credentials_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size))
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_credentials_impl_t::buffer()
-{
-    return _buffer;
-}
-
 void
 cql::cql_message_credentials_impl_t::credentials(const std::map<std::string, std::string>& c)
 {
@@ -66,12 +52,6 @@ cql::cql_opcode_enum
 cql::cql_message_credentials_impl_t::opcode() const
 {
     return CQL_OPCODE_CREDENTIALS;
-}
-
-cql::cql_int_t
-cql::cql_message_credentials_impl_t::size() const
-{
-    return _buffer->size();
 }
 
 std::string
@@ -92,7 +72,7 @@ cql::cql_message_credentials_impl_t::str() const
 bool
 cql::cql_message_credentials_impl_t::consume(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::istream stream(&buffer);
 
     cql::decode_string_map(stream, _credentials);
@@ -108,9 +88,9 @@ cql::cql_message_credentials_impl_t::prepare(cql::cql_error_t*)
         size += pair.second.size();
         size += 4;
     }
-    _buffer->resize(size);
+    _buffer.resize(size);
 
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::ostream stream(&buffer);
 
     cql::encode_string_map(stream, _credentials);

@@ -47,7 +47,7 @@ namespace cql {
         bool
         prepare(cql::cql_error_t* err);
 
-        cql_message_buffer_t
+        cql_message_buffer_t&
         buffer();
 
         cql_int_t

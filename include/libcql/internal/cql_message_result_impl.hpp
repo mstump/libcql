@@ -35,7 +35,6 @@ namespace cql {
     {
 
     public:
-        cql_message_result_impl_t(size_t size);
 
         cql_message_result_impl_t();
 
@@ -44,9 +43,6 @@ namespace cql {
 
         cql::cql_opcode_enum
         opcode() const;
-
-        cql_int_t
-        size() const;
 
         std::string
         str() const;
@@ -68,9 +64,6 @@ namespace cql {
 
         bool
         prepare(cql::cql_error_t* err);
-
-        cql_message_buffer_t
-        buffer();
 
         const cql_result_metadata_t&
         get_metadata();
@@ -217,7 +210,6 @@ namespace cql {
 
 
     private:
-        cql::cql_message_buffer_t     _buffer;
         cql::cql_byte_t*              _pos;
         std::vector<cql::cql_byte_t*> _row;
         size_t                        _row_pos;

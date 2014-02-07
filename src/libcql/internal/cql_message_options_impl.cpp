@@ -19,26 +19,6 @@
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_message_options_impl.hpp"
 
-cql::cql_message_options_impl_t::cql_message_options_impl_t() :
-    _buffer(new std::vector<cql::cql_byte_t>(0))
-{}
-
-cql::cql_message_options_impl_t::cql_message_options_impl_t(size_t size) :
-    _buffer(new std::vector<cql::cql_byte_t>(size, 0))
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_options_impl_t::buffer()
-{
-    return _buffer;
-}
-
-cql::cql_int_t
-cql::cql_message_options_impl_t::size() const
-{
-    return _buffer->size();
-}
-
 cql::cql_opcode_enum
 cql::cql_message_options_impl_t::opcode() const
 {

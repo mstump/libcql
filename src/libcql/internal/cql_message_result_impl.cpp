@@ -58,7 +58,6 @@ result_type_string(cql::cql_short_t t)
 }
 
 cql::cql_message_result_impl_t::cql_message_result_impl_t() :
-    _buffer(new std::vector<cql_byte_t>()),
     _pos(0),
     _row_pos(0),
     _row_count(0),
@@ -66,22 +65,6 @@ cql::cql_message_result_impl_t::cql_message_result_impl_t() :
     _query_id(0),
     _result_type(cql::CQL_RESULT_VOID)
 {}
-
-cql::cql_message_result_impl_t::cql_message_result_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size)),
-    _pos(0),
-    _row_pos(0),
-    _row_count(0),
-    _column_count(0),
-    _query_id(0),
-    _result_type(cql::CQL_RESULT_VOID)
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_result_impl_t::buffer()
-{
-    return _buffer;
-}
 
 const cql::cql_result_metadata_t&
 cql::cql_message_result_impl_t::get_metadata()
@@ -99,12 +82,6 @@ cql::cql_opcode_enum
 cql::cql_message_result_impl_t::opcode() const
 {
     return CQL_OPCODE_RESULT;
-}
-
-cql::cql_int_t
-cql::cql_message_result_impl_t::size() const
-{
-    return _buffer->size();
 }
 
 std::string
@@ -128,10 +105,11 @@ cql::cql_message_result_impl_t::str() const
 bool
 cql::cql_message_result_impl_t::consume(cql::cql_error_t*)
 {
+    _column_count = 0;
     _keyspace_name.clear();
     _row_count = 0;
     _row_pos = 0;
-    _pos = &((*_buffer)[0]);
+    _pos = &(_buffer[0]);
 
     cql::cql_int_t result_type = 0;
     _pos = cql::decode_int(_pos, result_type);

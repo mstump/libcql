@@ -34,13 +34,8 @@ namespace cql {
 
         cql_message_event_impl_t();
 
-        cql_message_event_impl_t(size_t size);
-
         cql::cql_opcode_enum
         opcode() const;
-
-        cql_int_t
-        size() const;
 
         std::string
         str() const;
@@ -75,12 +70,7 @@ namespace cql {
         bool
         prepare(cql::cql_error_t* err);
 
-        cql_message_buffer_t
-        buffer();
-
     private:
-        cql::cql_message_buffer_t _buffer;
-
         cql_event_enum            _event_type;
         cql_event_topology_enum   _topology_change;
         cql_event_schema_enum     _schema_change;

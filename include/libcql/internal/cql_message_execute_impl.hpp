@@ -38,8 +38,6 @@ namespace cql {
 
         cql_message_execute_impl_t();
 
-        cql_message_execute_impl_t(size_t size);
-
         cql_message_execute_impl_t(const std::vector<cql::cql_byte_t>& id,
                                    cql::cql_consistency_enum consistency);
 
@@ -85,9 +83,6 @@ namespace cql {
         cql::cql_opcode_enum
         opcode() const;
 
-        cql_int_t
-        size() const;
-
         std::string
         str() const;
 
@@ -97,13 +92,12 @@ namespace cql {
         bool
         prepare(cql::cql_error_t* err);
 
-        cql_message_buffer_t
+        cql_message_buffer_t&
         buffer();
 
     private:
         typedef std::list<param_t> params_container_t;
 
-        cql::cql_message_buffer_t    _buffer;
         std::vector<cql::cql_byte_t> _query_id;
         cql::cql_consistency_enum    _consistency;
         params_container_t           _params;

@@ -19,30 +19,10 @@
 #include "libcql/internal/cql_defines.hpp"
 #include "libcql/internal/cql_message_ready_impl.hpp"
 
-cql::cql_message_ready_impl_t::cql_message_ready_impl_t() :
-    _buffer(new std::vector<cql_byte_t>())
-{}
-
-cql::cql_message_ready_impl_t::cql_message_ready_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size))
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_ready_impl_t::buffer()
-{
-    return _buffer;
-}
-
 cql::cql_opcode_enum
 cql::cql_message_ready_impl_t::opcode() const
 {
     return CQL_OPCODE_READY;
-}
-
-cql::cql_int_t
-cql::cql_message_ready_impl_t::size() const
-{
-    return 0;
 }
 
 std::string

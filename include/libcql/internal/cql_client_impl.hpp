@@ -84,8 +84,6 @@ namespace cql {
     {
 
     public:
-        typedef std::list<cql::cql_message_buffer_t> request_buffer_t;
-
         struct callback_item_t
         {
           callback_item_t(cql_message_callback_t _message_callback,
@@ -118,7 +116,6 @@ namespace cql {
             _port(0),
             _resolver(io_service),
             _transport(transport),
-            _request_buffer(0),
             _callback_storage(128),
             _connect_callback(0),
             _connect_errback(0),
@@ -138,7 +135,6 @@ namespace cql {
             _port(0),
             _resolver(io_service),
             _transport(transport),
-            _request_buffer(0),
             _callback_storage(128),
             _connect_callback(0),
             _connect_errback(0),
@@ -515,14 +511,9 @@ namespace cql {
             LOG(CQL_LOG_DEBUG, "sending message: " + header.str() + " " + message->str());
 
             std::vector<boost::asio::const_buffer> buf;
-            buf.push_back(boost::asio::buffer(&(*header.buffer())[0], header.size()));
-            _request_buffer.push_back(header.buffer());
+            buf.push_back(boost::asio::buffer(&header.buffer()[0], header.size()));
             if (header.length() != 0) {
-                buf.push_back(boost::asio::buffer(&(*message->buffer())[0], message->size()));
-                _request_buffer.push_back(message->buffer());
-            }
-            else {
-                _request_buffer.push_back(cql_message_buffer_t());
+                buf.push_back(boost::asio::buffer(&message->buffer()[0], message->size()));
             }
             boost::asio::async_write(*_transport, buf, callback);
 
@@ -534,13 +525,6 @@ namespace cql {
         write_handle(const boost::system::error_code& err,
                      std::size_t num_bytes)
         {
-            if (!_request_buffer.empty()) {
-                // the write request is complete free the request buffers
-                _request_buffer.pop_front();
-                if (!_request_buffer.empty()) {
-                    _request_buffer.pop_front();
-                }
-            }
             if (!err) {
                 num_bytes++;
                 LOG(CQL_LOG_DEBUG, "wrote to socket " + boost::lexical_cast<std::string>(num_bytes) + " bytes");
@@ -555,7 +539,7 @@ namespace cql {
         header_read()
         {
             boost::asio::async_read(*_transport,
-                                    boost::asio::buffer(&(*_response_header.buffer())[0], _response_header.size()),
+                                    boost::asio::buffer(&_response_header.buffer()[0], _response_header.size()),
 #if BOOST_VERSION >= 104800
                                     boost::asio::transfer_exactly(sizeof(cql::cql_header_impl_t)),
 #else
@@ -590,34 +574,36 @@ namespace cql {
             switch (header.opcode()) {
 
             case CQL_OPCODE_ERROR:
-                _response_message.reset(new cql::cql_message_error_impl_t(header.length()));
+                _response_message.reset(new cql::cql_message_error_impl_t());
                 break;
 
             case CQL_OPCODE_RESULT:
-                _response_message.reset(new cql::cql_message_result_impl_t(header.length()));
+                if (!_response_message.get() || _response_message->opcode() != header.opcode()) {
+                    _response_message.reset(new cql::cql_message_result_impl_t());
+                }
                 break;
 
             case CQL_OPCODE_SUPPORTED:
-                _response_message.reset(new cql::cql_message_supported_impl_t(header.length()));
+                _response_message.reset(new cql::cql_message_supported_impl_t());
                 break;
 
             case CQL_OPCODE_READY:
-                _response_message.reset(new cql::cql_message_ready_impl_t(header.length()));
+                _response_message.reset(new cql::cql_message_ready_impl_t());
                 break;
 
             case CQL_OPCODE_EVENT:
-                _response_message.reset(new cql::cql_message_event_impl_t(header.length()));
+                _response_message.reset(new cql::cql_message_event_impl_t());
                 break;
 
             default:
                 // need some bucket to put the data so we can get past the unknown
                 // body in the stream it will be discarded by the body_read_handle
-                _response_message.reset(new cql::cql_message_result_impl_t(header.length()));
+                _response_message.reset(new cql::cql_message_result_impl_t());
                 break;
             }
-
+            _response_message->buffer().resize(header.length());
             boost::asio::async_read(*_transport,
-                                    boost::asio::buffer(&(*_response_message->buffer())[0], _response_message->size()),
+                                    boost::asio::buffer(&_response_message->buffer()[0], _response_message->size()),
 #if BOOST_VERSION >= 104800
                                     boost::asio::transfer_exactly(header.length()),
 #else
@@ -648,7 +634,7 @@ namespace cql {
                         if (_callback_storage.has(stream_id)) {
                             callback_item_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.release(stream_id);
-                            callback_pair.message_callback(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.release()));
+                            callback_pair.message_callback(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
                         } else {
                             LOG(CQL_LOG_INFO, "no callback found for message " + header.str());
                         }
@@ -794,7 +780,6 @@ namespace cql {
         boost::asio::ip::tcp::resolver       _resolver;
         std::auto_ptr<cql_transport_t>       _transport;
         cql::cql_stream_id_t                 _stream_counter;
-        request_buffer_t                     _request_buffer;
         cql::cql_header_impl_t               _response_header;
         std::auto_ptr<cql::cql_message_t>    _response_message;
         callback_storage_t                   _callback_storage;

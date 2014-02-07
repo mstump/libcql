@@ -29,7 +29,7 @@
 #define CQL_HEADER_SIZE sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length)
 
 cql::cql_header_impl_t::cql_header_impl_t() :
-    _buffer(new std::vector<cql_byte_t>(CQL_HEADER_SIZE, 0)),
+    _buffer(CQL_HEADER_SIZE, 0),
     _version(0),
     _flags(0),
     _stream(0),
@@ -42,7 +42,7 @@ cql::cql_header_impl_t::cql_header_impl_t(cql::cql_byte_t version,
                                           cql::cql_stream_id_t stream,
                                           cql::cql_byte_t opcode,
                                           cql::cql_int_t length) :
-    _buffer(new std::vector<cql_byte_t>(CQL_HEADER_SIZE, 0)),
+    _buffer(CQL_HEADER_SIZE, 0),
     _version(version),
     _flags(flags),
     _stream(stream),
@@ -50,7 +50,7 @@ cql::cql_header_impl_t::cql_header_impl_t(cql::cql_byte_t version,
     _length(length)
 {}
 
-cql::cql_message_buffer_t
+cql::cql_message_buffer_t&
 cql::cql_header_impl_t::buffer()
 {
     return _buffer;
@@ -62,7 +62,7 @@ cql::cql_header_impl_t::str() const
     std::stringstream output;
     output << std::setfill('0') << "0x";
 
-    BOOST_FOREACH(cql::cql_byte_t b, *_buffer) {
+    BOOST_FOREACH(cql::cql_byte_t b, _buffer) {
         output << std::setw(2) << cql::hex(b);
     }
 
@@ -78,7 +78,7 @@ cql::cql_header_impl_t::str() const
 bool
 cql::cql_header_impl_t::prepare(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::ostream stream(&buffer);
 
     stream.put(_version);
@@ -92,7 +92,7 @@ cql::cql_header_impl_t::prepare(cql::cql_error_t*)
 bool
 cql::cql_header_impl_t::consume(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::istream stream(&buffer);
 
     _version = stream.get();

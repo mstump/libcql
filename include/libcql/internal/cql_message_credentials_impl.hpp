@@ -30,10 +30,6 @@ namespace cql {
 
     public:
 
-        cql_message_credentials_impl_t();
-
-        cql_message_credentials_impl_t(size_t size);
-
         void
         credentials(const std::map<std::string, std::string>& c);
 
@@ -42,9 +38,6 @@ namespace cql {
 
         cql::cql_opcode_enum
         opcode() const;
-
-        cql_int_t
-        size() const;
 
         std::string
         str() const;
@@ -55,13 +48,9 @@ namespace cql {
         bool
         prepare(cql::cql_error_t* err);
 
-        cql_message_buffer_t
-        buffer();
-
     private:
         typedef std::map<std::string, std::string> credentials_map_t;
 
-        cql::cql_message_buffer_t                  _buffer;
         credentials_map_t                          _credentials;
     };
 
