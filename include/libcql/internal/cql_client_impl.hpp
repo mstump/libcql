@@ -32,6 +32,7 @@
 #include <string>
 #include <vector>
 
+#include <boost/array.hpp>
 #include <boost/asio.hpp>
 #if BOOST_VERSION >= 104800
 #include <boost/asio/connect.hpp>
@@ -510,12 +511,14 @@ namespace cql {
 
             LOG(CQL_LOG_DEBUG, "sending message: " + header.str() + " " + message->str());
 
-            std::vector<boost::asio::const_buffer> buf;
-            buf.push_back(boost::asio::buffer(&header.buffer()[0], header.size()));
-            if (header.length() != 0) {
-                buf.push_back(boost::asio::buffer(&message->buffer()[0], message->size()));
+            if (header.length() == 0) {
+                boost::asio::async_write(*_transport, boost::asio::buffer(&header.buffer()[0], header.size()), callback);
+            } else {
+                boost::array<boost::asio::const_buffer,2> buf;
+                buf[0] = boost::asio::buffer(&header.buffer()[0], header.size());
+                buf[1] = boost::asio::buffer(&message->buffer()[0], message->size());
+                boost::asio::async_write(*_transport, buf, callback);
             }
-            boost::asio::async_write(*_transport, buf, callback);
 
             // we have to keep the buffers around until the write is complete
             return id;
@@ -609,34 +612,33 @@ namespace cql {
 #else
                                     boost::asio::transfer_all(),
 #endif
-                                    boost::bind(&cql_client_impl_t<cql_transport_t>::body_read_handle, this, header, boost::asio::placeholders::error));
+                                    boost::bind(&cql_client_impl_t<cql_transport_t>::body_read_handle, this, boost::asio::placeholders::error));
         }
 
 
         void
-        body_read_handle(const cql::cql_header_impl_t& header,
-                         const boost::system::error_code& err)
+        body_read_handle(const boost::system::error_code& err)
         {
-            LOG(CQL_LOG_DEBUG, "received body for message " + header.str());
+            LOG(CQL_LOG_DEBUG, "received body for message " + _response_header.str());
 
             if (!err) {
 
                 cql::cql_error_t consume_error;
                 if (_response_message->consume(&consume_error)) {
 
-                    switch (header.opcode()) {
+                    switch (_response_header.opcode()) {
 
                     case CQL_OPCODE_RESULT:
                     {
 
-                        LOG(CQL_LOG_DEBUG, "received result message " + header.str());
-                        cql_stream_id_t stream_id = header.stream();
+                        LOG(CQL_LOG_DEBUG, "received result message " + _response_header.str());
+                        cql_stream_id_t stream_id = _response_header.stream();
                         if (_callback_storage.has(stream_id)) {
                             callback_item_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.release(stream_id);
-                            callback_pair.message_callback(*this, header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
+                            callback_pair.message_callback(*this, _response_header.stream(), dynamic_cast<cql::cql_message_result_impl_t*>(_response_message.get()));
                         } else {
-                            LOG(CQL_LOG_INFO, "no callback found for message " + header.str());
+                            LOG(CQL_LOG_INFO, "no callback found for message " + _response_header.str());
                         }
 
                         break;
@@ -651,7 +653,7 @@ namespace cql {
 
                     case CQL_OPCODE_ERROR:
                     {
-                        cql_stream_id_t stream_id = header.stream();
+                        cql_stream_id_t stream_id = _response_header.stream();
                         if (_callback_storage.has(stream_id)) {
                             callback_item_t callback_pair = _callback_storage.get(stream_id);
                             _callback_storage.release(stream_id);
@@ -660,9 +662,9 @@ namespace cql {
                             cql_error.cassandra = true;
                             cql_error.code = m->code();
                             cql_error.message = m->message();
-                            callback_pair.error_callback(*this, header.stream(), cql_error);
+                            callback_pair.error_callback(*this, _response_header.stream(), cql_error);
                         } else {
-                            LOG(CQL_LOG_INFO, "no callback found for message " + header.str() + " " + _response_message->str());
+                            LOG(CQL_LOG_INFO, "no callback found for message " + _response_header.str() + " " + _response_message->str());
                         }
                         break;
                     }
@@ -690,7 +692,7 @@ namespace cql {
                         break;
 
                     default:
-                        LOG(CQL_LOG_ERROR, "unhandled opcode " + header.str());
+                        LOG(CQL_LOG_ERROR, "unhandled opcode " + _response_header.str());
                     }
                 }
                 else {
