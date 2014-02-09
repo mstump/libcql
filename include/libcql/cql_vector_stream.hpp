@@ -27,6 +27,13 @@ namespace cql {
 
         struct vector_stream_t : std::streambuf
         {
+            vector_stream_t(cql::cql_byte_t* begin, cql::cql_byte_t* end)
+            {
+                char* start = reinterpret_cast<char*>(begin);
+                this->setg(start, start, start + (end - begin));
+                this->setp(start, start + (end - begin));
+            }
+
             vector_stream_t(std::vector<cql::cql_byte_t>& vec)
             {
                 char* start = reinterpret_cast<char*>(&vec[0]);

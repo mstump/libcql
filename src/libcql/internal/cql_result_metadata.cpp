@@ -77,9 +77,13 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
         input = cql::decode_string(input, _global_table_name);
     }
 
+    if (_columns.size() < (size_t)_column_count) {
+        _columns.resize(_column_count);
+    }
     for (int i = 0; i < _column_count; ++i) {
-        std::string keyspace_name;
-        std::string table_name;
+        option_t& option = _columns[i];
+        std::string& keyspace_name = option.name.get<0>();
+        std::string& table_name = option.name.get<1>();
 
         if (!(_flags & CQL_RESULT_ROWS_FLAGS_GLOBAL_TABLES_SPEC)) {
             input = cql::decode_string(input, keyspace_name);
@@ -89,10 +93,9 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
             keyspace_name = _global_keyspace_name;
             table_name = _global_table_name;
         }
-        std::string column_name;
+        std::string& column_name = option.name.get<2>();
         input = cql::decode_string(input, column_name);
 
-        option_t option;
         input = cql::decode_option(input, option.primary_type, option.primary_class);
 
         if (option.primary_type == cql::CQL_COLUMN_TYPE_SET || option.primary_type == cql::CQL_COLUMN_TYPE_LIST) {
@@ -106,9 +109,9 @@ cql::cql_result_metadata_t::read(cql::cql_byte_t* input)
             input = cql::decode_option(input, option.collection_secondary_type, option.collection_secondary_class);
         }
 
-        column_name_t name(keyspace_name, table_name, column_name);
-        _column_name_idx.insert(column_name_idx_t::value_type(name, i));
-        _columns.push_back(option);
+#if 0
+        _column_name_idx.insert(column_name_idx_t::value_type(option.name, i));
+#endif
     }
     return input;
 }
@@ -171,6 +174,22 @@ void
 cql::cql_result_metadata_t::global_table(const std::string& table)
 {
     _global_table_name = table;
+}
+
+bool
+cql::cql_result_metadata_t::column_name(int i,
+                                        std::string& output_keyspace,
+                                        std::string& output_table,
+                                        std::string& output_column) const
+{
+    if (i > _column_count || i < 0) {
+        return false;
+    }
+
+    output_keyspace = _columns[i].name.get<0>();
+    output_table = _columns[i].name.get<1>();
+    output_column = _columns[i].name.get<2>();
+    return true;
 }
 
 bool

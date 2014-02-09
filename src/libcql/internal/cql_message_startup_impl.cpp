@@ -25,24 +25,6 @@
 
 #include "libcql/internal/cql_message_startup_impl.hpp"
 
-cql::cql_message_startup_impl_t::cql_message_startup_impl_t() :
-    _buffer(new std::vector<cql_byte_t>()),
-    _version(),
-    _compression()
-{}
-
-cql::cql_message_startup_impl_t::cql_message_startup_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size)),
-    _version(),
-    _compression()
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_startup_impl_t::buffer()
-{
-    return _buffer;
-}
-
 void
 cql::cql_message_startup_impl_t::compression(const std::string& c)
 {
@@ -73,12 +55,6 @@ cql::cql_message_startup_impl_t::opcode() const
     return CQL_OPCODE_STARTUP;
 }
 
-cql::cql_int_t
-cql::cql_message_startup_impl_t::size() const
-{
-    return _buffer->size();
-}
-
 std::string
 cql::cql_message_startup_impl_t::str() const
 {
@@ -90,7 +66,7 @@ cql::cql_message_startup_impl_t::str() const
 bool
 cql::cql_message_startup_impl_t::consume(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::istream stream(&buffer);
 
     std::map<std::string, std::string> startup;
@@ -123,8 +99,8 @@ cql::cql_message_startup_impl_t::prepare(cql::cql_error_t*)
         size += strlen(CQL_COMPRESSION) + _compression.size() + (2* sizeof(cql::cql_short_t));
     }
 
-    _buffer->resize(size);
-    cql::vector_stream_t buffer(*_buffer);
+    _buffer.resize(size);
+    cql::vector_stream_t buffer(_buffer);
     std::ostream stream(&buffer);
     cql::encode_string_map(stream, startup);
     return true;

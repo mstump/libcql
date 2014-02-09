@@ -27,16 +27,22 @@
 namespace cql {
     struct cql_error_t;
 
-    typedef boost::shared_ptr<std::vector<cql::cql_byte_t> > cql_message_buffer_t;
+    typedef std::vector<cql::cql_byte_t> cql_message_buffer_t;
 
     class cql_message_t {
     public:
+
+        cql_message_t() {}
+        cql_message_t(size_t size) : _buffer(size) {}
 
         virtual cql::cql_opcode_enum
         opcode() const = 0;
 
         virtual cql_int_t
-        size() const = 0;
+        size() const
+        {
+          return _buffer.size();
+        }
 
         virtual std::string
         str() const = 0;
@@ -47,11 +53,17 @@ namespace cql {
         virtual bool
         prepare(cql::cql_error_t* err) = 0;
 
-        virtual cql_message_buffer_t
-        buffer() = 0;
+        cql_message_buffer_t&
+        buffer()
+        {
+          return _buffer;
+        }
 
         virtual
         ~cql_message_t(){};
+    protected:
+        cql::cql_message_buffer_t _buffer;
+
     };
 
 } // namespace cql

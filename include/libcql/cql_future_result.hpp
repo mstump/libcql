@@ -56,7 +56,7 @@ namespace cql {
 
         cql::cql_client_t*                   client;
         cql::cql_stream_id_t                 stream;
-        boost::shared_ptr<cql::cql_result_t> result;
+        cql::cql_result_t*                   result;
         cql::cql_error_t                     error;
     };
 

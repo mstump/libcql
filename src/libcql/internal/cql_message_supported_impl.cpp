@@ -24,20 +24,6 @@
 
 #include "libcql/internal/cql_message_supported_impl.hpp"
 
-cql::cql_message_supported_impl_t::cql_message_supported_impl_t() :
-    _buffer(new std::vector<cql_byte_t>())
-{}
-
-cql::cql_message_supported_impl_t::cql_message_supported_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size))
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_supported_impl_t::buffer()
-{
-    return _buffer;
-}
-
 void
 cql::cql_message_supported_impl_t::compressions(const std::list<std::string>& c)
 {
@@ -68,12 +54,6 @@ cql::cql_message_supported_impl_t::opcode() const
     return CQL_OPCODE_SUPPORTED;
 }
 
-cql::cql_int_t
-cql::cql_message_supported_impl_t::size() const
-{
-    return _buffer->size();
-}
-
 std::string
 cql::cql_message_supported_impl_t::str() const
 {
@@ -86,7 +66,7 @@ cql::cql_message_supported_impl_t::str() const
 bool
 cql::cql_message_supported_impl_t::consume(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::istream stream(&buffer);
 
     std::map<std::string, std::list<std::string> > supported;
@@ -104,7 +84,7 @@ cql::cql_message_supported_impl_t::consume(cql::cql_error_t*)
 bool
 cql::cql_message_supported_impl_t::prepare(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::ostream stream(&buffer);
 
     std::map<std::string, std::list<std::string> > supported;

@@ -24,28 +24,12 @@
 
 
 cql::cql_message_event_impl_t::cql_message_event_impl_t() :
-    _buffer(new std::vector<cql_byte_t>(0)),
     _event_type(CQL_EVENT_TYPE_UNKOWN),
     _topology_change(CQL_EVENT_TOPOLOGY_UNKNOWN),
     _schema_change(CQL_EVENT_SCHEMA_UNKNOWN),
     _status_change(CQL_EVENT_STATUS_UNKNOWN),
     _port(0)
 {}
-
-cql::cql_message_event_impl_t::cql_message_event_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size)),
-    _event_type(CQL_EVENT_TYPE_UNKOWN),
-    _topology_change(CQL_EVENT_TOPOLOGY_UNKNOWN),
-    _schema_change(CQL_EVENT_SCHEMA_UNKNOWN),
-    _status_change(CQL_EVENT_STATUS_UNKNOWN),
-    _port(0)
-{}
-
-cql::cql_message_buffer_t
-cql::cql_message_event_impl_t::buffer()
-{
-    return _buffer;
-}
 
 cql::cql_opcode_enum
 cql::cql_message_event_impl_t::opcode() const
@@ -107,12 +91,6 @@ cql::cql_message_event_impl_t::port() const
     return _port;
 }
 
-cql::cql_int_t
-cql::cql_message_event_impl_t::size() const
-{
-    return _buffer->size();
-}
-
 bool
 cql::cql_message_event_impl_t::consume(cql::cql_error_t*)
 {
@@ -125,7 +103,7 @@ cql::cql_message_event_impl_t::consume(cql::cql_error_t*)
     _status_change = CQL_EVENT_STATUS_UNKNOWN;
     _schema_change = CQL_EVENT_SCHEMA_UNKNOWN;
 
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::istream stream(&buffer);
 
     std::string event_type;
@@ -193,7 +171,7 @@ cql::cql_message_event_impl_t::consume(cql::cql_error_t*)
 bool
 cql::cql_message_event_impl_t::prepare(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::ostream stream(&buffer);
 
 

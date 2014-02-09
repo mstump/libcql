@@ -30,27 +30,14 @@
 #include "libcql/internal/cql_message_execute_impl.hpp"
 
 cql::cql_message_execute_impl_t::cql_message_execute_impl_t() :
-    _buffer(new std::vector<cql_byte_t>()),
-    _consistency(cql::CQL_CONSISTENCY_ONE)
-{}
-
-cql::cql_message_execute_impl_t::cql_message_execute_impl_t(size_t size) :
-    _buffer(new std::vector<cql_byte_t>(size)),
     _consistency(cql::CQL_CONSISTENCY_ONE)
 {}
 
 cql::cql_message_execute_impl_t::cql_message_execute_impl_t(const std::vector<cql::cql_byte_t>& id,
                                                             cql::cql_consistency_enum consistency) :
-    _buffer(new std::vector<cql_byte_t>()),
     _query_id(id),
     _consistency(consistency)
 {}
-
-cql::cql_message_buffer_t
-cql::cql_message_execute_impl_t::buffer()
-{
-    return _buffer;
-}
 
 const std::vector<cql::cql_byte_t>&
 cql::cql_message_execute_impl_t::query_id() const
@@ -148,12 +135,6 @@ cql::cql_message_execute_impl_t::opcode() const
     return CQL_OPCODE_EXECUTE;
 }
 
-cql::cql_int_t
-cql::cql_message_execute_impl_t::size() const
-{
-    return _buffer->size();
-}
-
 std::string
 cql::cql_message_execute_impl_t::str() const
 {
@@ -174,7 +155,7 @@ cql::cql_message_execute_impl_t::str() const
 bool
 cql::cql_message_execute_impl_t::consume(cql::cql_error_t*)
 {
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::istream stream(&buffer);
 
     _params.clear();
@@ -237,9 +218,9 @@ cql::cql_message_execute_impl_t::prepare(cql::cql_error_t*)
     BOOST_FOREACH(const param_t& p, _params) {
         size += p.size() + sizeof(cql_int_t);
     }
-    _buffer->resize(size);
+    _buffer.resize(size);
 
-    cql::vector_stream_t buffer(*_buffer);
+    cql::vector_stream_t buffer(_buffer);
     std::ostream stream(&buffer);
 
     cql::encode_short_bytes(stream, _query_id);

@@ -30,15 +30,8 @@ namespace cql {
 
     public:
 
-        cql_message_register_impl_t();
-
-        cql_message_register_impl_t(size_t size);
-
         cql::cql_opcode_enum
         opcode() const;
-
-        cql_int_t
-        size() const;
 
         void
         events(const std::list<std::string>& c);
@@ -55,11 +48,7 @@ namespace cql {
         bool
         prepare(cql::cql_error_t* err);
 
-        cql_message_buffer_t
-        buffer();
-
     private:
-        cql::cql_message_buffer_t _buffer;
         std::list<std::string>    _events;
     };
 

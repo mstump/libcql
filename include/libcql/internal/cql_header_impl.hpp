@@ -19,8 +19,11 @@
 #ifndef CQL_HEADER_IMPL_H_
 #define CQL_HEADER_IMPL_H_
 
+#include <boost/array.hpp>
 #include "libcql/cql.hpp"
 #include "libcql/internal/cql_message.hpp"
+
+#define CQL_HEADER_SIZE sizeof(_version) + sizeof(_flags) + sizeof(_stream) + sizeof(_opcode) + sizeof(_length)
 
 namespace cql {
 
@@ -47,7 +50,7 @@ namespace cql {
         bool
         prepare(cql::cql_error_t* err);
 
-        cql_message_buffer_t
+        cql::cql_byte_t*
         buffer();
 
         cql_int_t
@@ -84,12 +87,12 @@ namespace cql {
         length(cql_int_t v);
 
     private:
-        cql_message_buffer_t _buffer;
         cql::cql_byte_t      _version;
         cql::cql_byte_t      _flags;
         cql::cql_stream_id_t _stream;
         cql::cql_byte_t      _opcode;
         cql::cql_int_t       _length;
+        boost::array<cql::cql_byte_t, CQL_HEADER_SIZE> _buffer;
     };
 
 } // namespace cql
